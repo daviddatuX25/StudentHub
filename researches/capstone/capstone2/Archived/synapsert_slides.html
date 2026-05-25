@@ -1,0 +1,1408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SynapseRT · Capstone Title Defense · 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,700&family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,500;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@300;400;500;600&family=Noto+Serif+SC:wght@300;400;500;600;700;900&family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1a2e1f;
+    --ink-rgb:26,46,31;
+    --paper:#f5f1e8;
+    --paper-rgb:245,241,232;
+    --paper-tint:#ece7da;
+    --ink-tint:#253d2c;
+    --mono:"IBM Plex Mono",ui-monospace,monospace;
+    --serif-en:"Playfair Display","Source Serif 4",Georgia,serif;
+    --serif-body-en:"Source Serif 4",Georgia,serif;
+    --serif-zh:"Noto Serif SC",source-han-serif-sc,serif;
+    --sans-zh:"Noto Sans SC",source-han-sans-sc,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{width:100%;height:100%;overflow:hidden;background:var(--ink);color:var(--paper);font-family:var(--sans-zh);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+  canvas.bg{position:fixed;inset:0;width:100vw;height:100vh;z-index:0;display:block;transition:opacity 1.2s ease}
+  canvas#bg-light{opacity:0}
+  canvas#bg-dark{opacity:1}
+  body.light-bg canvas#bg-light{opacity:1}
+  body.light-bg canvas#bg-dark{opacity:0}
+  #deck{position:fixed;inset:0;width:10000vw;height:100vh;display:flex;flex-wrap:nowrap;transition:transform .9s cubic-bezier(.77,0,.175,1);z-index:10;will-change:transform}
+  .slide{width:100vw;height:100vh;flex:0 0 100vw;position:relative;padding:6vh 6vw 10vh 6vw;display:flex;flex-direction:column;overflow:hidden}
+  .slide.light{color:var(--ink)}
+  .slide.dark{color:var(--paper)}
+  .slide::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;transition:background .7s ease}
+  .slide.light::before{background:rgba(var(--paper-rgb),.78);backdrop-filter:blur(3px)}
+  .slide.dark::before{background:rgba(var(--ink-rgb),.78);backdrop-filter:blur(3px)}
+  .slide.hero.light::before{background:rgba(var(--paper-rgb),.16);backdrop-filter:none}
+  .slide.hero.dark::before{background:rgba(var(--ink-rgb),.12);backdrop-filter:none}
+  .slide.hero::after{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none}
+  .slide.hero.light::after{background:linear-gradient(180deg,rgba(var(--paper-rgb),.28) 0%,rgba(var(--paper-rgb),0) 14%,rgba(var(--paper-rgb),0) 86%,rgba(var(--paper-rgb),.28) 100%)}
+  .slide.hero.dark::after{background:linear-gradient(180deg,rgba(var(--ink-rgb),.32) 0%,rgba(var(--ink-rgb),0) 14%,rgba(var(--ink-rgb),0) 86%,rgba(var(--ink-rgb),.32) 100%)}
+
+  /* Content reveal animations */
+  .slide .reveal{opacity:0;transform:translateY(3vh);transition:opacity .7s ease,transform .7s ease}
+  .slide.active .reveal{opacity:1;transform:translateY(0)}
+  .slide .reveal.d1{transition-delay:.1s}
+  .slide .reveal.d2{transition-delay:.25s}
+  .slide .reveal.d3{transition-delay:.4s}
+  .slide .reveal.d4{transition-delay:.55s}
+  .slide .reveal.d5{transition-delay:.7s}
+  .slide .reveal.d6{transition-delay:.85s}
+  .slide .reveal.d7{transition-delay:1s}
+  .slide .reveal.d8{transition-delay:1.15s}
+  .slide .reveal.d9{transition-delay:1.3s}
+  .slide .reveal.d10{transition-delay:1.45s}
+  /* Stagger children in grids */
+  .slide.active .grid-3 .reveal:nth-child(1){transition-delay:.15s}
+  .slide.active .grid-3 .reveal:nth-child(2){transition-delay:.3s}
+  .slide.active .grid-3 .reveal:nth-child(3){transition-delay:.45s}
+  .slide.active .grid-6 .reveal:nth-child(1){transition-delay:.15s}
+  .slide.active .grid-6 .reveal:nth-child(2){transition-delay:.22s}
+  .slide.active .grid-6 .reveal:nth-child(3){transition-delay:.29s}
+  .slide.active .grid-6 .reveal:nth-child(4){transition-delay:.36s}
+  .slide.active .grid-6 .reveal:nth-child(5){transition-delay:.43s}
+  .slide.active .grid-6 .reveal:nth-child(6){transition-delay:.5s}
+  .slide.active .pipeline .reveal:nth-child(1){transition-delay:.1s}
+  .slide.active .pipeline .reveal:nth-child(2){transition-delay:.2s}
+  .slide.active .pipeline .reveal:nth-child(3){transition-delay:.3s}
+  .slide.active .pipeline .reveal:nth-child(4){transition-delay:.4s}
+  @media(prefers-reduced-motion:reduce){
+    .slide .reveal{opacity:1;transform:none;transition:none}
+  }
+
+  .chrome{display:flex;justify-content:space-between;align-items:flex-start;font-family:var(--mono);font-size:12px;letter-spacing:.18em;text-transform:uppercase;opacity:.7}
+  .chrome .left,.chrome .right{display:flex;gap:2.4em;align-items:center}
+  .chrome .sep{width:40px;height:1px;background:currentColor;opacity:.4}
+  .foot{margin-top:auto;display:flex;justify-content:space-between;align-items:flex-end;font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;opacity:.55}
+  .foot .title{font-family:var(--serif-zh);font-weight:400;letter-spacing:.05em;text-transform:none;opacity:.75;font-size:13px}
+  .tag{display:inline-block;font-family:var(--mono);font-size:11px;letter-spacing:.24em;text-transform:uppercase;padding:6px 14px;border:1px solid currentColor;opacity:.85}
+  .rule{width:100%;height:1px;background:currentColor;opacity:.25;margin:3vh 0}
+  .rule.v{width:1px;height:100%;margin:0}
+  .kicker{font-family:var(--mono);font-size:12px;letter-spacing:.3em;text-transform:uppercase;opacity:.6;margin-bottom:2.6vh}
+  .display{font-family:var(--serif-en);font-weight:700;font-size:11vw;line-height:.92;letter-spacing:-.025em}
+  .display-zh{font-family:var(--serif-zh);font-weight:700;font-size:7.8vw;line-height:1.04;letter-spacing:-.005em}
+  .h-hero{font-family:var(--serif-zh);font-weight:900;font-size:10vw;line-height:.96;letter-spacing:-.02em}
+  .h-xl{font-family:var(--serif-zh);font-weight:700;font-size:6.2vw;line-height:1.08;letter-spacing:-.01em}
+  .h-sub{font-family:var(--serif-zh);font-weight:500;font-size:3.1vw;line-height:1.25;letter-spacing:0;opacity:.7}
+  .h-md{font-family:var(--serif-zh);font-weight:600;font-size:2.3vw;line-height:1.3}
+  .h1-zh{font-family:var(--serif-zh);font-weight:700;font-size:4.6vw;line-height:1.12;letter-spacing:-.005em}
+  .h2-zh{font-family:var(--serif-zh);font-weight:600;font-size:3.2vw;line-height:1.2;letter-spacing:0}
+  .h3-zh{font-family:var(--serif-zh);font-weight:500;font-size:1.9vw;line-height:1.35}
+  .body-zh{font-family:var(--sans-zh);font-weight:400;font-size:max(15px,1.22vw);line-height:1.75;opacity:.82;letter-spacing:.01em}
+  .body-serif{font-family:var(--serif-zh);font-weight:400;font-size:max(15px,1.3vw);line-height:1.65;opacity:.88}
+  .lead{font-family:var(--serif-zh);font-weight:400;font-size:1.9vw;line-height:1.5;opacity:.86}
+  .meta{font-family:var(--mono);font-size:max(11px,.88vw);letter-spacing:.16em;text-transform:uppercase;opacity:.6}
+  .meta-row{display:flex;gap:1.2em;align-items:baseline;flex-wrap:wrap;font-family:var(--mono);font-size:max(12px,.92vw);letter-spacing:.16em;text-transform:uppercase;opacity:.6}
+  .big-num{font-family:var(--serif-en);font-weight:800;font-size:10vw;line-height:.85;letter-spacing:-.03em;font-feature-settings:"tnum"}
+  .mid-num{font-family:var(--serif-en);font-weight:700;font-size:5.5vw;line-height:.88;letter-spacing:-.02em;font-feature-settings:"tnum"}
+  .ghost{font-family:var(--serif-en);font-weight:900;font-size:34vw;line-height:.8;opacity:.06;letter-spacing:-.04em;position:absolute;font-feature-settings:"tnum"}
+  em{font-style:italic;font-family:var(--serif-en)}
+  .en{font-family:var(--serif-en);font-style:italic;font-weight:500}
+  .col{display:flex;flex-direction:column;gap:2.4vh}
+  .row{display:flex;align-items:center;gap:3vw}
+  .grid-6{display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(2,1fr);gap:4vw 6vw;flex:1;align-content:center;padding:2vh 0}
+  .grid-9{display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);gap:3vh 4vw;flex:1;align-content:center}
+  .grid-4{display:grid;grid-template-columns:repeat(2,1fr);grid-template-rows:repeat(2,1fr);gap:4vh 6vw;flex:1;align-content:center}
+  .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:4vw;flex:1;align-content:center}
+  .split{display:grid;grid-template-columns:1fr 1fr;gap:4vw;flex:1;align-items:center}
+  .split-55{display:grid;grid-template-columns:55fr 45fr;gap:5vw;flex:1;align-items:stretch}
+  .fill{flex:1}
+  .center{align-items:center;justify-content:center;text-align:center}
+  .bottom-left{position:absolute;left:6vw;bottom:9vh;max-width:50vw}
+  .bottom-right{position:absolute;right:6vw;bottom:9vh;max-width:50vw;text-align:right}
+  .top-right{position:absolute;right:6vw;top:6vh;text-align:right}
+  .stat{display:flex;flex-direction:column;gap:1vh;align-items:flex-start}
+  .stat .n{font-family:var(--serif-en);font-weight:800;font-size:8vw;line-height:.88;letter-spacing:-.03em;font-feature-settings:"tnum"}
+  .stat .l{font-family:var(--sans-zh);font-size:max(13px,1.05vw);opacity:.7;margin-top:1vh;font-weight:400;line-height:1.5}
+  .stat .m{font-family:var(--mono);font-size:10px;letter-spacing:.22em;text-transform:uppercase;opacity:.5;margin-bottom:.2vh}
+  .stat-card{display:flex;flex-direction:column;gap:.8vh;align-items:flex-start;padding-top:1.6vh;border-top:1px solid currentColor;border-color:rgba(127,127,127,.3)}
+  .stat-card .stat-label{font-family:var(--mono);font-size:max(10px,.78vw);letter-spacing:.24em;text-transform:uppercase;opacity:.55}
+  .stat-card .stat-nb{font-family:var(--serif-en);font-weight:800;font-size:5.8vw;line-height:.9;letter-spacing:-.03em;font-feature-settings:"tnum";margin-top:.4vh}
+  .stat-card .stat-nb .stat-unit{font-family:var(--serif-zh);font-weight:500;font-size:.38em;letter-spacing:0;opacity:.72;margin-left:.14em}
+  .stat-card .stat-note{font-family:var(--sans-zh);font-weight:400;font-size:max(13px,1.05vw);line-height:1.5;opacity:.72;margin-top:.6vh}
+  .grid-4 .stat-card .stat-nb{font-size:7.5vw}
+  .grid-3 .stat-card .stat-nb{font-size:6.8vw}
+  .pipeline-section{margin-top:4.4vh;padding-top:2.8vh;border-top:1px dashed rgba(127,127,127,.32)}
+  .pipeline-section:first-of-type{border-top:0;padding-top:0;margin-top:3vh}
+  .pipeline-label{font-family:var(--mono);font-size:max(11px,.85vw);letter-spacing:.24em;text-transform:uppercase;opacity:.62;margin-bottom:2.2vh}
+  .pipeline{display:grid;grid-template-columns:repeat(5,1fr);gap:1.2vw}
+  .pipeline[data-cols="2"]{grid-template-columns:repeat(2,1fr)}
+  .pipeline[data-cols="3"]{grid-template-columns:repeat(3,1fr)}
+  .pipeline[data-cols="4"]{grid-template-columns:repeat(4,1fr)}
+  .pipeline[data-cols="6"]{grid-template-columns:repeat(6,1fr)}
+  .step{display:flex;flex-direction:column;gap:.8vh;padding-top:1.4vh;border-top:1px solid currentColor;border-color:rgba(127,127,127,.35)}
+  .step-nb{font-family:var(--serif-en);font-style:italic;font-weight:500;font-size:1.15vw;opacity:.45}
+  .step-title{font-family:var(--sans-zh);font-weight:700;font-size:1.55vw;letter-spacing:.01em;line-height:1.2}
+  .step-desc{font-family:var(--sans-zh);font-weight:400;font-size:max(12px,.95vw);line-height:1.45;opacity:.72}
+  .callout{padding:3vh 2.4vw;border-left:3px solid currentColor;position:relative;font-family:var(--serif-zh);font-size:max(15px,1.2vw);line-height:1.55;opacity:.92}
+  .slide.light .callout{background:rgba(var(--ink-rgb),.05)}
+  .slide.dark .callout{background:rgba(var(--paper-rgb),.06)}
+  .callout .cite{display:block;margin-top:1.6vh;font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;opacity:.6}
+  .callout .q-big{font-family:var(--serif-zh);font-weight:600;font-size:max(17px,1.6vw);line-height:1.42}
+  .callout-src{display:block;margin-top:1.6vh;font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;opacity:.6}
+  .plat{display:flex;flex-direction:column;justify-content:flex-end;padding:2vh 0;border-top:1px solid currentColor;border-color:rgba(127,127,127,.35)}
+  .plat .name{font-family:var(--serif-zh);font-weight:700;font-size:1.8vw;margin-bottom:.6vh}
+  .plat .nb{font-family:var(--serif-en);font-weight:700;font-size:3.2vw;letter-spacing:-.02em;line-height:1;font-feature-settings:"tnum"}
+  .plat .sub{font-family:var(--mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;opacity:.55;margin-top:.6vh}
+  .plat .fill{font-family:var(--sans-zh);font-weight:300;font-size:2.4vw;opacity:.28;letter-spacing:-.01em;line-height:1}
+  .rowline{display:grid;grid-template-columns:1fr 2fr 1fr;gap:2vw;padding:2.2vh 0;border-top:1px solid currentColor;align-items:center;border-color:rgba(127,127,127,.25)}
+  .rowline:last-child{border-bottom:1px solid currentColor;border-color:rgba(127,127,127,.25)}
+  .rowline .k{font-family:var(--serif-zh);font-weight:700;font-size:1.7vw}
+  .rowline .v{font-family:var(--sans-zh);font-weight:400;font-size:max(14px,1.2vw);opacity:.85;line-height:1.55}
+  .rowline .m{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;opacity:.6;justify-self:end}
+  .pillar{display:flex;flex-direction:column;gap:1.8vh}
+  .pillar .ic{font-family:var(--serif-en);font-style:italic;font-size:2.6vw;opacity:.45;font-weight:400}
+  .pillar .ic svg{width:2.8vw;height:2.8vw;stroke-width:1.2;opacity:.7}
+  .pillar .t{font-family:var(--serif-zh);font-weight:700;font-size:2.4vw;line-height:1.1}
+  .pillar .d{font-family:var(--sans-zh);font-weight:400;font-size:max(14px,1.1vw);opacity:.76;line-height:1.6}
+  .sign{font-family:var(--serif-en);font-style:italic;font-weight:500;font-size:2vw;opacity:.7}
+  .hi{position:relative;display:inline}
+  .slide.dark .hi::after{content:"";position:absolute;left:-.1em;right:-.1em;bottom:-.05em;height:.28em;background:rgba(var(--paper-rgb),.15);z-index:-1}
+  .slide.light .hi::after{content:"";position:absolute;left:-.1em;right:-.1em;bottom:-.05em;height:.28em;background:rgba(var(--ink-rgb),.08);z-index:-1}
+  .ico{width:1em;height:1em;display:inline-block;vertical-align:-.12em;stroke:currentColor;fill:none;stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+  .ico-lg,.ico-md,.ico-sm{fill:none;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round}
+  .ico-lg{width:2.6vw;height:2.6vw;stroke-width:1.2;display:inline-block}
+  .ico-md{width:1.8vw;height:1.8vw;stroke-width:1.3;display:inline-block;vertical-align:-.4em}
+  .ico-sm{width:1.1vw;height:1.1vw;stroke-width:1.4;display:inline-block;vertical-align:-.15em;opacity:.7}
+  .img-slot{border:1.5px dashed rgba(127,127,127,.4);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:1vh;padding:2vh 2vw;font-family:var(--mono);font-size:10px;letter-spacing:.28em;text-transform:uppercase;opacity:.55;position:relative;aspect-ratio:16/9;width:100%;max-height:56vh;margin-inline:auto;box-sizing:border-box}
+  .img-slot::before{content:"";position:absolute;inset:8px;border:1px solid currentColor;opacity:.2}
+  .img-slot .plus{font-size:2vw;font-weight:300;opacity:.5;letter-spacing:0}
+  .img-slot .label{position:relative;z-index:2;text-align:center}
+  .img-slot.r-4x3{aspect-ratio:4/3}
+  .img-slot.r-3x2{aspect-ratio:3/2}
+  .img-slot.r-1x1{aspect-ratio:1/1}
+  .frame-img{overflow:hidden;position:relative;background:rgba(0,0,0,.04);box-sizing:border-box;width:100%;border-radius:4px}
+  .slide.dark .frame-img{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.12)}
+  .frame-img > img{width:100%;height:100%;object-fit:cover;object-position:top center;display:block}
+  .frame-cap{display:flex;justify-content:space-between;align-items:baseline;gap:1vw;margin-top:.8vh;font-family:var(--mono);font-size:10px;letter-spacing:.22em;text-transform:uppercase;opacity:.72}
+  .frame-cap .pf{font-family:var(--serif-zh);font-weight:600;font-size:max(13px,1vw);letter-spacing:.04em;text-transform:none;opacity:.94}
+  .frame-cap .nb{font-family:var(--serif-en);font-style:italic;font-size:max(15px,1.2vw);letter-spacing:.02em;text-transform:none;opacity:.88}
+  .frame-cap .idx{font-family:var(--mono);opacity:.5}
+  .img-cap{display:block;margin-top:.8vh;font-family:var(--mono);font-size:max(10px,.8vw);letter-spacing:.22em;text-transform:uppercase;opacity:.6}
+  figure.tile{display:flex;flex-direction:column;margin:0;min-width:0}
+  figure.tile > .frame-img{flex:0 0 auto}
+  figure.frame-img{margin:0;display:flex;flex-direction:column;min-width:0}
+  .grid-2-7-5{display:grid;grid-template-columns:7fr 5fr;gap:3vw 4vh;align-items:start}
+  .grid-2-6-6{display:grid;grid-template-columns:1fr 1fr;gap:3vw 4vh;align-items:start}
+  .grid-2-8-4{display:grid;grid-template-columns:8fr 4fr;gap:3vw 4vh;align-items:start}
+  .grid-3-3{display:grid;grid-template-columns:repeat(3,1fr);grid-auto-rows:minmax(0,1fr);gap:2.4vh 2vw}
+  #nav{position:fixed;left:50%;bottom:2.6vh;transform:translateX(-50%);z-index:30;display:flex;gap:10px;padding:8px 14px;border-radius:999px;background:rgba(0,0,0,0.18);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+  #nav .dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,0.3);cursor:pointer;transition:all .3s ease;border:0;padding:0}
+  #nav .dot:hover{background:rgba(255,255,255,0.5);transform:scale(1.15)}
+  #nav .dot.active{background:rgba(255,255,255,0.95);width:22px;border-radius:999px}
+  body.light-bg #nav{background:rgba(255,255,255,0.25)}
+  body.light-bg #nav .dot{background:rgba(var(--ink-rgb),0.25)}
+  body.light-bg #nav .dot.active{background:rgba(var(--ink-rgb),0.9)}
+  #hint{position:fixed;bottom:3vh;right:3vw;z-index:30;font-family:var(--mono);font-size:10px;letter-spacing:0.2em;text-transform:uppercase;opacity:0.4;mix-blend-mode:difference;color:#aaa}
+  
+  /* Simulation styling for Slide 4 */
+  .sim-tab {
+    background: transparent;
+    border: 1px solid rgba(var(--ink-rgb), 0.3);
+    color: var(--ink);
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 500;
+    padding: 4px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    transition: all 0.2s ease;
+  }
+  .sim-tab:hover {
+    background: rgba(var(--ink-rgb), 0.08);
+  }
+  .sim-tab.active {
+    background: var(--ink);
+    color: var(--paper);
+    border-color: var(--ink);
+  }
+  .slide.dark .sim-tab {
+    border-color: rgba(var(--paper-rgb), 0.3);
+    color: var(--paper);
+  }
+  .slide.dark .sim-tab:hover {
+    background: rgba(var(--paper-rgb), 0.08);
+  }
+  .slide.dark .sim-tab.active {
+    background: var(--paper);
+    color: var(--ink);
+    border-color: var(--paper);
+  }
+  
+  .sim-panel-container {
+    box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+  }
+  .slide.dark .sim-panel-container {
+    border-color: rgba(var(--paper-rgb), 0.15) !important;
+    background: rgba(var(--paper-rgb), 0.03) !important;
+  }
+  
+  .asr-bubble {
+    border-radius: 6px;
+    padding: 8px 12px;
+    margin-bottom: 8px;
+    border: 1px solid rgba(26,46,31,0.08);
+    transition: transform 0.3s ease, opacity 0.3s ease;
+    font-size: 11px;
+    line-height: 1.45;
+  }
+  .asr-bubble.speaker-1 {
+    background: rgba(67, 97, 238, 0.08);
+    border-left: 3px solid #4361ee;
+  }
+  .asr-bubble.speaker-2 {
+    background: rgba(114, 9, 183, 0.08);
+    border-left: 3px solid #7209b7;
+  }
+  .asr-bubble.speaker-3 {
+    background: rgba(247, 37, 225, 0.08);
+    border-left: 3px solid #f72585;
+  }
+  
+  .slide.dark .asr-bubble {
+    border-color: rgba(245,241,232,0.08);
+  }
+  .slide.dark .asr-bubble.speaker-1 {
+    background: rgba(76, 201, 240, 0.1);
+    border-left-color: #4cc9f0;
+  }
+  .slide.dark .asr-bubble.speaker-2 {
+    background: rgba(181, 23, 158, 0.1);
+    border-left-color: #b5179e;
+  }
+  .slide.dark .asr-bubble.speaker-3 {
+    background: rgba(72, 202, 228, 0.1);
+    border-left-color: #48cae4;
+  }
+
+  @media (max-width:900px){
+    .display{font-size:16vw}
+    .display-zh{font-size:12vw}
+    .h1-zh{font-size:7vw}
+    .h-hero{font-size:14vw}
+    .h-xl{font-size:9vw}
+    .pipeline{grid-template-columns:repeat(2,1fr)}
+    .grid-2-7-5,.grid-2-6-6,.grid-2-8-4{grid-template-columns:1fr}
+  }
+</style>
+</head>
+<body>
+
+<canvas id="bg-dark" class="bg"></canvas>
+<canvas id="bg-light" class="bg"></canvas>
+<div id="hint">&larr; &rarr; to navigate &middot; ESC for index</div>
+
+<div id="deck">
+
+<!-- SLIDE 1 · Cover · hero dark -->
+<section class="slide hero dark" data-screen-label="01 Cover">
+  <div class="chrome reveal d1">
+    <div>Field Notes &middot; Capstone Defense &middot; 2026</div>
+    <div>Vol. II</div>
+  </div>
+  <div class="frame" style="display:grid; gap:4vh; align-content:center; min-height:80vh">
+    <div class="kicker reveal d2">&sect; 1 &middot; Proposal</div>
+    <h1 class="h-hero reveal d3" style="white-space:nowrap; font-size:9vw">SynapseRT</h1>
+    <h2 class="h-sub reveal d3">Real-Time Edge-Deployed Multilingual Voice Diarization &amp; Cognitive Mapping</h2>
+    <p class="lead reveal d4" style="max-width:60vw; margin-top:2vh">
+      Capture the complex, multilingual dialogue of collaborative environments<br>and synthesize it into real-time, interactive semantic maps.
+    </p>
+    <div class="meta-row reveal d5" style="margin-top:1vh">
+      <span>BSIT-CAP2-2026-SRT</span><span>&middot;</span><span>Capstone Project Defense</span>
+    </div>
+  </div>
+  <div class="foot reveal d6">
+    <div>SynapseRT &middot; Title Defense &middot; 2026</div>
+    <div>&mdash; &middot; &mdash;</div>
+  </div>
+</section>
+
+<!-- SLIDE 2 · The Scene — Big Numbers · light -->
+<section class="slide light" data-screen-label="02 The Scene">
+  <div class="chrome reveal d1">
+    <div>Section 2.1 &middot; Context</div>
+    <div>&sect; 2 &middot; 02 / 10</div>
+  </div>
+  <div class="frame" style="padding-top:6vh">
+    <div class="kicker reveal d1">Ref. 01 &middot; The Scene</div>
+    <h2 class="h-xl reveal d2">Overlapping voices.<br>Three languages. Zero signal.</h2>
+    <p class="lead reveal d3" style="margin-bottom:5vh">In a typical faculty meeting, participants code-switch between English, Tagalog, and Ilocano. By the time minutes are typed days later, context has evaporated.</p>
+
+    <div class="grid-3" style="margin-top:4vh">
+      <div class="stat-card reveal">
+        <div class="stat-label">Speakers</div>
+        <div class="stat-nb">6 <span class="stat-unit">max</span></div>
+        <div class="stat-note">Overlapping in a single room</div>
+      </div>
+      <div class="stat-card reveal">
+        <div class="stat-label">Languages</div>
+        <div class="stat-nb">3</div>
+        <div class="stat-note">English &middot; Tagalog &middot; Ilocano</div>
+      </div>
+      <div class="stat-card reveal">
+        <div class="stat-label">Internet Required</div>
+        <div class="stat-nb">0<span class="stat-unit">%</span></div>
+        <div class="stat-note">Fully edge-deployed, zero cloud</div>
+      </div>
+    </div>
+  </div>
+  <div class="foot reveal d5">
+    <div>SynapseRT &middot; Context</div>
+    <div>&sect; 2.1</div>
+  </div>
+</section>
+
+<!-- SLIDE 3 · The Problem — 3 Pillars · dark -->
+<section class="slide dark" data-screen-label="03 The Problem">
+  <div class="chrome reveal d1">
+    <div>Section 2.2 &middot; Bottlenecks</div>
+    <div>&sect; 3 &middot; 03 / 10</div>
+  </div>
+  <div class="frame" style="padding-top:6vh">
+    <div class="kicker reveal d1">Method 01 &middot; Problem Decomposition</div>
+    <h2 class="h-xl reveal d2" style="margin-bottom:3vh">Three Bottlenecks</h2>
+
+    <div class="grid-3" style="margin-top:3vh; gap:3vw">
+      <div class="pillar reveal" style="padding:3vh 2vw; border:1px solid currentColor; border-color:rgba(255,255,255,.2)">
+        <div class="ic">
+          <svg class="ico-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
+            <path d="M12 2v20M17 5v14M22 9v6M7 7v10M2 10v4"/>
+          </svg>
+        </div>
+        <div class="t">Acoustic<br>Overlap</div>
+        <div class="d">Standard mics cannot isolate overlapping voices in reverberant rooms.</div>
+      </div>
+      <div class="pillar reveal" style="padding:3vh 2vw; border:1px solid currentColor; border-color:rgba(255,255,255,.2)">
+        <div class="ic">
+          <svg class="ico-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
+            <path d="m5 8 6 6 6-6M4 14h16"/>
+          </svg>
+        </div>
+        <div class="t">Code-Switch<br>WER</div>
+        <div class="d">Commercial STT engines fail on bilingual Taglish and regional Ilocano expressions.</div>
+      </div>
+      <div class="pillar reveal" style="padding:3vh 2vw; border:1px solid currentColor; border-color:rgba(255,255,255,.2)">
+        <div class="ic">
+          <svg class="ico-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
+            <circle cx="12" cy="12" r="10"/>
+            <polyline points="12 6 12 12 16 14"/>
+          </svg>
+        </div>
+        <div class="t">Post-Facto<br>Latency</div>
+        <div class="d">Existing tools process data after the meeting. Context is gone when it matters most.</div>
+      </div>
+    </div>
+  </div>
+  <div class="foot reveal d5">
+    <div>SynapseRT &middot; Bottlenecks</div>
+    <div>&sect; 3 &middot; Problem</div>
+  </div>
+</section>
+
+<!-- SLIDE 4 · Architecture Pipeline · light -->
+<section class="slide light" data-screen-label="04 Architecture">
+  <div class="chrome reveal d1">
+    <div>Section 3.2 &middot; Method</div>
+    <div>&sect; 4 &middot; 04 / 10</div>
+  </div>
+  <div class="frame" style="padding-top:2vh; display:flex; flex-direction:column; height:80vh">
+    <div class="kicker reveal d1">Ref. 04 &middot; Architecture</div>
+    <h2 class="h-xl reveal d2" style="margin-bottom:1vh">Three-Tier Pipeline</h2>
+
+    <div class="split" style="grid-template-columns: 1.15fr 0.85fr; gap: 3vw; flex: 1; align-items: stretch;">
+      <!-- Left Column: The 3-tier Pipeline details -->
+      <div class="col" style="justify-content: center; gap: 1.5vh;">
+        <div class="pipeline-section" style="margin-top:0; padding-top:0; border-top:0">
+          <div class="pipeline-label reveal">1. Ingest Layer (IoT &amp; Mobile)</div>
+          <div class="pipeline" data-cols="2" style="gap: 1vw;">
+            <div class="step reveal">
+              <div class="step-nb">01</div>
+              <div class="step-title" style="font-size: 1.15vw;">8-Mic Array</div>
+              <div class="step-desc" style="font-size: 0.8vw;">ESP32-S3 hardware &amp; SRP-PHAT beamforming</div>
+            </div>
+            <div class="step reveal">
+              <div class="step-nb">02</div>
+              <div class="step-title" style="font-size: 1.15vw;">Mobile Profiles</div>
+              <div class="step-desc" style="font-size: 0.8vw;">Flutter speaker voice enrollment &amp; active alerts</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pipeline-section" style="margin-top:1vh; padding-top:1.5vh;">
+          <div class="pipeline-label reveal">2. Processing Layer (Machine Learning)</div>
+          <div class="pipeline" data-cols="2" style="gap: 1vw;">
+            <div class="step reveal">
+              <div class="step-nb">03</div>
+              <div class="step-title" style="font-size: 1.15vw;">PyAnnote &amp; Whisper</div>
+              <div class="step-desc" style="font-size: 0.8vw;">Online Diarization &amp; quantized local Taglish ASR</div>
+            </div>
+            <div class="step reveal">
+              <div class="step-nb">04</div>
+              <div class="step-title" style="font-size: 1.15vw;">Local LLM</div>
+              <div class="step-desc" style="font-size: 0.8vw;">Qwen-2.5-7B offline semantic node extraction</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pipeline-section" style="margin-top:1vh; padding-top:1.5vh;">
+          <div class="pipeline-label reveal">3. Visualization Layer (Web &amp; Mapping)</div>
+          <div class="pipeline" data-cols="1">
+            <div class="step reveal">
+              <div class="step-nb">05</div>
+              <div class="step-title" style="font-size: 1.15vw;">SvelteKit &amp; D3 Graph</div>
+              <div class="step-desc" style="font-size: 0.8vw;">Real-time interactive force-directed cognitive node mapping &amp; registers</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Live Pipeline Simulation Dashboard -->
+      <div class="sim-panel-container reveal" style="border: 1px solid rgba(26,46,31,0.15); background: rgba(26,46,31,0.03); border-radius: 6px; padding: 2vh 1.5vw; display: flex; flex-direction: column; gap: 1.5vh; height: 100%; min-height: 50vh;">
+         <!-- Simulation Header/Tabs -->
+         <div style="display:flex; justify-content:space-between; align-items:center; border-bottom: 1px solid rgba(26,46,31,0.15); padding-bottom: 1vh;">
+           <span style="font-family:var(--mono); font-size:10px; letter-spacing:0.1em; font-weight:600; text-transform:uppercase; color:var(--ink-tint)">Pipeline Visualizer</span>
+           <div style="display:flex; gap:6px;">
+             <button id="btn-sim-iot" class="sim-tab active" onclick="setSimTab('iot')">IoT Array</button>
+             <button id="btn-sim-asr" class="sim-tab" onclick="setSimTab('asr')">ASR Stream</button>
+             <button id="btn-sim-map" class="sim-tab" onclick="setSimTab('map')">Thought Map</button>
+           </div>
+         </div>
+         
+         <!-- Tab 1 Contents: IoT -->
+         <div id="sim-content-iot" class="sim-tab-content" style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; position:relative;">
+           <canvas id="canvas-sim-iot" style="width:100%; height:200px; display:block;"></canvas>
+           <div id="sim-iot-metrics" style="width:100%; display:flex; justify-content:space-around; font-family:var(--mono); font-size:10px; margin-top:1vh; border-top:1px dashed rgba(26,46,31,0.1); padding-top:1vh;">
+             <div>DOA: <span id="val-doa" style="font-weight:700; color:#253d2c">45°</span></div>
+             <div>Speaker: <span id="val-speaker" style="font-weight:700; color:#253d2c">Speaker 1</span></div>
+             <div>DSP: <span style="font-weight:700; color:#253d2c">SRP-PHAT</span></div>
+           </div>
+         </div>
+
+         <!-- Tab 2 Contents: ASR Speech bubble -->
+         <div id="sim-content-asr" class="sim-tab-content" style="flex:1; display:none; flex-direction:column; gap:1vh;">
+           <div style="font-family:var(--mono); font-size:10px; opacity:0.6;">Local Network STT Stream (PyAnnote + Whisper-Medium):</div>
+           <div id="asr-stream-box" style="flex:1; background:rgba(26,46,31,0.05); border:1px solid rgba(26,46,31,0.1); border-radius:4px; padding:1.5vh; font-family:var(--sans-zh); font-size:12px; line-height:1.6; overflow-y:auto; display:flex; flex-direction:column; gap:1vh;">
+             <!-- scrolling elements filled by JS -->
+           </div>
+           <div style="font-family:var(--mono); font-size:10px; display:flex; justify-content:space-between; opacity:0.6;">
+             <span>Bilingual Code-Switch Prefix Active</span>
+             <span>WER: ~8.4%</span>
+           </div>
+         </div>
+
+         <!-- Tab 3 Contents: Thought Graph Map -->
+         <div id="sim-content-map" class="sim-tab-content" style="flex:1; display:none; flex-direction:column; align-items:center; justify-content:center; position:relative;">
+           <canvas id="canvas-sim-map" style="width:100%; height:200px; display:block;"></canvas>
+           <div id="sim-map-status" style="width:100%; text-align:center; font-family:var(--mono); font-size:10px; margin-top:1vh; color:#253d2c; font-weight:500;">
+             Real-time Force-Directed Node Graph
+           </div>
+         </div>
+      </div>
+    </div>
+  </div>
+  <div class="foot reveal d8">
+    <div>SynapseRT &middot; Architecture</div>
+    <div>&sect; 4 &middot; Method</div>
+  </div>
+</section>
+
+<!-- SLIDE 5 · Scope & Novelty · hero light -->
+<section class="slide hero light" data-screen-label="05 Novelty">
+  <div class="chrome reveal d1">
+    <div>Section 4 &middot; Novelty</div>
+    <div>&sect; 5 &middot; 05 / 10</div>
+  </div>
+  <div class="frame" style="display:grid; gap:6vh; align-content:center; min-height:80vh">
+    <div class="kicker reveal d2">Novelty &middot; Edge-First</div>
+    <h1 class="h-hero reveal d3" style="font-size:8.5vw; white-space:nowrap">Zero Cloud.</h1>
+    <h2 class="h-sub reveal d3" style="font-size:2.8vw">Full Privacy.</h2>
+    <p class="lead reveal d4" style="max-width:55vw; margin-top:2vh">
+      SynapseRT operates 100% offline within the school intranet.<br>
+      Zero external bandwidth. Zero data leaving the room.<br>
+      Strict data privacy for administrative discussions.
+    </p>
+    <div class="meta-row reveal d5" style="margin-top:1vh">
+      <span>Web &middot; Mobile &middot; ML &middot; IoT &middot; Mapping</span><span>&middot;</span><span>All BSIT components covered</span>
+    </div>
+  </div>
+  <div class="foot reveal d6">
+    <div>SynapseRT &middot; Edge Novelty</div>
+    <div>&sect; 5</div>
+  </div>
+</section>
+
+<!-- SLIDE 6 · Novelty Contrast Table · light -->
+<section class="slide light" data-screen-label="06 Comparison">
+  <div class="chrome reveal d1">
+    <div>Section 4.2 &middot; Comparison</div>
+    <div>&sect; 6 &middot; 06 / 10</div>
+  </div>
+  <div class="frame" style="padding-top:5vh">
+    <div class="kicker reveal d1">Before / After &middot; Edge Contrast</div>
+    <h2 class="h-xl reveal d2" style="margin-bottom:4vh">Cloud-dependent vs. Edge-native</h2>
+
+    <div class="grid-2-6-6 reveal d3" style="gap:5vw 4vh">
+      <!-- Left: cloud -->
+      <div style="padding:3vh 2vw; border-left:3px solid currentColor; opacity:.55">
+        <div class="kicker" style="opacity:.9">Cloud Tools &middot; Zoom AI &middot; Otter.ai</div>
+        <h3 class="h-md" style="margin-top:2vh">Cloud-Only &middot; Post-Facto</h3>
+        <ul style="margin-top:3vh; padding-left:1.2em; display:flex; flex-direction:column; gap:1.4vh; font-family:var(--sans-zh); font-size:max(14px,1.1vw); line-height:1.55; opacity:.8">
+          <li>Requires constant WAN connection</li>
+          <li>Fails on mixed-utterance Taglish</li>
+          <li>Plain text log after meeting ends</li>
+          <li>Standard PC mic &mdash; no spatial filtering</li>
+        </ul>
+      </div>
+      <!-- Right: ours -->
+      <div style="padding:3vh 2vw; border-left:3px solid currentColor">
+        <div class="kicker" style="opacity:.9">SynapseRT &middot; Ours</div>
+        <h3 class="h-md" style="margin-top:2vh">Edge-Native &middot; Real-Time</h3>
+        <ul style="margin-top:3vh; padding-left:1.2em; display:flex; flex-direction:column; gap:1.4vh; font-family:var(--sans-zh); font-size:max(14px,1.1vw); line-height:1.55; opacity:.88">
+          <li>100% offline, campus intranet only</li>
+          <li>Fine-tuned bilingual ASR pipeline</li>
+          <li><span class="hi">Live</span> Force-Directed semantic map</li>
+          <li>Circular MEMS array with hardware beamforming</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="foot reveal d6">
+    <div>SynapseRT &middot; Novelty Contrast</div>
+    <div>&sect; 6 &middot; Comparison</div>
+  </div>
+</section>
+
+<!-- SLIDE 7 · Scope & Boundaries · hero dark -->
+<section class="slide hero dark" data-screen-label="07 Scope">
+  <div class="chrome reveal d1">
+    <div>Section 5 &middot; Scope</div>
+    <div>&sect; 7 &middot; 07 / 10</div>
+  </div>
+  <div class="frame" style="display:grid; gap:5vh; align-content:center; min-height:80vh">
+    <div class="kicker reveal d2">Boundaries &middot; What We Commit</div>
+    <h1 class="h-hero reveal d3" style="font-size:6.5vw; line-height:1.15">
+      Up to 6 speakers.<br>3 languages. Full offline.
+    </h1>
+    <p class="lead reveal d4" style="max-width:55vw; opacity:.65">
+      We explicitly exclude cloud syncing, voice cloning, and legal-grade certification.<br>
+      The system facilitates understanding &mdash; it does not replace human accountability.
+    </p>
+  </div>
+  <div class="foot reveal d6">
+    <div>SynapseRT &middot; Scope &amp; Boundaries</div>
+    <div>&sect; 7</div>
+  </div>
+</section>
+
+<!-- SLIDE 8 · Technical Roadmap · light -->
+<section class="slide light" data-screen-label="08 Roadmap">
+  <div class="chrome reveal d1">
+    <div>Section 6 &middot; Roadmap</div>
+    <div>&sect; 8 &middot; 08 / 10</div>
+  </div>
+  <div class="frame" style="padding-top:5vh">
+    <div class="kicker reveal d1">Milestones &middot; Three Phases</div>
+    <h2 class="h-xl reveal d2" style="margin-bottom:2vh">9-Month Roadmap</h2>
+
+    <div class="pipeline-section">
+      <div class="pipeline-label reveal">Phase 1 &middot; M1&ndash;M3 &middot; Infrastructure</div>
+      <div class="pipeline" data-cols="3">
+        <div class="step reveal">
+          <div class="step-nb">01</div>
+          <div class="step-title">ESP32-S3 Arrays</div>
+          <div class="step-desc">Circular MEMS hardware assembly &amp; I2S wiring</div>
+        </div>
+        <div class="step reveal">
+          <div class="step-nb">02</div>
+          <div class="step-title">Spatial Streaming</div>
+          <div class="step-desc">WebSocket multi-channel audio over local Wi-Fi</div>
+        </div>
+        <div class="step reveal">
+          <div class="step-nb">03</div>
+          <div class="step-title">DOA Validation</div>
+          <div class="step-desc">&plusmn;15&deg; direction-of-arrival accuracy testing</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="pipeline-section">
+      <div class="pipeline-label reveal">Phase 2 &middot; M4&ndash;M6 &middot; ML Pipeline</div>
+      <div class="pipeline" data-cols="3">
+        <div class="step reveal">
+          <div class="step-nb">04</div>
+          <div class="step-title">PyAnnote Container</div>
+          <div class="step-desc">Diarization engine deployment &amp; embedding cluster</div>
+        </div>
+        <div class="step reveal">
+          <div class="step-nb">05</div>
+          <div class="step-title">Whisper Fine-Tune</div>
+          <div class="step-desc">Taglish/Ilocano prefix calibration &amp; int8 quantization</div>
+        </div>
+        <div class="step reveal">
+          <div class="step-nb">06</div>
+          <div class="step-title">LLM Semantic Layer</div>
+          <div class="step-desc">Qwen-2.5-7B node extraction &amp; JSON graph schema</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="pipeline-section">
+      <div class="pipeline-label reveal">Phase 3 &middot; M7&ndash;M9 &middot; Interface &amp; Deployment</div>
+      <div class="pipeline" data-cols="3">
+        <div class="step reveal">
+          <div class="step-nb">07</div>
+          <div class="step-title">SvelteKit Dashboard</div>
+          <div class="step-desc">Live graph, transcript panel, action-item register</div>
+        </div>
+        <div class="step reveal">
+          <div class="step-nb">08</div>
+          <div class="step-title">Mobile Companion</div>
+          <div class="step-desc">Flutter voice enrollment &amp; haptic alerts</div>
+        </div>
+        <div class="step reveal">
+          <div class="step-nb">09</div>
+          <div class="step-title">Intramural Testing</div>
+          <div class="step-desc">15-minute mock session &amp; metric validation</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="foot reveal d8">
+    <div>SynapseRT &middot; Roadmap</div>
+    <div>&sect; 8 &middot; Milestones</div>
+  </div>
+</section>
+
+<!-- SLIDE 9 · Verification Metrics · dark -->
+<section class="slide dark" data-screen-label="09 Metrics">
+  <div class="chrome reveal d1">
+    <div>Section 7 &middot; Verification</div>
+    <div>&sect; 9 &middot; 09 / 10</div>
+  </div>
+  <div class="frame" style="padding-top:6vh">
+    <div class="kicker reveal d1">Metrics &middot; Falsifiable Targets</div>
+    <h2 class="h-xl reveal d2" style="margin-bottom:5vh">How We Know It Works</h2>
+
+    <div class="grid-3" style="margin-top:3vh; gap:3vw">
+      <div class="stat-card reveal" style="border-color:rgba(255,255,255,.2)">
+        <div class="stat-label">WER on Taglish</div>
+        <div class="stat-nb" style="font-size:5vw">&lt;12<span class="stat-unit">%</span></div>
+        <div class="stat-note">Word Error Rate on bilingual code-switched speech</div>
+      </div>
+      <div class="stat-card reveal" style="border-color:rgba(255,255,255,.2)">
+        <div class="stat-label">DER Diarization</div>
+        <div class="stat-nb" style="font-size:5vw">&lt;15<span class="stat-unit">%</span></div>
+        <div class="stat-note">Diarization Error Rate across 6 overlapping speakers</div>
+      </div>
+      <div class="stat-card reveal" style="border-color:rgba(255,255,255,.2)">
+        <div class="stat-label">DOA Accuracy</div>
+        <div class="stat-nb" style="font-size:5vw">&plusmn;15<span class="stat-unit">&deg;</span></div>
+        <div class="stat-note">Angular direction-of-arrival resolution on ESP32-S3</div>
+      </div>
+      <div class="stat-card reveal" style="border-color:rgba(255,255,255,.2)">
+        <div class="stat-label">Graph Latency</div>
+        <div class="stat-nb" style="font-size:5vw">&lt;100<span class="stat-unit">ms</span></div>
+        <div class="stat-note">Semantic node update on SvelteKit dashboard</div>
+      </div>
+      <div class="stat-card reveal" style="border-color:rgba(255,255,255,.2)">
+        <div class="stat-label">Voice Enrollment</div>
+        <div class="stat-nb" style="font-size:5vw">&lt;60<span class="stat-unit">s</span></div>
+        <div class="stat-note">Speaker profile registration via mobile companion</div>
+      </div>
+      <div class="stat-card reveal" style="border-color:rgba(255,255,255,.2)">
+        <div class="stat-label">Retrieval Speed</div>
+        <div class="stat-nb" style="font-size:5vw">50<span class="stat-unit">%+</span></div>
+        <div class="stat-note">Faster decision retrieval vs. raw transcript scan</div>
+      </div>
+    </div>
+  </div>
+  <div class="foot reveal d7">
+    <div>SynapseRT &middot; Verification Metrics</div>
+    <div>&sect; 9</div>
+  </div>
+</section>
+
+<!-- SLIDE 10 · Closing · hero dark -->
+<section class="slide hero dark" data-screen-label="10 Close">
+  <div class="chrome reveal d1">
+    <div>Conclusion &middot; End</div>
+    <div>&sect; 10 &middot; 10 / 10</div>
+  </div>
+  <div class="frame" style="display:grid; gap:5vh; align-content:center; min-height:80vh">
+    <div class="kicker reveal d2">Takeaway &middot; Closing</div>
+    <blockquote class="reveal d3" style="font-family:var(--serif-zh); font-weight:700; font-size:6vw; line-height:1.15; letter-spacing:-.01em; max-width:75vw">
+      We don't archive<br>meetings.<br>We <span class="hi">map</span> them.
+    </blockquote>
+    <p class="lead reveal d4" style="max-width:50vw; opacity:.65">
+      Real-time semantic mapping of multilingual,<br>multi-speaker collaborative dialogue.
+    </p>
+    <div class="meta-row reveal d5" style="margin-top:2vh">
+      <span>BSIT-CAP2-2026-SRT</span><span>&middot;</span><span>Thank you &middot; Questions welcome</span>
+    </div>
+  </div>
+  <div class="foot reveal d6">
+    <div>SynapseRT &middot; Capstone Defense &middot; 2026</div>
+    <div>&mdash; &middot; &mdash;</div>
+  </div>
+</section>
+
+</div>
+
+<div id="nav"></div>
+
+<script>
+const VS=`attribute vec2 position;void main(){gl_Position=vec4(position,0.0,1.0);}`;
+const FS_DARK=`precision highp float;
+uniform vec2 u_resolution;uniform float u_time;uniform vec2 u_mouse;
+vec3 palette(float t,vec3 a,vec3 b,vec3 c,vec3 d){return a+b*cos(6.28318*(c*t+d));}
+void main(){
+  vec2 uv=gl_FragCoord.xy/u_resolution.xy;
+  vec2 p=uv*2.0-1.0;p.x*=u_resolution.x/u_resolution.y;
+  vec2 m=u_mouse*2.0-1.0;m.x*=u_resolution.x/u_resolution.y;
+  float md=length(p-m);
+  float mr=sin(md*15.0-u_time*4.0)*exp(-md*3.0);p+=mr*0.08;
+  vec2 p0=p;
+  for(float i=1.0;i<4.0;i++){
+    p.x+=0.1/i*sin(i*3.0*p.y+u_time*0.4)+0.05;
+    p.y+=0.1/i*cos(i*2.0*p.x+u_time*0.3)-0.05;
+  }
+  float r=length(p);float ang=atan(p.y,p.x);
+  vec3 a=vec3(0.12,0.12,0.13);
+  vec3 b=vec3(0.03,0.04,0.05);
+  vec3 c=vec3(1.0,1.0,1.0);
+  vec3 d=vec3(0.1,0.2,0.4);
+  vec3 col=palette(r*1.5+p0.x*0.5+u_time*0.1,a,b,c,d);
+  float disp=sin(r*25.0-u_time*1.5+ang*2.0)*0.5+0.5;
+  col+=vec3(disp*0.015,disp*0.01,disp*0.02);
+  float hi=pow(sin(p.x*4.0+p.y*3.0+u_time)*0.5+0.5,8.0);
+  col+=hi*0.08;
+  col=mix(col,vec3(0.06,0.14,0.08),0.35);
+  vec3 base=vec3(0.04,0.09,0.05);
+  col=mix(base,col,0.88);
+  gl_FragColor=vec4(col,1.0);
+}`;
+const FS_LIGHT=`precision highp float;
+uniform vec2 u_resolution;uniform float u_time;uniform vec2 u_mouse;
+float hash(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
+float noise(vec2 p){
+  vec2 i=floor(p),f=fract(p);
+  float a=hash(i),b=hash(i+vec2(1,0));
+  float c=hash(i+vec2(0,1)),d=hash(i+vec2(1,1));
+  vec2 u=f*f*(3.0-2.0*f);
+  return mix(a,b,u.x)+(c-a)*u.y*(1.0-u.x)+(d-b)*u.x*u.y;
+}
+float fbm(vec2 p){
+  float v=0.0,a=0.5;
+  mat2 m=mat2(0.80,0.60,-0.60,0.80);
+  for(int i=0;i<5;i++){v+=a*noise(p);p=m*p*2.02;a*=0.5;}
+  return v;
+}
+void main(){
+  vec2 uv=gl_FragCoord.xy/u_resolution.xy;
+  vec2 p=uv;p.x*=u_resolution.x/u_resolution.y;
+  vec2 m=u_mouse;m.x*=u_resolution.x/u_resolution.y;
+  vec2 md=p-m;float dl=length(md);
+  p+=normalize(md+vec2(0.0001))*exp(-dl*5.0)*0.03;
+  vec2 q=vec2(fbm(p*1.8+u_time*0.07),fbm(p*1.8+vec2(5.2,1.3)+u_time*0.06));
+  vec2 r=vec2(fbm(p*2.0+q*1.3+vec2(1.7,9.2)+u_time*0.05),
+              fbm(p*2.0+q*1.3+vec2(8.3,2.8)+u_time*0.04));
+  float f=fbm(p*2.2+r*1.5);
+  vec3 parchment=vec3(0.96,0.945,0.91);
+  vec3 moss=vec3(0.88,0.91,0.85);
+  vec3 col=mix(parchment,moss,f);
+  float ph=r.x*2.2+u_time*0.35;
+  col+=vec3(0.22,0.42,0.20)*sin(ph)*0.04;
+  col+=vec3(0.40,0.55,0.30)*sin(ph*0.8+2.0)*0.04;
+  float hl=smoothstep(0.48,0.92,f);
+  col+=hl*0.04;
+  gl_FragColor=vec4(col,1.0);
+}`;
+const mouse={x:0.5,y:0.5};
+addEventListener('mousemove',e=>{mouse.x=e.clientX/innerWidth;mouse.y=e.clientY/innerHeight});
+function bootGL(canvasId,fsSrc){
+  const canvas=document.getElementById(canvasId);
+  const gl=canvas.getContext('webgl',{alpha:false,antialias:true});
+  if(!gl)return()=>false;
+  const mk=(t,s)=>{const sh=gl.createShader(t);gl.shaderSource(sh,s);gl.compileShader(sh);return sh};
+  const prog=gl.createProgram();
+  gl.attachShader(prog,mk(gl.VERTEX_SHADER,VS));
+  gl.attachShader(prog,mk(gl.FRAGMENT_SHADER,fsSrc));
+  gl.linkProgram(prog);gl.useProgram(prog);
+  const buf=gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER,buf);
+  gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,-1,1,1,-1,1,1]),gl.STATIC_DRAW);
+  const pos=gl.getAttribLocation(prog,'position');
+  gl.enableVertexAttribArray(pos);gl.vertexAttribPointer(pos,2,gl.FLOAT,false,0,0);
+  const lRes=gl.getUniformLocation(prog,'u_resolution');
+  const lT=gl.getUniformLocation(prog,'u_time');
+  const lM=gl.getUniformLocation(prog,'u_mouse');
+  const resize=()=>{
+    const d=Math.min(window.devicePixelRatio||1,2);
+    canvas.width=innerWidth*d;canvas.height=innerHeight*d;
+    gl.viewport(0,0,canvas.width,canvas.height);
+  };
+  addEventListener('resize',resize);resize();
+  return(tSec)=>{
+    gl.uniform2f(lRes,canvas.width,canvas.height);
+    gl.uniform1f(lT,tSec);
+    gl.uniform2f(lM,mouse.x,1-mouse.y);
+    gl.drawArrays(gl.TRIANGLES,0,6);
+    return true;
+  };
+}
+const drawDark=bootGL('bg-dark',FS_DARK);
+const drawLight=bootGL('bg-light',FS_LIGHT);
+const t0=Date.now();
+(function loop(){
+  const t=(Date.now()-t0)/1000;
+  drawDark(t);drawLight(t);
+  requestAnimationFrame(loop);
+})();
+
+const deck=document.getElementById('deck');
+const slides=deck.querySelectorAll('.slide');
+const nav=document.getElementById('nav');
+let idx=0,total=slides.length,lock=false;
+deck.style.width=(total*100)+'vw';
+slides.forEach((s,i)=>{
+  const b=document.createElement('button');
+  b.className='dot';b.dataset.i=i;b.setAttribute('aria-label','Page '+(i+1));
+  b.onclick=()=>go(i);
+  nav.appendChild(b);
+});
+function go(n){
+  if(lock)return;
+  idx=Math.max(0,Math.min(total-1,n));
+  deck.style.transform=`translateX(${-idx*100}vw)`;
+  slides.forEach((s,i)=>s.classList.toggle('active',i===idx));
+  nav.querySelectorAll('.dot').forEach((d,i)=>d.classList.toggle('active',i===idx));
+  const el=slides[idx];
+  const th=el.dataset.theme||(el.classList.contains('light')?'light':(el.classList.contains('dark')?'dark':'dark'));
+  document.body.classList.toggle('light-bg',th==='light');
+  
+  // Manage simulation loop based on slide activity
+  if (idx === 3) {
+    startSimulation();
+  } else {
+    stopSimulation();
+  }
+  
+  lock=true;setTimeout(()=>lock=false,700);
+}
+let overviewOn=false;
+const ov=document.createElement('div');
+ov.id='overview';
+ov.style.cssText='position:fixed;inset:0;z-index:100;background:rgba(var(--ink-rgb),.92);backdrop-filter:blur(12px);display:none;overflow-y:auto;padding:4vh 4vw';
+document.body.appendChild(ov);
+function buildOverview(){
+  ov.innerHTML='';
+  const grid=document.createElement('div');
+  grid.style.cssText='display:grid;grid-template-columns:repeat(3,1fr);gap:2vh 1.6vw;max-width:90vw;margin:0 auto';
+  slides.forEach((s,i)=>{
+    const card=document.createElement('div');
+    card.style.cssText='cursor:pointer;border-radius:6px;overflow:hidden;border:2px solid '+(i===idx?'rgba(var(--paper-rgb),.8)':'rgba(var(--paper-rgb),.15)')+';transition:border-color .2s';
+    card.onmouseenter=()=>card.style.borderColor='rgba(var(--paper-rgb),.6)';
+    card.onmouseleave=()=>card.style.borderColor=i===idx?'rgba(var(--paper-rgb),.8)':'rgba(var(--paper-rgb),.15)';
+    const wrap=document.createElement('div');
+    wrap.style.cssText='width:100%;aspect-ratio:16/9;overflow:hidden;position:relative;pointer-events:none;background:'+(s.classList.contains('light')?'var(--paper)':'var(--ink)');
+    const clone=s.cloneNode(true);
+    // Remove simulation canvas to prevent cloning bugs
+    const canvases = clone.querySelectorAll('canvas');
+    canvases.forEach(c => c.remove());
+    clone.style.cssText='width:100vw;height:100vh;transform:scale('+(1/3.2)+');transform-origin:top left;position:absolute;top:0;left:0;pointer-events:none';
+    wrap.appendChild(clone);
+    const label=document.createElement('div');
+    label.style.cssText='padding:6px 10px;font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--paper);opacity:.7';
+    const screenLabel=s.getAttribute('data-screen-label')||(i+1)+'';
+    label.textContent=screenLabel;
+    card.appendChild(wrap);
+    card.appendChild(label);
+    card.onclick=()=>{toggleOverview();go(i)};
+    grid.appendChild(card);
+  });
+  ov.appendChild(grid);
+}
+function toggleOverview(){
+  overviewOn=!overviewOn;
+  if(overviewOn){buildOverview();ov.style.display='block';}
+  else{ov.style.display='none';}
+}
+addEventListener('keydown',e=>{
+  if(e.key==='Escape'){e.preventDefault();toggleOverview();return;}
+  if(overviewOn)return;
+  if(e.key==='ArrowRight'||e.key==='PageDown'||e.key===' '||e.key==='ArrowDown')go(idx+1);
+  if(e.key==='ArrowLeft'||e.key==='PageUp'||e.key==='ArrowUp')go(idx-1);
+  if(e.key==='Home')go(0);
+  if(e.key==='End')go(total-1);
+});
+let wheelTO=null,wheelAcc=0;
+addEventListener('wheel',e=>{
+  wheelAcc+=e.deltaY+e.deltaX;
+  if(Math.abs(wheelAcc)>50){go(idx+(wheelAcc>0?1:-1));wheelAcc=0;}
+  clearTimeout(wheelTO);wheelTO=setTimeout(()=>wheelAcc=0,150);
+},{passive:true});
+let tx=0,ty=0;
+addEventListener('touchstart',e=>{tx=e.touches[0].clientX;ty=e.touches[0].clientY},{passive:true});
+addEventListener('touchend',e=>{
+  const dx=(e.changedTouches[0].clientX-tx);
+  const dy=(e.changedTouches[0].clientY-ty);
+  if(Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy))go(idx+(dx<0?1:-1));
+},{passive:true});
+
+// =========================================================================
+// PIPELINE SIMULATION LOGIC (SLIDE 4)
+// =========================================================================
+let simActiveTab = 'iot'; // Tab mappings: 'iot'->Context, 'asr'->Harness, 'map'->Taxonomy
+let simInterval = null;
+let simTime = 0;
+let activeSpeakerIdx = 0;
+let simReqFrame = null;
+
+const simConversation = [
+  {
+    speaker: "Instructor",
+    text: "Remember this for the final assessment: a REST API is bound by architectural constraints, particularly statelessness.",
+    mode: "LECTURE MODE",
+    action: "Local structural parsing",
+    tool: "None (Local Match)",
+    artifact: "Floating Glossary Card",
+    nodes: [{ id: "REST API", type: "system" }, { id: "Statelessness", type: "metric", parent: "REST API" }]
+  },
+  {
+    speaker: "Student",
+    text: "Wait, what does statelessness actually mean in a production environment? Can we search for a clear example?",
+    mode: "LECTURE MODE",
+    action: "External Inquiry Escalation",
+    tool: "Online Web Search API",
+    artifact: "Inline Definition Overlay",
+    nodes: [{ id: "Web Lookup Example", type: "novelty", parent: "Statelessness" }]
+  },
+  {
+    speaker: "Project Manager",
+    text: "Let's pivot and update our deployment board. David needs to finalize the container layout by next Tuesday.",
+    mode: "COLLABORATIVE PLANNING",
+    action: "Task & Ownership Assignment",
+    tool: "None (Local State Match)",
+    artifact: "Kanban Card Added",
+    nodes: [{ id: "Finalize Container", type: "ml" }, { id: "Assignee: David", type: "hardware", parent: "Finalize Container" }]
+  },
+  {
+    speaker: "Developer",
+    text: "How does this coordinate with the persistent database structure we white-boarded last week?",
+    mode: "COLLABORATIVE PLANNING",
+    action: "Contextual History Retain",
+    tool: "Persistent Session Memory",
+    artifact: "Timeline Decision Marker",
+    nodes: [{ id: "Database Schema v1", type: "web", parent: "Finalize Container" }]
+  },
+  {
+    speaker: "Facilitator",
+    text: "We still don't know how to scale the edge node cost. Let's put that aside for later review.",
+    mode: "REVIEW & CRITIQUE",
+    action: "Unresolved Conflict Isolation",
+    tool: "None (Local Match)",
+    artifact: "Parking Lot Card Stack",
+    nodes: [{ id: "Edge Node Cost", type: "map" }]
+  }
+];
+
+// Interactive Thought Graph Data Structure
+let graphNodes = [];
+let graphLinks = [];
+
+function initGraph() {
+  graphNodes = [];
+  graphLinks = [];
+  // Base Node
+  const root = {
+    id: "SynapseRT",
+    type: "system",
+    size: 16,
+    x: 150,
+    y: 100,
+    vx: 0,
+    vy: 0
+  };
+  graphNodes.push(root);
+}
+
+function updateGraphWithTurn(turnIndex) {
+  const turn = simConversation[turnIndex];
+  if (!turn) return;
+  
+  turn.nodes.forEach(nodeData => {
+    // Check if node already exists
+    let existingNode = graphNodes.find(n => n.id === nodeData.id);
+    if (!existingNode) {
+      // Find parent coordinate to spawn near it
+      let parentNode = graphNodes.find(n => n.id === nodeData.parent) || graphNodes[0];
+      const newNode = {
+        id: nodeData.id,
+        type: nodeData.type,
+        size: nodeData.size || 10,
+        x: parentNode.x + (Math.random() - 0.5) * 40,
+        y: parentNode.y + (Math.random() - 0.5) * 40,
+        vx: (Math.random() - 0.5) * 4,
+        vy: (Math.random() - 0.5) * 4
+      };
+      graphNodes.push(newNode);
+      
+      // Link node
+      graphLinks.push({
+        source: parentNode,
+        target: newNode
+      });
+    }
+  });
+}
+
+function tickGraph(width, height) {
+  const kRepulsion = 450;
+  const kAttraction = 0.05;
+  const gravity = 0.015;
+  const center = { x: width / 2, y: height / 2 };
+
+  // Repulsion
+  for (let i = 0; i < graphNodes.length; i++) {
+    let n1 = graphNodes[i];
+    for (let j = i + 1; j < graphNodes.length; j++) {
+      let n2 = graphNodes[j];
+      let dx = n2.x - n1.x;
+      let dy = n2.y - n1.y;
+      if (dx === 0) dx = 0.1;
+      let distSq = dx * dx + dy * dy;
+      let dist = Math.sqrt(distSq);
+      if (dist < 1) dist = 1;
+      
+      let force = kRepulsion / distSq;
+      if (force > 3) force = 3;
+      let fx = (dx / dist) * force;
+      let fy = (dy / dist) * force;
+      n1.vx -= fx;
+      n1.vy -= fy;
+      n2.vx += fx;
+      n2.vy += fy;
+    }
+  }
+
+  // Attraction
+  graphLinks.forEach(l => {
+    let dx = l.target.x - l.source.x;
+    let dy = l.target.y - l.source.y;
+    let dist = Math.sqrt(dx * dx + dy * dy);
+    if (dist < 1) dist = 1;
+    let force = kAttraction * (dist - 40); // Rest length 40
+    let fx = (dx / dist) * force;
+    let fy = (dy / dist) * force;
+    l.source.vx += fx;
+    l.source.vy += fy;
+    l.target.vx -= fx;
+    l.target.vy -= fy;
+  });
+
+  // Center gravity and velocity update
+  graphNodes.forEach(n => {
+    let dx = center.x - n.x;
+    let dy = center.y - n.y;
+    n.vx += dx * gravity;
+    n.vy += dy * gravity;
+
+    n.x += n.vx;
+    n.y += n.vy;
+
+    // Dampen
+    n.vx *= 0.8;
+    n.vy *= 0.8;
+
+    // Bounds limit
+    n.x = Math.max(n.size + 5, Math.min(width - n.size - 5, n.x));
+    n.y = Math.max(n.size + 5, Math.min(height - n.size - 5, n.y));
+  });
+}
+
+function setSimTab(tabId) {
+  simActiveTab = tabId;
+  document.querySelectorAll('.sim-tab').forEach(b => {
+    b.classList.toggle('active', b.id === `btn-sim-${tabId}`);
+  });
+  document.querySelectorAll('.sim-tab-content').forEach(c => {
+    c.style.display = c.id === `sim-content-${tabId}` ? 'flex' : 'none';
+  });
+}
+
+function startSimulation() {
+  if (simInterval) return;
+  activeSpeakerIdx = 0;
+  initGraph();
+  updateGraphWithTurn(0);
+  renderASRLog();
+  
+  // Advance conversation turn every 6 seconds
+  simInterval = setInterval(() => {
+    activeSpeakerIdx = (activeSpeakerIdx + 1) % simConversation.length;
+    if (activeSpeakerIdx === 0) {
+      initGraph();
+    }
+    updateGraphWithTurn(activeSpeakerIdx);
+    renderASRLog();
+    
+    // Auto-steer tab view to display pipeline components dynamically in sequence
+    if (activeSpeakerIdx === 1) {
+      setSimTab('asr');
+    } else if (activeSpeakerIdx === 2) {
+      setSimTab('map');
+    } else if (activeSpeakerIdx === 4) {
+      // Loop ends, return tab view
+      setTimeout(() => setSimTab('iot'), 4000);
+    }
+  }, 6000);
+  
+  // Canvas Animation Frame
+  const canvasIot = document.getElementById('canvas-sim-iot');
+  const canvasMap = document.getElementById('canvas-sim-map');
+  
+  const resizeCanvas = () => {
+    if (canvasIot && canvasIot.parentElement) {
+      canvasIot.width = canvasIot.parentElement.clientWidth;
+      canvasIot.height = 200;
+    }
+    if (canvasMap && canvasMap.parentElement) {
+      canvasMap.width = canvasMap.parentElement.clientWidth;
+      canvasMap.height = 200;
+    }
+  };
+  window.addEventListener('resize', resizeCanvas);
+  resizeCanvas();
+  
+  function step(timestamp) {
+    simTime = timestamp / 1000;
+    drawIotCanvas(canvasIot);
+    drawMapCanvas(canvasMap);
+    simReqFrame = requestAnimationFrame(step);
+  }
+  simReqFrame = requestAnimationFrame(step);
+}
+
+function stopSimulation() {
+  if (simInterval) {
+    clearInterval(simInterval);
+    simInterval = null;
+  }
+  if (simReqFrame) {
+    cancelAnimationFrame(simReqFrame);
+    simReqFrame = null;
+  }
+}
+
+// This updates the simulator panel UI text dynamically during your pitch:
+function renderASRLog() {
+  const box = document.getElementById('asr-stream-box');
+  if (!box) return;
+  box.innerHTML = '';
+  
+  for (let i = 0; i <= activeSpeakerIdx; i++) {
+    const turn = simConversation[i];
+    const bubble = document.createElement('div');
+    bubble.className = `asr-bubble speaker-${(i % 3) + 1}`;
+    bubble.innerHTML = `
+      <div style="display:flex; justify-content:space-between; font-family:var(--mono); font-size:9px; opacity:0.7; margin-bottom:4px; font-weight:600;">
+        <span>${turn.speaker} &middot; [${turn.mode}]</span>
+        <span>${turn.artifact}</span>
+      </div>
+      <div style="font-size:11.5px; margin-bottom: 4px;">"${turn.text}"</div>
+      <div style="font-family:var(--mono); font-size:8.5px; color:#2a9d8f;">
+         &rarr; Action: ${turn.action} | Tool Used: <span style="text-decoration:underline;">${turn.tool}</span>
+      </div>
+    `;
+    box.appendChild(bubble);
+  }
+  box.scrollTop = box.scrollHeight;
+  
+  // Directly bind live pipeline metadata outputs to your HTML layout fields
+  if(document.getElementById('val-doa')) {
+    document.getElementById('val-doa').textContent = simConversation[activeSpeakerIdx].mode;
+  }
+  if(document.getElementById('val-speaker')) {
+    document.getElementById('val-speaker').textContent = simConversation[activeSpeakerIdx].tool;
+  }
+}
+
+function drawIotCanvas(canvas) {
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const w = canvas.width;
+  const h = canvas.height;
+  ctx.clearRect(0, 0, w, h);
+  
+  const isLight = document.body.classList.contains('light-bg');
+  
+  // Center coordinates
+  const cx = w / 2;
+  const cy = h / 2 - 10;
+  
+  // 1. Draw ESP32 Circular Array Ring
+  ctx.beginPath();
+  ctx.arc(cx, cy, 40, 0, 2 * Math.PI);
+  ctx.strokeStyle = isLight ? 'rgba(26,46,31,0.12)' : 'rgba(245,241,232,0.12)';
+  ctx.lineWidth = 1;
+  ctx.stroke();
+  
+  // 2. Draw Microphone Mics (x8)
+  for (let i = 0; i < 8; i++) {
+    const angle = (i * Math.PI) / 4;
+    const mx = cx + 40 * Math.cos(angle);
+    const my = cy + 40 * Math.sin(angle);
+    
+    ctx.beginPath();
+    ctx.arc(mx, my, 4, 0, 2 * Math.PI);
+    ctx.fillStyle = isLight ? '#1a2e1f' : '#f5f1e8';
+    ctx.fill();
+    
+    // Text labels
+    ctx.font = '7px "IBM Plex Mono", monospace';
+    ctx.fillStyle = isLight ? 'rgba(26,46,31,0.4)' : 'rgba(245,241,232,0.4)';
+    ctx.textAlign = 'center';
+    ctx.fillText(`M${i+1}`, mx + 10 * Math.cos(angle), my + 10 * Math.sin(angle) + 2);
+  }
+  
+  // 3. Get Active Speaker properties
+  const turn = simConversation[activeSpeakerIdx];
+  const mockAngles = [45, 135, 225, 315, 90];
+  const doa = mockAngles[activeSpeakerIdx % mockAngles.length];
+  const targetAngleRad = (doa * Math.PI) / 180;
+  
+  // 4. Draw Steered Beamform Sector
+  ctx.beginPath();
+  ctx.moveTo(cx, cy);
+  ctx.arc(cx, cy, 70, targetAngleRad - 0.18, targetAngleRad + 0.18);
+  ctx.closePath();
+  
+  let beamGradient = ctx.createRadialGradient(cx, cy, 10, cx, cy, 70);
+  if (isLight) {
+    beamGradient.addColorStop(0, 'rgba(67, 97, 238, 0.25)');
+    beamGradient.addColorStop(1, 'rgba(67, 97, 238, 0.0)');
+    ctx.strokeStyle = 'rgba(67, 97, 238, 0.35)';
+  } else {
+    beamGradient.addColorStop(0, 'rgba(76, 201, 240, 0.25)');
+    beamGradient.addColorStop(1, 'rgba(76, 201, 240, 0.0)');
+    ctx.strokeStyle = 'rgba(76, 201, 240, 0.35)';
+  }
+  ctx.fillStyle = beamGradient;
+  ctx.fill();
+  ctx.lineWidth = 1;
+  ctx.stroke();
+  
+  // 5. Draw Active Speaker Node
+  const sx = cx + 70 * Math.cos(targetAngleRad);
+  const sy = cy + 70 * Math.sin(targetAngleRad);
+  ctx.beginPath();
+  ctx.arc(sx, sy, 7 + Math.sin(simTime * 6) * 1.5, 0, 2 * Math.PI);
+  
+  let spkColor = '#4361ee';
+  if (turn.speaker === 'Student' || turn.speaker === 'Developer') spkColor = '#7209b7';
+  if (turn.speaker === 'Project Manager' || turn.speaker === 'Facilitator') spkColor = '#f72585';
+  if (!isLight) {
+    if (turn.speaker === 'Instructor') spkColor = '#4cc9f0';
+    if (turn.speaker === 'Student' || turn.speaker === 'Developer') spkColor = '#b5179e';
+    if (turn.speaker === 'Project Manager' || turn.speaker === 'Facilitator') spkColor = '#48cae4';
+  }
+  
+  ctx.fillStyle = spkColor;
+  ctx.fill();
+  
+  // Label active speaker
+  ctx.font = 'bold 8px "IBM Plex Mono", monospace';
+  ctx.fillStyle = isLight ? '#1a2e1f' : '#f5f1e8';
+  ctx.textAlign = sx > cx ? 'left' : 'right';
+  ctx.fillText(turn.speaker, sx > cx ? sx + 10 : sx - 10, sy + 3);
+  
+  // 6. Draw Small Beamforming DSP Waveform
+  ctx.beginPath();
+  ctx.lineWidth = 1;
+  ctx.strokeStyle = spkColor;
+  for (let x = 10; x < w - 10; x++) {
+    const yOffset = Math.sin(x * 0.12 - simTime * 14) * 8 * Math.exp(-Math.pow(x - cx, 2) / 6000);
+    if (x === 10) ctx.moveTo(x, h - 15 + yOffset);
+    else ctx.lineTo(x, h - 15 + yOffset);
+  }
+  ctx.stroke();
+  
+  ctx.font = '8px "IBM Plex Mono", monospace';
+  ctx.fillStyle = isLight ? 'rgba(26,46,31,0.5)' : 'rgba(245,241,232,0.5)';
+  ctx.textAlign = 'left';
+  ctx.fillText("BEAMFORMED MONO STREAM", 12, h - 23);
+}
+
+function drawMapCanvas(canvas) {
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const w = canvas.width;
+  const h = canvas.height;
+  
+  // Perform Verlet physics integration step
+  tickGraph(w, h);
+  
+  ctx.clearRect(0, 0, w, h);
+  
+  const isLight = document.body.classList.contains('light-bg');
+  
+  // 1. Draw Links
+  ctx.strokeStyle = isLight ? 'rgba(26,46,31,0.12)' : 'rgba(245,241,232,0.12)';
+  ctx.lineWidth = 1.2;
+  graphLinks.forEach(l => {
+    ctx.beginPath();
+    ctx.moveTo(l.source.x, l.source.y);
+    ctx.lineTo(l.target.x, l.target.y);
+    ctx.stroke();
+  });
+  
+  // 2. Draw Nodes
+  graphNodes.forEach(n => {
+    ctx.beginPath();
+    ctx.arc(n.x, n.y, n.size, 0, 2 * Math.PI);
+    
+    let color = '#253d2c';
+    if (n.type === 'system') color = isLight ? '#1a2e1f' : '#f5f1e8';
+    else if (n.type === 'iot') color = isLight ? '#4361ee' : '#4cc9f0';
+    else if (n.type === 'ml') color = isLight ? '#7209b7' : '#b5179e';
+    else if (n.type === 'hardware') color = isLight ? '#130015' : '#eae6df';
+    else if (n.type === 'web' || n.type === 'map') color = '#f72585';
+    else if (n.type === 'novelty') color = '#2a9d8f';
+    else if (n.type === 'metric') color = '#f4a261';
+    
+    ctx.fillStyle = color;
+    ctx.fill();
+    
+    // Active node outer ring pulse
+    if (n.id === simConversation[activeSpeakerIdx].nodes[simConversation[activeSpeakerIdx].nodes.length - 1]?.id) {
+      ctx.beginPath();
+      ctx.arc(n.x, n.y, n.size + 4 + Math.sin(simTime * 8) * 2, 0, 2 * Math.PI);
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    }
+    
+    // Border
+    ctx.strokeStyle = isLight ? 'rgba(245,241,232,0.9)' : 'rgba(26,46,31,0.9)';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+    
+    // Node Labels
+    ctx.font = '8px "IBM Plex Mono", monospace';
+    ctx.fillStyle = isLight ? '#1a2e1f' : '#f5f1e8';
+    ctx.textAlign = 'center';
+    ctx.fillText(n.id, n.x, n.y + n.size + 8);
+  });
+}
+
+// Initial boot-up sequence
+go(0);
+</script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<script>lucide.createIcons();</script>
+</body>
+</html>

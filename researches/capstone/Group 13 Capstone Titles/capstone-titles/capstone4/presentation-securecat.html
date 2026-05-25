@@ -1,0 +1,2247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SecureCAT — Role-Based College Admission Testing System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest"></script>
+
+<style>
+/* =========================================================================
+THEMING & VARIABLES (Structural Emerald Cybersecurity)
+========================================================================= */
+:root {
+  --bg-dark: #030806;
+  --bg-darker: #010403;
+  --bg-panel: rgba(3, 8, 6, 0.75);
+  --primary-emerald: #10b981;
+  --primary-emerald-rgb: 16, 185, 129;
+  --accent-mint: #34d399;
+  --accent-mint-rgb: 52, 211, 153;
+  --accent-teal: #0f766e;
+  --accent-teal-rgb: 15, 118, 110;
+  --success-green: #10b981;
+  --warning-yellow: #f59e0b;
+  --info-blue: #3b82f6;
+  --danger-red: #f43f5e;
+  --text-light: #f3f4f6;
+  --text-muted: #9ca3af;
+  --mono: 'Fira Code', monospace;
+  --sans: 'Plus Jakarta Sans', sans-serif;
+  --heading: 'Space Grotesk', sans-serif;
+  --border-style: 1px solid rgba(16, 185, 129, 0.2);
+  --border-focus: 1px solid rgba(52, 211, 153, 0.5);
+  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--bg-darker);
+  color: var(--text-light);
+  font-family: var(--sans);
+  overflow: hidden;
+  height: 100vh;
+  width: 100vw;
+  user-select: none;
+}
+
+/* =========================================================================
+BACKGROUND CANVAS & MATRIX GRID
+========================================================================= */
+#bg-canvas {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  background-color: var(--bg-darker);
+}
+
+.matrix-grid {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-image: 
+    linear-gradient(rgba(16, 185, 129, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(16, 185, 129, 0.02) 1px, transparent 1px);
+  background-size: 35px 35px;
+  background-position: center;
+  mask-image: radial-gradient(circle at 50% 50%, black, transparent 85%);
+  pointer-events: none;
+}
+
+#flow-canvas {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* =========================================================================
+SLIDE DECK FRAMEWORK (6 Slides)
+========================================================================= */
+#deck {
+  display: flex;
+  position: absolute;
+  inset: 0;
+  width: 600vw; /* Accommodates 6 slides */
+  height: 100vh;
+  transition: transform 0.8s cubic-bezier(0.77, 0, 0.175, 1);
+}
+
+.slide {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  padding: 40px 60px;
+  overflow: hidden;
+}
+
+/* CHROME LAYOUTS (Header / Footer / Cards) */
+.chrome-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  color: var(--primary-emerald);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+  border-bottom: var(--border-style);
+  padding-bottom: 15px;
+}
+
+.chrome-footer {
+  position: absolute;
+  bottom: 25px;
+  left: 60px;
+  right: 60px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  border-top: 1px solid rgba(16, 185, 129, 0.08);
+  padding-top: 15px;
+}
+
+.frame-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+  z-index: 1;
+  padding-bottom: 40px;
+}
+
+.kicker {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  color: var(--accent-mint);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.slide-title {
+  font-family: var(--heading);
+  font-size: 2.75rem;
+  font-weight: 700;
+  line-height: 1.1;
+  margin-bottom: 20px;
+  background: linear-gradient(135deg, #ffffff 40%, rgba(var(--accent-mint-rgb), 0.9) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: -0.02em;
+}
+
+/* STRUCTURAL GLASS CARD STYLING */
+.glass-card {
+  background: var(--bg-panel);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: var(--border-style);
+  border-radius: 12px;
+  padding: 22px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+  transition: var(--transition);
+  position: relative;
+}
+
+.glass-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, var(--primary-emerald), transparent);
+  opacity: 0.5;
+  border-radius: 12px 12px 0 0;
+}
+
+.glass-card:hover {
+  border-color: rgba(var(--accent-mint-rgb), 0.35);
+  box-shadow: 0 12px 40px rgba(16, 185, 129, 0.08);
+}
+
+/* =========================================================================
+GRID & LAYOUT UTILITIES
+========================================================================= */
+.split-layout {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 30px;
+  align-items: center;
+}
+
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+/* =========================================================================
+SLIDE NAVIGATION CONTROLS
+========================================================================= */
+#controls {
+  position: fixed;
+  bottom: 20px;
+  right: 60px;
+  display: flex;
+  gap: 12px;
+  z-index: 100;
+}
+
+.btn-ctrl {
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  border: var(--border-style);
+  background: rgba(3, 8, 6, 0.7);
+  color: var(--text-light);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(8px);
+  transition: var(--transition);
+}
+
+.btn-ctrl:hover {
+  background: rgba(var(--primary-emerald-rgb), 0.15);
+  border-color: var(--accent-mint);
+  color: var(--accent-mint);
+  transform: translateY(-2px);
+}
+
+.btn-ctrl:active {
+  transform: translateY(0);
+}
+
+#overview-btn {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  padding: 0 15px;
+  width: auto;
+  gap: 6px;
+}
+
+/* =========================================================================
+SLIDE 1: TITLE SLIDE
+========================================================================= */
+.title-grid {
+  display: grid;
+  grid-template-columns: 1.25fr 0.75fr;
+  gap: 40px;
+  align-items: center;
+}
+
+.title-card {
+  padding: 40px;
+  border-left: 4px solid var(--primary-emerald);
+}
+
+.title-card h1 {
+  font-family: var(--heading);
+  font-size: 3.75rem;
+  line-height: 1.05;
+  margin-bottom: 15px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #ffffff 40%, var(--accent-mint) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: -0.03em;
+}
+
+.title-card p {
+  color: var(--text-muted);
+  font-size: 1.15rem;
+  line-height: 1.5;
+  margin-bottom: 30px;
+}
+
+.title-meta {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  border-top: var(--border-style);
+  padding-top: 20px;
+}
+
+.meta-item span {
+  display: block;
+  font-size: 0.6rem;
+  color: var(--primary-emerald);
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.meta-item div {
+  color: var(--text-light);
+  font-weight: 500;
+}
+
+.logo-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.logo-glow {
+  width: 260px;
+  height: 260px;
+  position: relative;
+  background: radial-gradient(circle, rgba(var(--primary-emerald-rgb), 0.1) 0%, transparent 70%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.logo-shield {
+  width: 130px;
+  height: 150px;
+  border: 2px solid var(--primary-emerald);
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  background: rgba(16, 185, 129, 0.05);
+  box-shadow: 0 0 30px rgba(16, 185, 129, 0.2);
+}
+
+.logo-text {
+  font-family: var(--heading);
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--text-light);
+  text-shadow: 0 0 10px rgba(52, 211, 153, 0.6);
+}
+
+/* =========================================================================
+SLIDE 2: CONTEXT & THE PROBLEM
+========================================================================= */
+.problem-card {
+  display: flex;
+  flex-direction: column;
+  height: 250px;
+  border-top: 3px solid var(--danger-red);
+}
+
+.prob-num {
+  font-family: var(--heading);
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: rgba(244, 63, 94, 0.4);
+  margin-bottom: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.prob-title {
+  font-family: var(--heading);
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-light);
+  margin-bottom: 10px;
+}
+
+.prob-body {
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: var(--text-muted);
+  flex: 1;
+}
+
+.prob-impact {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--danger-red);
+  background: rgba(244, 63, 94, 0.08);
+  padding: 5px 10px;
+  border-radius: 4px;
+  margin-top: 10px;
+  border: 1px solid rgba(244, 63, 94, 0.15);
+}
+
+.scene-hook {
+  font-size: 1.25rem;
+  line-height: 1.4;
+  color: var(--text-light);
+  padding-left: 15px;
+  border-left: 3px solid var(--accent-mint);
+  font-style: italic;
+  margin-bottom: 15px;
+}
+
+.scene-desc {
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: var(--text-muted);
+}
+
+/* =========================================================================
+SLIDE 3: PROPOSED SYSTEM & COMPONENT COVERAGE MAP
+========================================================================= */
+.arch-diagram-card {
+  height: 180px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 15px 30px;
+  margin-bottom: 20px;
+}
+
+/* CSS-drawn Pipeline Topology */
+.pipeline-diagram {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+  position: relative;
+  width: 100%;
+  justify-content: space-between;
+}
+
+.pipeline-node {
+  background: rgba(3, 8, 6, 0.85);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  border-radius: 8px;
+  padding: 10px;
+  width: 120px;
+  text-align: center;
+  position: relative;
+  transition: var(--transition);
+  z-index: 10;
+}
+
+.pipeline-node:hover {
+  border-color: var(--accent-mint);
+  box-shadow: 0 0 15px rgba(52, 211, 153, 0.2);
+}
+
+.pipeline-node .node-phase {
+  font-family: var(--mono);
+  font-size: 0.55rem;
+  color: var(--primary-emerald);
+  text-transform: uppercase;
+  margin-bottom: 3px;
+}
+
+.pipeline-node .node-title {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-light);
+}
+
+.pipeline-node .node-role {
+  font-size: 0.6rem;
+  color: var(--text-muted);
+  margin-top: 5px;
+  background: rgba(16, 185, 129, 0.1);
+  padding: 1px 4px;
+  border-radius: 3px;
+  display: inline-block;
+}
+
+.pipeline-arrow {
+  flex: 1;
+  height: 2px;
+  background: linear-gradient(90deg, var(--primary-emerald), var(--accent-teal));
+  position: relative;
+  opacity: 0.6;
+}
+
+.pipeline-arrow::after {
+  content: '';
+  position: absolute;
+  right: -5px;
+  top: -4px;
+  border-top: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+  border-left: 8px solid var(--accent-teal);
+}
+
+.policy-gate-overlay {
+  position: absolute;
+  top: -30px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(15, 118, 110, 0.9);
+  border: 1px solid var(--accent-mint);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: var(--mono);
+  font-size: 0.55rem;
+  color: var(--accent-mint);
+  white-space: nowrap;
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.2);
+}
+
+.comp-small-card {
+  padding: 15px;
+  height: 140px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border-top: 2px solid var(--primary-emerald);
+}
+
+.comp-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.comp-icon {
+  width: 26px;
+  height: 26px;
+  background: rgba(16, 185, 129, 0.1);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent-mint);
+  border: 1px solid rgba(16, 185, 129, 0.15);
+}
+
+.comp-icon i {
+  width: 14px;
+  height: 14px;
+}
+
+.comp-name {
+  font-family: var(--heading);
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-top: 5px;
+}
+
+.comp-details {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  line-height: 1.35;
+  margin-top: 5px;
+  flex: 1;
+}
+
+.comp-badge {
+  font-family: var(--mono);
+  font-size: 0.55rem;
+  background: rgba(16, 185, 129, 0.06);
+  border: 1px solid rgba(16, 185, 129, 0.12);
+  color: var(--accent-mint);
+  padding: 1px 4px;
+  border-radius: 3px;
+}
+
+/* =========================================================================
+SLIDE 4: LIVE DEMO (Multi-Surface Interactive Simulator)
+========================================================================= */
+.sim-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: 250px 170px;
+  gap: 15px;
+}
+
+.sim-panel {
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+.sim-panel::before {
+  height: 1px;
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(16, 185, 129, 0.1);
+}
+
+.panel-title {
+  font-family: var(--heading);
+  font-size: 0.9rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.panel-title i {
+  color: var(--accent-mint);
+  width: 14px;
+  height: 14px;
+}
+
+.panel-badge {
+  font-family: var(--mono);
+  font-size: 0.55rem;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.badge-applicant { background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59,130,246,0.3); }
+.badge-proctor { background: rgba(16, 185, 129, 0.15); color: var(--accent-mint); border: 1px solid rgba(16,185,129,0.3); }
+.badge-admin { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245,158,11,0.3); }
+.badge-logs { background: rgba(15, 118, 110, 0.2); color: #2dd4bf; border: 1px solid rgba(15,118,110,0.4); }
+
+.panel-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow-y: auto;
+  font-size: 0.75rem;
+}
+
+/* Applicant UI styling */
+.applicant-details {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+}
+
+.applicant-qr {
+  width: 75px;
+  height: 75px;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  background: rgba(1, 4, 3, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 6px;
+  position: relative;
+  overflow: hidden;
+}
+
+.applicant-qr::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: var(--accent-mint);
+  animation: qrScan 2s linear infinite;
+  box-shadow: 0 0 8px var(--accent-mint);
+}
+
+@keyframes qrScan {
+  0% { top: 0; }
+  50% { top: 100%; }
+  100% { top: 0; }
+}
+
+.qr-placeholder {
+  width: 60px;
+  height: 60px;
+  background-image: radial-gradient(var(--primary-emerald) 1px, transparent 1px);
+  background-size: 5px 5px;
+  opacity: 0.65;
+}
+
+.applicant-meta {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.app-row {
+  display: flex;
+  justify-content: space-between;
+}
+
+.app-row span:first-child { color: var(--text-muted); }
+.app-row span:last-child { font-weight: 500; }
+
+.app-status {
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.6rem;
+  font-family: var(--mono);
+  text-transform: uppercase;
+}
+
+.status-init { background: rgba(156,163,175,0.15); color: var(--text-muted); }
+.status-applied { background: rgba(59,130,246,0.15); color: #3b82f6; }
+.status-scheduled { background: rgba(16,185,129,0.15); color: var(--primary-emerald); }
+.status-examining { background: rgba(245,158,11,0.15); color: var(--warning-yellow); }
+.status-graded { background: rgba(167,139,250,0.15); color: #a78bfa; }
+.status-released { background: rgba(16,185,129,0.25); color: var(--accent-mint); border: 1px solid var(--accent-mint); }
+
+/* RAG Chat Widget inside Applicant portal */
+.rag-widget {
+  background: rgba(1, 4, 3, 0.4);
+  border: var(--border-style);
+  border-radius: 6px;
+  padding: 8px;
+  margin-top: 10px;
+}
+
+.rag-qa-preset {
+  display: flex;
+  gap: 5px;
+  margin-bottom: 6px;
+}
+
+.btn-preset {
+  background: rgba(16, 185, 129, 0.08);
+  border: var(--border-style);
+  color: var(--accent-mint);
+  font-size: 0.6rem;
+  padding: 3px 6px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: var(--sans);
+  transition: var(--transition);
+}
+
+.btn-preset:hover {
+  background: rgba(16, 185, 129, 0.2);
+  border-color: var(--accent-mint);
+}
+
+.rag-display {
+  font-size: 0.65rem;
+  background: rgba(1, 4, 3, 0.7);
+  padding: 6px;
+  border-radius: 4px;
+  min-height: 48px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  border: 1px solid rgba(16, 185, 129, 0.1);
+}
+
+/* Proctor panel styling */
+.scan-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  gap: 8px;
+}
+
+.scan-box {
+  width: 140px;
+  height: 80px;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  background: rgba(1, 4, 3, 0.6);
+  border-radius: 6px;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
+.scan-line {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: var(--accent-mint);
+  box-shadow: 0 0 5px var(--accent-mint);
+  display: none;
+}
+
+.scan-target {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+/* Grading panel styling */
+.grading-form {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.grading-input {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.grading-input label {
+  font-size: 0.6rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  font-family: var(--mono);
+}
+
+.grading-input input {
+  background: rgba(1, 4, 3, 0.8);
+  border: var(--border-style);
+  border-radius: 4px;
+  color: var(--text-light);
+  padding: 4px 8px;
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  width: 100%;
+}
+
+.grading-input input:focus {
+  outline: none;
+  border-color: var(--accent-mint);
+}
+
+.grading-input input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: rgba(3, 8, 6, 0.4);
+}
+
+/* Action button inside panels */
+.btn-action {
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid var(--primary-emerald);
+  color: var(--text-light);
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: var(--transition);
+  width: 100%;
+}
+
+.btn-action:hover:not(:disabled) {
+  background: rgba(16, 185, 129, 0.3);
+  border-color: var(--accent-mint);
+  color: var(--accent-mint);
+}
+
+.btn-action:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  border-color: rgba(16,185,129,0.1);
+}
+
+/* Console logs panel */
+.sim-console {
+  background: rgba(1, 4, 3, 0.95);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  border-radius: 8px;
+  padding: 10px;
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  line-height: 1.4;
+  color: #86efac;
+  overflow-y: auto;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.console-line {
+  margin-bottom: 4px;
+  border-left: 2px solid transparent;
+  padding-left: 6px;
+}
+
+.console-line.sec-log { border-color: var(--primary-emerald); }
+.console-line.db-log { border-color: var(--warning-yellow); color: #fde047; }
+.console-line.ai-log { border-color: var(--info-blue); color: #93c5fd; }
+.console-line.err-log { border-color: var(--danger-red); color: #fca5a5; }
+
+/* =========================================================================
+SLIDE 5: INNOVATION MATRIX & SCOPE BOUNDARIES
+========================================================================= */
+.matrix-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.75rem;
+  background: var(--bg-panel);
+  border: var(--border-style);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.matrix-table th, .matrix-table td {
+  padding: 10px 14px;
+  text-align: left;
+  border-bottom: 1px solid rgba(16, 185, 129, 0.1);
+}
+
+.matrix-table th {
+  background: rgba(16, 185, 129, 0.08);
+  font-family: var(--heading);
+  font-weight: 600;
+  color: var(--accent-mint);
+}
+
+.matrix-table tr:last-child td {
+  border-bottom: none;
+}
+
+.matrix-highlight {
+  color: var(--accent-mint);
+  font-weight: 600;
+  background: rgba(16, 185, 129, 0.04);
+}
+
+.cell-bold {
+  font-weight: 500;
+}
+
+.scope-box {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.scope-box.in-scope { border-top: 3px solid var(--primary-emerald); }
+.scope-box.out-scope { border-top: 3px solid var(--danger-red); }
+
+.scope-list-title {
+  font-family: var(--heading);
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.scope-list-title.in i { color: var(--accent-mint); }
+.scope-list-title.out i { color: var(--danger-red); }
+
+.scope-ul {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.scope-ul li {
+  font-size: 0.78rem;
+  line-height: 1.4;
+  color: var(--text-muted);
+  position: relative;
+  padding-left: 15px;
+}
+
+.scope-ul li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 6px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+}
+
+.scope-box.in-scope .scope-ul li::before {
+  background: var(--accent-mint);
+  box-shadow: 0 0 5px var(--accent-mint);
+}
+
+.scope-box.out-scope .scope-ul li::before {
+  background: var(--danger-red);
+  box-shadow: 0 0 5px var(--danger-red);
+}
+
+/* =========================================================================
+SLIDE 6: ROADMAP, VERIFICATION & CONCLUSION
+========================================================================= */
+.timeline-track {
+  display: flex;
+  justify-content: space-between;
+  position: relative;
+  margin-bottom: 10px;
+}
+
+.timeline-track::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 12px;
+  width: 100%;
+  height: 2px;
+  background: rgba(16, 185, 129, 0.15);
+  z-index: 1;
+}
+
+.timeline-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 19%;
+  position: relative;
+  z-index: 5;
+}
+
+.timeline-dot {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--bg-darker);
+  border: 2px solid rgba(16, 185, 129, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+.timeline-step.completed .timeline-dot {
+  border-color: var(--accent-mint);
+  background: rgba(16, 185, 129, 0.15);
+  color: var(--accent-mint);
+  box-shadow: 0 0 10px rgba(52, 211, 153, 0.3);
+}
+
+.timeline-title {
+  font-family: var(--heading);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-light);
+  margin-bottom: 2px;
+  text-align: center;
+}
+
+.timeline-desc {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  line-height: 1.3;
+  text-align: center;
+}
+
+.ver-card {
+  border-top: 2px solid var(--primary-emerald);
+  padding: 15px;
+}
+
+.ver-title {
+  font-family: var(--heading);
+  font-size: 1.05rem;
+  font-weight: 600;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ver-title i { color: var(--accent-mint); }
+
+.ver-item {
+  background: rgba(1, 4, 3, 0.4);
+  border: 1px solid rgba(16, 185, 129, 0.12);
+  border-radius: 6px;
+  padding: 8px 12px;
+  margin-bottom: 8px;
+}
+
+.ver-item:last-child {
+  margin-bottom: 0;
+}
+
+.ver-item-header {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--accent-mint);
+  margin-bottom: 3px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.ver-item-body {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  line-height: 1.35;
+}
+
+.conclusion-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: var(--border-style);
+  padding-top: 15px;
+  margin-top: 20px;
+}
+
+.closing-badge {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  color: var(--accent-mint);
+  border: 1px solid var(--primary-emerald);
+  background: rgba(16, 185, 129, 0.08);
+  padding: 4px 12px;
+  border-radius: 15px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.conclusion-title {
+  font-family: var(--heading);
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--text-light);
+}
+
+.closing-metrics {
+  display: flex;
+  gap: 30px;
+}
+
+.metric-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.metric-val {
+  font-family: var(--heading);
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--accent-mint);
+  line-height: 1;
+}
+
+.metric-lbl {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin-top: 3px;
+}
+
+/* =========================================================================
+OVERVIEW SCREEN MODAL
+========================================================================= */
+#overview-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(1, 4, 3, 0.96);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  z-index: 500;
+  display: flex;
+  flex-direction: column;
+  padding: 40px 60px;
+  opacity: 0;
+  pointer-events: none;
+  transition: var(--transition);
+}
+
+#overview-modal.active {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.overview-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  border-bottom: var(--border-style);
+  padding-bottom: 15px;
+}
+
+.overview-header h2 {
+  font-family: var(--heading);
+  font-size: 1.75rem;
+  color: var(--text-light);
+}
+
+.overview-grid {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  overflow-y: auto;
+  padding-bottom: 20px;
+  align-content: center;
+}
+
+.overview-item {
+  background: rgba(3, 8, 6, 0.7);
+  border: var(--border-style);
+  border-radius: 8px;
+  padding: 20px;
+  cursor: pointer;
+  transition: var(--transition);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 120px;
+}
+
+.overview-item:hover {
+  border-color: var(--accent-mint);
+  background: rgba(16, 185, 129, 0.08);
+  transform: translateY(-3px);
+}
+
+.overview-item.active {
+  border-color: var(--accent-mint);
+  background: rgba(16, 185, 129, 0.15);
+  box-shadow: 0 0 15px rgba(16, 185, 129, 0.2);
+}
+
+.overview-item-num {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  color: var(--primary-emerald);
+}
+
+.overview-item-title {
+  font-family: var(--heading);
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-light);
+}
+
+/* =========================================================================
+REVEAL ANIMATIONS
+========================================================================= */
+.slide .reveal {
+  opacity: 0;
+  transform: translateY(15px);
+  transition: opacity 0.6s ease, transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.active-slide .reveal {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.active-slide .reveal.d1 { transition-delay: 0.08s; }
+.active-slide .reveal.d2 { transition-delay: 0.16s; }
+.active-slide .reveal.d3 { transition-delay: 0.24s; }
+.active-slide .reveal.d4 { transition-delay: 0.32s; }
+.active-slide .reveal.d5 { transition-delay: 0.4s; }
+.active-slide .reveal.d6 { transition-delay: 0.48s; }
+</style>
+</head>
+<body>
+
+<!-- BACKGROUND CANVASES -->
+<div id="bg-canvas">
+  <div class="matrix-grid"></div>
+  <canvas id="flow-canvas"></canvas>
+</div>
+
+<!-- SLIDE DECK WRAPPER -->
+<div id="deck">
+
+  <!-- SLIDE 1 ⏺ Title Slide -->
+  <section class="slide active-slide" data-screen-label="01 TITLE">
+    <div class="chrome-header reveal d1">
+      <div>Registry Code: BSIT-CAP4-2026-SC-V2</div>
+      <div>&sect; 01 / 06</div>
+    </div>
+    
+    <div class="frame-content">
+      <div class="title-grid">
+        <div class="title-card reveal d2">
+          <div class="kicker">
+            <i data-lucide="shield-check" style="width:12px;height:12px;"></i> Information Assurance & Security
+          </div>
+          <h1>SecureCAT</h1>
+          <p>A Role-Based College Admission Testing System for the Guidance and Registrar Offices at ISPSC Tagudin</p>
+          
+          <div class="title-meta">
+            <div class="meta-item">
+              <span>Primary Objective</span>
+              <div>Role-Gated Admission Pipeline</div>
+            </div>
+            <div class="meta-item">
+              <span>Security Grounding</span>
+              <div>Immutable Audit Logging & RBAC</div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="logo-container reveal d3">
+          <div class="logo-glow">
+            <div class="logo-shield">
+              <span class="logo-text">SC</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="chrome-footer reveal d4">
+      <div>SecureCAT Thesis Defense &middot; 2026</div>
+      <div>SC-DECK // PAGE 01</div>
+    </div>
+  </section>
+
+  <!-- SLIDE 2 ⏺ Context & Problem -->
+  <section class="slide" data-screen-label="02 THE PROBLEM">
+    <div class="chrome-header reveal d1">
+      <div>Section 1.0 &middot; Context & Core Failures</div>
+      <div>&sect; 02 / 06</div>
+    </div>
+    
+    <div class="frame-content">
+      <h2 class="slide-title reveal d2">Vulnerabilities in Manual Testing Workflows</h2>
+      
+      <div class="split-layout">
+        <div class="reveal d3">
+          <div class="kicker"><i data-lucide="help-circle" style="width:12px;height:12px;"></i> Institutional Reality</div>
+          <div class="scene-hook">
+            "A proctor glances at a student ID card at the testing room door. Weeks later, anomalies emerge in the scoring spreadsheets with no trail."
+          </div>
+          <div class="scene-desc">
+            At ISPSC Tagudin, college admission testing governs the entry of hundreds of applicants. Currently, scheduling relies on paper logs and separate spreadsheets. Exam room identity verification relies purely on visual ID checks. Score modifications go untraced. Applicants wait in complete informational isolation.
+          </div>
+          
+          <div class="mockup-console" style="height: 160px; margin-top: 15px;">
+            <div class="console-bar">
+              <div class="console-dots"><div class="console-dot red"></div><div class="console-dot yellow"></div><div class="console-dot green"></div></div>
+              <div>ispsc_manual_operations.log</div>
+            </div>
+            <div class="console-content" style="font-size: 0.7rem; padding: 10px;">
+              [WARN] Duplicate sched for room IT-101. Sheet overwritten.<br>
+              [WARN] Applicant David Datu: scores modified. Who changed Abstract Reasoning?<br>
+              [ERROR] Manual verification failed. No audit log found for score commits.<br>
+              <span class="prompt">guidance@ispsc-tagudin:~$</span> <span class="keyword">echo</span> "Data integrity risk detected"
+            </div>
+          </div>
+        </div>
+        
+        <div class="grid-3" style="grid-template-columns: 1fr; gap: 15px;">
+          <!-- Card 1 -->
+          <div class="glass-card problem-card reveal d4">
+            <div class="prob-num">01 <i data-lucide="user-x" style="width:16px;height:16px;color:var(--danger-red);"></i></div>
+            <div class="prob-title">Identity Verification Gaps</div>
+            <div class="prob-body">
+              Exam room check-in is purely visual. Impersonation risks are high. No digital link exists connecting the physical examinee to the registered online profile.
+            </div>
+            <div class="prob-impact">Impact: Entry gate vulnerability</div>
+          </div>
+          
+          <!-- Card 2 -->
+          <div class="glass-card problem-card reveal d5">
+            <div class="prob-num">02 <i data-lucide="database-backup" style="width:16px;height:16px;color:var(--danger-red);"></i></div>
+            <div class="prob-title">Disconnected Data & No Audit</div>
+            <div class="prob-body">
+              Rosters exist in separate files. Score modifications occur without audit trails or cryptographic non-repudiation constraints.
+            </div>
+            <div class="prob-impact">Impact: Severe data integrity risk</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="chrome-footer reveal d6">
+      <div>SecureCAT Thesis Defense &middot; 2026</div>
+      <div>SC-DECK // PAGE 02</div>
+    </div>
+  </section>
+
+  <!-- SLIDE 3 ⏺ Proposed System & Component Coverage Map -->
+  <section class="slide" data-screen-label="03 PROPOSED SYSTEM">
+    <div class="chrome-header reveal d1">
+      <div>Section 2.0 &middot; Architecture & Curriculum compliance</div>
+      <div>&sect; 03 / 06</div>
+    </div>
+    
+    <div class="frame-content">
+      <h2 class="slide-title reveal d2">Role-Gated Admission Pipeline & Pillars</h2>
+      
+      <div class="glass-card arch-diagram-card reveal d3">
+        <div class="pipeline-diagram">
+          <!-- Phase 1 -->
+          <div class="pipeline-node">
+            <div class="node-phase">P1: Apply</div>
+            <div class="node-title">Applicant Registration</div>
+            <div class="node-role">Applicant</div>
+          </div>
+          
+          <div class="pipeline-arrow"><div class="policy-gate-overlay">Policy: Guest</div></div>
+          
+          <!-- Phase 2 -->
+          <div class="pipeline-node">
+            <div class="node-phase">P2: Schedule</div>
+            <div class="node-title">Room & Venue Assignment</div>
+            <div class="node-role">Test Admin</div>
+          </div>
+          
+          <div class="pipeline-arrow"><div class="policy-gate-overlay">Policy: TestAdmin</div></div>
+          
+          <!-- Phase 3 -->
+          <div class="pipeline-node">
+            <div class="node-phase">P3: Exam</div>
+            <div class="node-title">QR Check-In & Attendance</div>
+            <div class="node-role">Proctor</div>
+          </div>
+          
+          <div class="pipeline-arrow"><div class="policy-gate-overlay">Policy: Proctor</div></div>
+          
+          <!-- Phase 4 -->
+          <div class="pipeline-node">
+            <div class="node-phase">P4: Encode</div>
+            <div class="node-title">Score Entry & Finalize</div>
+            <div class="node-role">Registrar Admin</div>
+          </div>
+          
+          <div class="pipeline-arrow"><div class="policy-gate-overlay">Policy: Registrar</div></div>
+          
+          <!-- Phase 5 -->
+          <div class="pipeline-node">
+            <div class="node-phase">P5: Release</div>
+            <div class="node-title">Counselor Review & Release</div>
+            <div class="node-role">Counselor</div>
+          </div>
+        </div>
+      </div>
+      
+      <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px;" class="reveal d4">
+        <div class="glass-card comp-small-card">
+          <div class="comp-header"><div class="comp-icon"><i data-lucide="globe"></i></div><div class="comp-badge">Web</div></div>
+          <div class="comp-name">Laravel + Svelte</div>
+          <div class="comp-details">Laravel 12 backend with Svelte 5 Inertia v2 SPA. Enforces policy gates server-side.</div>
+        </div>
+        
+        <div class="glass-card comp-small-card">
+          <div class="comp-header"><div class="comp-icon"><i data-lucide="smartphone"></i></div><div class="comp-badge">Mobile</div></div>
+          <div class="comp-name">PWA Portal</div>
+          <div class="comp-details">Mobile-optimized applicant portal client styled using Tailwind CSS v4.</div>
+        </div>
+        
+        <div class="glass-card comp-small-card">
+          <div class="comp-header"><div class="comp-icon"><i data-lucide="brain"></i></div><div class="comp-badge">AI/ML</div></div>
+          <div class="comp-name">RAG Engine</div>
+          <div class="comp-details">Mixedbread embeddings + confidence gate preventing parametric hallucination.</div>
+        </div>
+        
+        <div class="glass-card comp-small-card">
+          <div class="comp-header"><div class="comp-icon"><i data-lucide="qr-code"></i></div><div class="comp-badge">IoT</div></div>
+          <div class="comp-name">QR Verification</div>
+          <div class="comp-details">Cryptographic QR codes scanned at exam entry point to record attendance.</div>
+        </div>
+        
+        <div class="glass-card comp-small-card">
+          <div class="comp-header"><div class="comp-icon"><i data-lucide="map-pin"></i></div><div class="comp-badge">Mapping</div></div>
+          <div class="comp-name">Venue Mapping</div>
+          <div class="comp-details">Leaflet.js mapping module routing applicants to scheduled exam rooms.</div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="chrome-footer reveal d5">
+      <div>SecureCAT Thesis Defense &middot; 2026</div>
+      <div>SC-DECK // PAGE 03</div>
+    </div>
+  </section>
+
+  <!-- SLIDE 4 ⏺ Live Demo -->
+  <section class="slide" data-screen-label="04 LIVE DEMO">
+    <div class="chrome-header reveal d1">
+      <div>Section 3.0 &middot; Interactive Pipeline Simulation</div>
+      <div>&sect; 04 / 06</div>
+    </div>
+    
+    <div class="frame-content">
+      <div class="sim-grid">
+        
+        <!-- Applicant Portal -->
+        <div class="glass-card sim-panel reveal d2">
+          <div class="panel-header">
+            <div class="panel-title"><i data-lucide="user"></i> Applicant Portal</div>
+            <div class="panel-badge badge-applicant">Active Account</div>
+          </div>
+          <div class="panel-body">
+            <div class="applicant-details">
+              <div class="applicant-qr" id="sim-app-qr-box">
+                <div class="qr-placeholder" id="sim-app-qr-code"></div>
+              </div>
+              <div class="applicant-meta">
+                <div class="app-row"><span>Name:</span> <span id="sim-app-name">David Datu</span></div>
+                <div class="app-row"><span>Ref ID:</span> <span id="sim-app-ref">SC-2026-981</span></div>
+                <div class="app-row"><span>Status:</span> <span class="app-status status-init" id="sim-app-status">Draft</span></div>
+              </div>
+            </div>
+            
+            <div class="rag-widget">
+              <div class="rag-qa-preset">
+                <button class="btn-preset" onclick="askRAG(1)">Passing Rate?</button>
+                <button class="btn-preset" onclick="askRAG(2)">Where is room?</button>
+                <button class="btn-preset" onclick="askRAG(3)">Missed exam?</button>
+              </div>
+              <div class="rag-display" id="sim-rag-output">
+                AI Companion: Ready. Click a question above to trigger RAG context lookup.
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Proctor Check-In -->
+        <div class="glass-card sim-panel reveal d3">
+          <div class="panel-header">
+            <div class="panel-title"><i data-lucide="scan"></i> Proctor Terminal</div>
+            <div class="panel-badge badge-proctor">Proctor: Room IT-204</div>
+          </div>
+          <div class="panel-body">
+            <div class="scan-container">
+              <div class="scan-box">
+                <div class="scan-line" id="sim-scan-laser"></div>
+                <div class="scan-target" id="sim-scan-status">Scanner Offline</div>
+              </div>
+              <button class="btn-action" id="sim-scan-btn" onclick="startQRScan()" disabled>
+                <i data-lucide="qr-code"></i> Scan Applicant QR Code
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Registrar & Counselor Dashboard -->
+        <div class="glass-card sim-panel reveal d4">
+          <div class="panel-header">
+            <div class="panel-title"><i data-lucide="pen-tool"></i> Registrar & Counselor Panel</div>
+            <div class="panel-badge badge-admin">Registrar/Counselor Role</div>
+          </div>
+          <div class="panel-body">
+            <div class="grading-form">
+              <div class="grading-input"><label>Math</label><input type="number" id="score-math" value="88" disabled></div>
+              <div class="grading-input"><label>English</label><input type="number" id="score-english" value="85" disabled></div>
+              <div class="grading-input"><label>Science</label><input type="number" id="score-science" value="90" disabled></div>
+              <div class="grading-input"><label>Abstract</label><input type="number" id="score-abstract" value="87" disabled></div>
+            </div>
+            <div style="display: flex; gap: 8px; margin-top: 5px;">
+              <button class="btn-action" id="sim-lock-btn" onclick="finalizeGrades()" disabled><i data-lucide="lock"></i> Finalize & Lock</button>
+              <button class="btn-action" id="sim-release-btn" onclick="deliberateRelease()" disabled style="border-color: #3b82f6;"><i data-lucide="send"></i> Counselor Release</button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- System Console Logs -->
+        <div class="glass-card sim-panel reveal d5">
+          <div class="panel-header">
+            <div class="panel-title"><i data-lucide="terminal"></i> System Security Logs & Audit Trail</div>
+            <div class="panel-badge badge-logs">Append-Only</div>
+          </div>
+          <div class="panel-body" style="justify-content: flex-start;">
+            <div class="sim-console" id="sim-console">
+              <div class="console-line sec-log">System: Application loaded. Waiting for registration.</div>
+            </div>
+            <button class="btn-action" id="sim-init-btn" onclick="initializeFlow()" style="margin-top: 8px;"><i data-lucide="play"></i> Start Mock Pipeline Demo</button>
+          </div>
+        </div>
+        
+      </div>
+    </div>
+    
+    <div class="chrome-footer reveal d6">
+      <div>SecureCAT Thesis Defense &middot; 2026</div>
+      <div>SC-DECK // PAGE 04</div>
+    </div>
+  </section>
+
+  <!-- SLIDE 5 ⏺ Innovation Matrix & Scope Boundaries -->
+  <section class="slide" data-screen-label="05 EVALUATION & SCOPE">
+    <div class="chrome-header reveal d1">
+      <div>Section 4.0 &middot; Innovation & Scope Boundaries</div>
+      <div>&sect; 05 / 06</div>
+    </div>
+    
+    <div class="frame-content">
+      <h2 class="slide-title reveal d2">System Comparisons & Boundaries</h2>
+      <div class="split-layout" style="grid-template-columns: 1.05fr 0.95fr;">
+        
+        <div class="reveal d3">
+          <table class="matrix-table">
+            <thead>
+              <tr>
+                <th>Security Pillar</th>
+                <th>Manual Process</th>
+                <th class="matrix-highlight">SecureCAT</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="cell-bold">Identity Verification</td>
+                <td>None (visual check)</td>
+                <td class="matrix-highlight">Low-risk (QR-based scan)</td>
+              </tr>
+              <tr>
+                <td class="cell-bold">Score Modifications</td>
+                <td>Vulnerable (excel sheets)</td>
+                <td class="matrix-highlight">Locked (DB constraint gate)</td>
+              </tr>
+              <tr>
+                <td class="cell-bold">Non-Repudiation Audit</td>
+                <td>Zero (no event logging)</td>
+                <td class="matrix-highlight">Immutable (SQL write-once trigger)</td>
+              </tr>
+              <tr>
+                <td class="cell-bold">Applicant Support</td>
+                <td>High office overhead</td>
+                <td class="matrix-highlight">24/7 RAG AI Companion</td>
+              </tr>
+              <tr>
+                <td class="cell-bold">Disclosure Control</td>
+                <td>Immediate phone / email</td>
+                <td class="matrix-highlight">Deliberate counselor release</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        
+        <div class="grid-2" style="grid-template-columns: 1fr; gap: 15px;">
+          <!-- In-Scope -->
+          <div class="glass-card scope-box in-scope reveal d4" style="height: 180px;">
+            <div class="scope-list-title in"><i data-lucide="check-circle-2"></i> In Scope</div>
+            <ul class="scope-ul">
+              <li>Online/Walk-in Registration Review</li>
+              <li>Exam Scheduling & Proctor Allocation</li>
+              <li>QR-based Check-In & Registrar Score Locks</li>
+              <li>Counselor recommendations & Deliberate Release</li>
+              <li>Hallucination-free RAG AI Assistant</li>
+            </ul>
+          </div>
+          
+          <!-- Out-Scope -->
+          <div class="glass-card scope-box out-scope reveal d5" style="height: 180px;">
+            <div class="scope-list-title out"><i data-lucide="x-circle"></i> Out of Scope</div>
+            <ul class="scope-ul">
+              <li>Online Exam Delivery (exams remain paper-based)</li>
+              <li>System fees or Cashier payment processing</li>
+              <li>App Store Native Builds (Web PWA only)</li>
+              <li>AI-based automated enrollment decisions</li>
+            </ul>
+          </div>
+        </div>
+        
+      </div>
+    </div>
+    
+    <div class="chrome-footer reveal d6">
+      <div>SecureCAT Thesis Defense &middot; 2026</div>
+      <div>SC-DECK // PAGE 05</div>
+    </div>
+  </section>
+
+  <!-- SLIDE 6 ⏺ Roadmap, Verification & Conclusion -->
+  <section class="slide" data-screen-label="06 CONCLUSION">
+    <div class="chrome-header reveal d1">
+      <div>Section 5.0 &middot; Roadmap & Verification Gates</div>
+      <div>&sect; 06 / 06</div>
+    </div>
+    
+    <div class="frame-content">
+      <h2 class="slide-title reveal d2">Development Roadmap, Verification & Conclusion</h2>
+      
+      <div class="grid-2" style="grid-template-columns: 1.1fr 0.9fr; gap: 20px;">
+        <div class="reveal d3">
+          <div class="kicker"><i data-lucide="calendar"></i> Implementation Timeline</div>
+          <div class="glass-card" style="padding: 15px 20px; height: 210px; display: flex; flex-direction: column; justify-content: center; margin-top: 5px;">
+            <div class="timeline-track">
+              <div class="timeline-step completed"><div class="timeline-dot">1</div><div class="timeline-title">DB & RBAC</div></div>
+              <div class="timeline-step completed"><div class="timeline-dot">2</div><div class="timeline-title">Scheduler</div></div>
+              <div class="timeline-step completed"><div class="timeline-dot">3</div><div class="timeline-title">QR Scan</div></div>
+              <div class="timeline-step completed"><div class="timeline-dot">4</div><div class="timeline-title">Scoring Lock</div></div>
+              <div class="timeline-step completed"><div class="timeline-dot">5</div><div class="timeline-title">RAG Release</div></div>
+            </div>
+            <div style="font-size:0.75rem; color:var(--text-muted); line-height:1.4; margin-top:10px; text-align:center;">
+              All five phases completed. Authentication policy rules, scheduling controllers, QR generation endpoints, finalization triggers, and OpenRouter RAG scripts are fully deployed.
+            </div>
+          </div>
+        </div>
+        
+        <div class="glass-card ver-card reveal d4" style="height: 230px;">
+          <div class="ver-title"><i data-lucide="shield-check"></i> Quality Verification Gates</div>
+          
+          <div class="ver-item">
+            <div class="ver-item-header"><span>PHPUnit Automated Tests</span> <span>48 Test Cases</span></div>
+            <div class="ver-item-body">Verify 403 route blocks on unauthorized roles, sequential workflow guards, and DB trigger score locks.</div>
+          </div>
+          <div class="ver-item">
+            <div class="ver-item-header"><span>User Acceptance Testing (UAT)</span> <span>Target SUS Score &ge; 80</span></div>
+            <div class="ver-item-body">Evaluated with 30 key roles. Enforces 100% role separation boundaries with zero data leaks.</div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="conclusion-section reveal d5">
+        <div>
+          <div class="closing-badge">BSIT-CAP4-2026-SC-V2</div>
+          <div class="conclusion-title" style="margin-top: 5px;">SecureCAT: College Admission Testing Re-Engineered</div>
+        </div>
+        
+        <div class="closing-metrics">
+          <div class="metric-box">
+            <div class="metric-val">4</div>
+            <div class="metric-lbl">Role Silos</div>
+          </div>
+          <div class="metric-box" style="border-left: 1px solid rgba(16, 185, 129, 0.2); padding-left: 20px;">
+            <div class="metric-val">100%</div>
+            <div class="metric-lbl">Audit Logs</div>
+          </div>
+          <div class="metric-box" style="border-left: 1px solid rgba(16, 185, 129, 0.2); padding-left: 20px;">
+            <div class="metric-val">0%</div>
+            <div class="metric-lbl">AI Hallucination</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="chrome-footer reveal d6">
+      <div>SecureCAT Thesis Defense &middot; 2026</div>
+      <div>SC-DECK // PAGE 06</div>
+    </div>
+  </section>
+
+</div>
+
+<!-- NAVIGATION CONTROLS -->
+<div id="controls">
+  <button class="btn-ctrl" id="overview-btn" onclick="toggleOverview()"><i data-lucide="grid"></i> Index</button>
+  <button class="btn-ctrl" onclick="go(idx - 1)"><i data-lucide="chevron-left"></i></button>
+  <button class="btn-ctrl" onclick="go(idx + 1)"><i data-lucide="chevron-right"></i></button>
+</div>
+
+<!-- OVERVIEW GRID MODAL -->
+<div id="overview-modal">
+  <div class="overview-header">
+    <h2>SecureCAT Slide Index</h2>
+    <button class="btn-ctrl" onclick="toggleOverview()"><i data-lucide="x"></i></button>
+  </div>
+  <div class="overview-grid" id="overview-grid"></div>
+</div>
+
+<script>
+/* =========================================================================
+SLIDE DECK ENGINE (Navigation, Keyboards, Wheel, Swipes, Overview Card Grid)
+========================================================================= */
+const deck = document.getElementById('deck');
+const slides = deck.querySelectorAll('.slide');
+let idx = 0;
+const total = slides.length;
+
+function go(newIdx) {
+  if (newIdx < 0 || newIdx >= total) return;
+  
+  // Transition slides
+  deck.style.transform = `translateX(-${newIdx * 100}vw)`;
+  
+  // Update classes
+  slides[idx].classList.remove('active-slide');
+  slides[newIdx].classList.add('active-slide');
+  
+  idx = newIdx;
+  
+  // Update overview modal state if open
+  updateOverviewActiveCard();
+}
+
+// Keyboard listeners
+window.addEventListener('keydown', e => {
+  if (overviewOn) {
+    if (e.key === 'Escape') toggleOverview();
+    return;
+  }
+  if (e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === 'Space') go(idx + 1);
+  if (e.key === 'ArrowLeft' || e.key === 'PageUp') go(idx - 1);
+  if (e.key === 'Home') go(0);
+  if (e.key === 'End') go(total - 1);
+});
+
+// Scroll wheel accumulator navigation
+let wheelTO = null, wheelAcc = 0;
+addEventListener('wheel', e => {
+  if (overviewOn) return;
+  wheelAcc += e.deltaY + e.deltaX;
+  clearTimeout(wheelTO);
+  wheelTO = setTimeout(() => {
+    if (Math.abs(wheelAcc) > 50) {
+      go(idx + (wheelAcc > 0 ? 1 : -1));
+    }
+    wheelAcc = 0;
+  }, 50);
+}, { passive: true });
+
+// Touch swipes
+let startX = 0;
+addEventListener('touchstart', e => {
+  startX = e.touches[0].clientX;
+}, { passive: true });
+
+addEventListener('touchend', e => {
+  const diffX = e.changedTouches[0].clientX - startX;
+  if (Math.abs(diffX) > 80) {
+    go(idx + (diffX > 0 ? -1 : 1));
+  }
+}, { passive: true });
+
+// Slide overview modal toggler
+let overviewOn = false;
+const overviewModal = document.getElementById('overview-modal');
+const overviewGrid = document.getElementById('overview-grid');
+
+function toggleOverview() {
+  overviewOn = !overviewOn;
+  if (overviewOn) {
+    overviewGrid.innerHTML = '';
+    slides.forEach((slide, sIdx) => {
+      const label = slide.getAttribute('data-screen-label') || `SLIDE ${sIdx+1}`;
+      const item = document.createElement('div');
+      item.className = `overview-item ${sIdx === idx ? 'active' : ''}`;
+      item.onclick = () => {
+        go(sIdx);
+        toggleOverview();
+      };
+      
+      const num = document.createElement('div');
+      num.className = 'overview-item-num';
+      num.textContent = `PAGE ${String(sIdx+1).padStart(2, '0')}`;
+      
+      const title = document.createElement('div');
+      title.className = 'overview-item-title';
+      title.textContent = label;
+      
+      item.appendChild(num);
+      item.appendChild(title);
+      overviewGrid.appendChild(item);
+    });
+    overviewModal.classList.add('active');
+  } else {
+    overviewModal.classList.remove('active');
+  }
+}
+
+function updateOverviewActiveCard() {
+  if (!overviewOn) return;
+  const items = overviewGrid.querySelectorAll('.overview-item');
+  items.forEach((item, sIdx) => {
+    if (sIdx === idx) item.classList.add('active');
+    else item.classList.remove('active');
+  });
+}
+
+/* =========================================================================
+2D CANVAS PARTICLE SYSTEM: EMERALD STRUCTURAL GRAPH
+========================================================================= */
+const canvas = document.getElementById('flow-canvas');
+const ctx = canvas.getContext('2d');
+let width = canvas.width = window.innerWidth;
+let height = canvas.height = window.innerHeight;
+
+window.addEventListener('resize', () => {
+  width = canvas.width = window.innerWidth;
+  height = canvas.height = window.innerHeight;
+});
+
+const nodeCount = 45;
+const nodes = [];
+const maxDist = 140;
+
+for (let i = 0; i < nodeCount; i++) {
+  nodes.push({
+    x: Math.random() * width,
+    y: Math.random() * height,
+    vx: (Math.random() - 0.5) * 0.3,
+    vy: (Math.random() - 0.5) * 0.3,
+    r: Math.random() * 2 + 1
+  });
+}
+
+function drawNetwork() {
+  ctx.clearRect(0, 0, width, height);
+  
+  // Draw structural connection edges
+  for (let i = 0; i < nodeCount; i++) {
+    const n1 = nodes[i];
+    for (let j = i + 1; j < nodeCount; j++) {
+      const n2 = nodes[j];
+      const dx = n2.x - n1.x;
+      const dy = n2.y - n1.y;
+      const d = Math.sqrt(dx*dx + dy*dy);
+      
+      if (d < maxDist) {
+        const alpha = (1 - d / maxDist) * 0.12;
+        ctx.strokeStyle = `rgba(16, 185, 129, ${alpha})`;
+        ctx.lineWidth = 0.8;
+        ctx.beginPath();
+        ctx.moveTo(n1.x, n1.y);
+        ctx.lineTo(n2.x, n2.y);
+        ctx.stroke();
+      }
+    }
+  }
+  
+  // Draw points
+  for (let i = 0; i < nodeCount; i++) {
+    const n = nodes[i];
+    ctx.fillStyle = `rgba(52, 211, 153, 0.35)`;
+    ctx.beginPath();
+    ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
+    ctx.fill();
+    
+    // Update velocities
+    n.x += n.vx;
+    n.y += n.vy;
+    
+    // Bounce walls
+    if (n.x < 0 || n.x > width) n.vx *= -1;
+    if (n.y < 0 || n.y > height) n.vy *= -1;
+  }
+}
+
+function tick() {
+  drawNetwork();
+  requestAnimationFrame(tick);
+}
+tick();
+
+/* =========================================================================
+INTERACTIVE MULTI-SURFACE SIMULATOR FOR SecureCAT
+========================================================================= */
+const simConsole = document.getElementById('sim-console');
+const simAppStatus = document.getElementById('sim-app-status');
+const simScanStatus = document.getElementById('sim-scan-status');
+const simScanBtn = document.getElementById('sim-scan-btn');
+const simLockBtn = document.getElementById('sim-lock-btn');
+const simReleaseBtn = document.getElementById('sim-release-btn');
+const simAppQrCode = document.getElementById('sim-app-qr-code');
+const simLaser = document.getElementById('sim-laser');
+
+const scoreMath = document.getElementById('score-math');
+const scoreEnglish = document.getElementById('score-english');
+const scoreScience = document.getElementById('score-science');
+const scoreAbstract = document.getElementById('score-abstract');
+
+// Simulated state variables
+const applicant = {
+  name: "David Datu",
+  ref: "SC-2026-981",
+  status: "Draft",
+  scores: { math: 88, english: 85, science: 90, abstract: 87 },
+  counselorComment: "Pass. Highly recommended for BSIT program.",
+  isPresent: false,
+  isGraded: false,
+  isReleased: false
+};
+
+// Console logger helper
+function addLog(text, type = 'sec-log') {
+  const line = document.createElement('div');
+  line.className = `console-line ${type}`;
+  
+  const timestamp = new Date().toLocaleTimeString();
+  line.innerHTML = `<span style="color:var(--text-muted)">[${timestamp}]</span> ${text}`;
+  
+  simConsole.appendChild(line);
+  simConsole.scrollTop = simConsole.scrollHeight;
+}
+
+// Sound feedback generator using Web Audio API
+function playBeep(frequency, duration, type = 'sine') {
+  try {
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const oscillator = audioCtx.createOscillator();
+    const gainNode = audioCtx.createGain();
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
+    
+    oscillator.type = type;
+    oscillator.frequency.value = frequency;
+    gainNode.gain.setValueAtTime(0.08, audioCtx.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+    
+    oscillator.start(audioCtx.currentTime);
+    oscillator.stop(audioCtx.currentTime + duration);
+  } catch (e) {
+    // Ignore audio failures if blocked by user interaction policies
+  }
+}
+
+// 1. Initial State Activation
+function initializeFlow() {
+  document.getElementById('sim-init-btn').disabled = true;
+  applicant.status = "Applied";
+  
+  // Set UI
+  simAppStatus.textContent = "Applied";
+  simAppStatus.className = "app-status status-applied";
+  
+  addLog("Applicant Portal: Form submitted by guest user.", "sec-log");
+  addLog("Auth Engine: Guest token authenticated. Created Reference #SC-2026-981.", "sec-log");
+  addLog("Event Pipeline: Sent registration confirmation toast notification.", "sec-log");
+  
+  // Advance to Scheduled
+  setTimeout(() => {
+    applicant.status = "Scheduled";
+    simAppStatus.textContent = "Scheduled";
+    simAppStatus.className = "app-status status-scheduled";
+    
+    // Draw visual indicators
+    simAppQrCode.style.opacity = "1";
+    simAppQrCode.style.backgroundImage = "radial-gradient(var(--primary-emerald) 3px, transparent 3px)";
+    simAppQrCode.style.backgroundSize = "8px 8px";
+    
+    // Enable proctor check-in scan button
+    simScanBtn.disabled = false;
+    simScanStatus.textContent = "Ready to Scan (IT-204)";
+    simScanStatus.style.color = "var(--primary-emerald)";
+    
+    addLog("Guidance and Registrar Offices: Schedule assigned for David Datu (Date: 2026-05-25, Room: IT-204).", "sec-log");
+    addLog("Notification Engine: Dispatched SMS & Email credentials schedule payload.", "sec-log");
+    playBeep(523.25, 0.15); // C5 note
+  }, 1500);
+}
+
+// 2. Proctor QR Scan Check-In
+function startQRScan() {
+  simScanBtn.disabled = true;
+  simScanStatus.textContent = "Reading QR...";
+  simScanStatus.style.color = "var(--warning-yellow)";
+  
+  // Laser line animation
+  const laser = document.getElementById('sim-scan-laser');
+  laser.style.display = 'block';
+  
+  addLog("Proctor Scanner: Scanning applicant QR token at room entrance...", "sec-log");
+  
+  setTimeout(() => {
+    laser.style.display = 'none';
+    applicant.status = "Examining";
+    applicant.isPresent = true;
+    
+    simAppStatus.textContent = "Examining";
+    simAppStatus.className = "app-status status-examining";
+    
+    simScanStatus.textContent = "David Datu: VERIFIED PRESENT";
+    simScanStatus.style.color = "var(--accent-mint)";
+    
+    addLog("RBAC Policy Gate: Checked Proctor role token -> PERMITTED.", "sec-log");
+    addLog("IoT Gateway: Decrypted QR hash. Match found: UserID 981.", "sec-log");
+    addLog("Audit Trail: Logged 'EXAM_CHECKIN' by proctor ID 14.", "db-log");
+    
+    playBeep(880, 0.1); // High whistle beep
+    
+    // Enable grading controls after exam completes (simulate delay)
+    setTimeout(() => {
+      addLog("Exam State: Timer completed. Proctor locked exam room roster.", "sec-log");
+      applicant.status = "Completed";
+      simAppStatus.textContent = "Completed";
+      simAppStatus.className = "app-status status-init";
+      
+      // Enable grading panel inputs & Finalize button
+      scoreMath.disabled = false;
+      scoreEnglish.disabled = false;
+      scoreScience.disabled = false;
+      scoreAbstract.disabled = false;
+      simLockBtn.disabled = false;
+      
+      addLog("SecureCAT System: Exam sheet ready for scoring.", "sec-log");
+      playBeep(659.25, 0.2); // E5 note
+    }, 2000);
+    
+  }, 1500);
+}
+
+// 3. Registrar Score Entry and Finalization Lock
+function finalizeGrades() {
+  simLockBtn.disabled = true;
+  
+  // Disable score inputs
+  scoreMath.disabled = true;
+  scoreEnglish.disabled = true;
+  scoreScience.disabled = true;
+  scoreAbstract.disabled = true;
+  
+  applicant.status = "Graded";
+  applicant.isGraded = true;
+  
+  simAppStatus.textContent = "Graded";
+  simAppStatus.className = "app-status status-graded";
+  
+  addLog("RBAC Policy Gate: Checked Registrar Admin token -> PERMITTED.", "sec-log");
+  addLog("Data Pipeline: Committed scores [M:88, E:85, S:90, A:87] to applicant ledger.", "sec-log");
+  addLog("Audit Trail: Score transaction recorded under Admin ID 2. Hash: SHA256-4b9e2...", "db-log");
+  addLog("Database Engine: Locked grades. Trigger active: prevent edits.", "db-log");
+  
+  // Simulate database lock verification
+  addLog("Security Verification: Simulating illegal edit attempt on finalized scores...", "err-log");
+  setTimeout(() => {
+    addLog("DB_TRIGGER: UPDATE BLOCKED. SQL Error Code 1644: 'Score records are finalized and locked'.", "err-log");
+    addLog("Security Audit: Blocked intrusion alert written to audit trail.", "db-log");
+    playBeep(220, 0.3, 'sawtooth'); // Error buzz sound
+    
+    // Enable counselor deliberate release button
+    simReleaseBtn.disabled = false;
+    addLog("Guidance Counselor: Grade locks validated. Ready for Deliberate Release review.", "sec-log");
+  }, 1000);
+}
+
+// 4. Counselor Deliberate Release
+function deliberateRelease() {
+  simReleaseBtn.disabled = true;
+  applicant.status = "Released";
+  applicant.isReleased = true;
+  
+  simAppStatus.textContent = "Released";
+  simAppStatus.className = "app-status status-released";
+  
+  addLog("RBAC Policy Gate: Checked Counselor role token -> PERMITTED.", "sec-log");
+  addLog("Counselor: Written recommendation: 'Recommended for admission'.", "sec-log");
+  addLog("Audit Trail: Logged 'RESULT_DELIBERATE_RELEASE' by Counselor ID 3.", "db-log");
+  
+  // Modify Applicant view to show scores
+  const scoreSummary = `<div style="border-top: 1px dashed rgba(16,185,129,0.3); margin-top:8px; padding-top:6px; font-weight:600; color:var(--accent-mint);">
+    Exam Passed! Recommendation: Highly Recommended for BSIT.<br>
+    Scores: M:88 | E:85 | S:90 | A:87 (Average: 87.5)
+  </div>`;
+  
+  document.getElementById('sim-rag-output').innerHTML = `<strong>Result Notification:</strong> Approved for enrollment! ${scoreSummary}`;
+  
+  addLog("Notification Engine: Result released. Transmitted webhook push to Applicant Portal.", "sec-log");
+  playBeep(1046.5, 0.25); // High C6 chime
+}
+
+// RAG AI Companion Query System
+const ragDatabase = {
+  1: {
+    query: "What is the passing score for BSIT?",
+    retrieved: "admissions_policy_v2.json (IT Dept) | Content: 'Applicants to the BSIT program must achieve a minimum CAT score of 85%.' (Cosine similarity: 0.96)",
+    answer: "The passing score for BSIT is 85%. Answer grounded exclusively in admissions_policy_v2.json."
+  },
+  2: {
+    query: "Where is room IT-204?",
+    retrieved: "building_directory_map.json | Content: 'IT-204 is a computer laboratory located on the second floor of the Information Technology Building.' (Cosine similarity: 0.98)",
+    answer: "Room IT-204 is on the 2nd floor of the Information Technology Building. Grounded in building_directory_map.json."
+  },
+  3: {
+    query: "What happens if I miss the exam?",
+    retrieved: "exam_operations_manual.txt | Content: 'Absentee examinees must request rescheduling in writing to the Guidance and Registrar Offices within 3 days. Reschedules are subject to seat availability.' (Cosine similarity: 0.94)",
+    answer: "If you miss the exam, submit a written rescheduling request to the Guidance and Registrar Offices within 3 days. Rescheduling depends on seat availability. Grounded in exam_operations_manual.txt."
+  }
+};
+
+function askRAG(id) {
+  const qa = ragDatabase[id];
+  if (!qa) return;
+  
+  const ragDisplay = document.getElementById('sim-rag-output');
+  ragDisplay.innerHTML = `<span style="color:var(--warning-yellow); font-family:var(--mono);">Retrieving from Knowledge Base...</span>`;
+  
+  addLog(`RAG Engine: Received query "${qa.query}"`, "ai-log");
+  
+  setTimeout(() => {
+    addLog(`RAG Context: Match found. ${qa.retrieved}`, "ai-log");
+    addLog(`RAG Confidence: similarity above threshold. Cosine similarity score passed gate. No hallucination risk.`, "ai-log");
+    
+    ragDisplay.innerHTML = `
+      <div style="font-size:0.6rem; color:var(--text-muted); margin-bottom:4px;">
+        <i data-lucide="shield-check" style="width:10px;height:10px;display:inline;vertical-align:middle;color:var(--accent-mint)"></i>
+        Grounded RAG Response | Conf: 98%
+      </div>
+      <div>"${qa.answer}"</div>
+    `;
+    lucide.createIcons();
+    playBeep(440, 0.05); // High pitch brief chime
+  }, 1000);
+}
+
+// Execute initial script setups
+window.addEventListener('DOMContentLoaded', () => {
+  lucide.createIcons();
+});
+
+/* === Gallery Navigation Patch === */
+(function() {
+  const galleryUrl = '../../index.html';
+
+  const btn = document.createElement('div');
+  btn.innerHTML = '&#8592; Gallery';
+  Object.assign(btn.style, {
+    position: 'fixed', top: '16px', left: '16px', zIndex: '9999',
+    background: 'rgba(0,0,0,0.7)', color: '#fff', padding: '6px 14px',
+    borderRadius: '8px', fontSize: '13px', fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif",
+    cursor: 'pointer', opacity: '0', transition: 'opacity 0.3s ease',
+    backdropFilter: 'blur(8px)', border: '1px solid rgba(16,185,129,0.2)',
+    userSelect: 'none', lineHeight: '1.4'
+  });
+  btn.addEventListener('click', function() { window.location.href = galleryUrl; });
+  document.body.appendChild(btn);
+  document.addEventListener('mousemove', function(e) {
+    btn.style.opacity = e.clientX < 160 && e.clientY < 60 ? '1' : '0';
+  });
+  document.addEventListener('mouseleave', function() { btn.style.opacity = '0'; });
+  btn.addEventListener('mouseenter', function() { btn.style.opacity = '1'; });
+
+  const origGo = window.go;
+  window.go = function(newIdx) {
+    if (newIdx >= total) {
+      window.location.href = galleryUrl;
+      return;
+    }
+    origGo(newIdx);
+  };
+})();
+
+</script>
+
+</body>
+</html>
+
+

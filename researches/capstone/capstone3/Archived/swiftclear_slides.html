@@ -1,0 +1,1836 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SwiftClear — Student Clearance Proposal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  /* ===========================================
+     THEMING & VARIABLES (Midnight Glassmorphism)
+     =========================================== */
+  :root {
+    --bg-dark: #080a15;
+    --bg-darker: #04050b;
+    --primary-cyan: #00f0ff;
+    --primary-cyan-rgb: 0, 240, 255;
+    --secondary-purple: #8a2be2;
+    --secondary-purple-rgb: 138, 43, 226;
+    --success-green: #00ff87;
+    --success-green-rgb: 0, 255, 135;
+    --danger-red: #ff007f;
+    --danger-red-rgb: 255, 0, 127;
+    --glass-bg: rgba(13, 20, 45, 0.45);
+    --glass-border: rgba(0, 240, 255, 0.15);
+    --text-main: #f0f3f8;
+    --text-muted: #8fa0b5;
+    
+    --sans: 'Plus Jakarta Sans', system-ui, sans-serif;
+    --heading: 'Space Grotesk', system-ui, sans-serif;
+    --mono: 'Fira Code', monospace;
+    
+    --slide-padding: clamp(1.5rem, 4vw, 4rem);
+    --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: var(--bg-darker);
+    color: var(--text-main);
+    font-family: var(--sans);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Canvas background styling */
+  canvas#flow-canvas {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  /* ===========================================
+     SLIDE DECK FRAMEWORK
+     =========================================== */
+  #deck {
+    position: fixed;
+    inset: 0;
+    width: 10000vw;
+    height: 100vh;
+    display: flex;
+    flex-wrap: nowrap;
+    transition: transform 0.9s var(--ease-out-expo);
+    z-index: 10;
+    will-change: transform;
+  }
+
+  .slide {
+    width: 100vw;
+    height: 100vh;
+    flex: 0 0 100vw;
+    position: relative;
+    padding: 6vh 6vw 8vh 6vw;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    overflow: hidden;
+  }
+
+  /* Slide Overlay to shade content */
+  .slide::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background: radial-gradient(circle at 50% 50%, rgba(8, 10, 21, 0.5) 0%, rgba(4, 5, 11, 0.85) 100%);
+    transition: background 0.7s ease;
+  }
+
+  /* Reveal Animations */
+  .slide .reveal {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.7s var(--ease-out-expo), transform 0.7s var(--ease-out-expo);
+  }
+
+  .slide.active .reveal {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Stagger Delays */
+  .reveal.d1 { transition-delay: 0.1s; }
+  .reveal.d2 { transition-delay: 0.2s; }
+  .reveal.d3 { transition-delay: 0.3s; }
+  .reveal.d4 { transition-delay: 0.4s; }
+  .reveal.d5 { transition-delay: 0.5s; }
+  .reveal.d6 { transition-delay: 0.6s; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .slide .reveal {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
+  }
+
+  /* ===========================================
+     CHROME LAYOUTS (Header / Footer / Cards)
+     =========================================== */
+  .chrome-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--primary-cyan);
+    opacity: 0.8;
+  }
+
+  .chrome-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    color: var(--text-muted);
+  }
+
+  .frame-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 2vh 0;
+  }
+
+  .glass-card {
+    background: var(--glass-bg);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    padding: 3.5vh 3vw;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), 
+                0 0 1px rgba(var(--primary-cyan-rgb), 0.2) inset;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .glass-card:hover {
+    border-color: rgba(var(--primary-cyan-rgb), 0.35);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 
+                0 0 15px rgba(var(--primary-cyan-rgb), 0.15);
+  }
+
+  /* Headers */
+  h1.h-hero {
+    font-family: var(--heading);
+    font-size: clamp(2.5rem, 6vw, 4.5rem);
+    font-weight: 700;
+    line-height: 1.1;
+    background: linear-gradient(135deg, #ffffff 30%, var(--primary-cyan) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: -0.02em;
+    text-shadow: 0 0 40px rgba(var(--primary-cyan-rgb), 0.1);
+  }
+
+  h2.h-title {
+    font-family: var(--heading);
+    font-size: clamp(1.5rem, 3.2vw, 2.5rem);
+    font-weight: 600;
+    line-height: 1.2;
+    color: #ffffff;
+    margin-bottom: 1.5vh;
+  }
+
+  .kicker {
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: var(--primary-cyan);
+    margin-bottom: 1.5vh;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .lead {
+    font-size: clamp(0.9rem, 1.5vw, 1.25rem);
+    line-height: 1.6;
+    color: var(--text-muted);
+    max-width: 680px;
+  }
+
+  /* Grids and Lists */
+  .grid-2 {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 3vh 2.5vw;
+  }
+
+  .grid-3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2.5vh 2vw;
+  }
+
+  .list-unstyled {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5vh;
+  }
+
+  .list-unstyled li {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    color: var(--text-muted);
+  }
+
+  .list-unstyled li strong {
+    color: #ffffff;
+  }
+
+  /* Icon badge */
+  .icon-badge {
+    background: rgba(var(--primary-cyan-rgb), 0.1);
+    border: 1px solid rgba(var(--primary-cyan-rgb), 0.25);
+    border-radius: 8px;
+    padding: 8px;
+    display: inline-flex;
+    color: var(--primary-cyan);
+    align-self: flex-start;
+  }
+
+  .icon-badge.success {
+    background: rgba(var(--success-green-rgb), 0.1);
+    border-color: rgba(var(--success-green-rgb), 0.25);
+    color: var(--success-green);
+  }
+
+  .icon-badge.danger {
+    background: rgba(var(--danger-red-rgb), 0.1);
+    border-color: rgba(var(--danger-red-rgb), 0.25);
+    color: var(--danger-red);
+  }
+
+  /* Statistics Cards */
+  .stat-card {
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    gap: 1vh;
+  }
+
+  .stat-card .nb {
+    font-family: var(--heading);
+    font-size: clamp(2.5rem, 5vw, 4rem);
+    font-weight: 700;
+    color: var(--primary-cyan);
+    line-height: 1;
+    display: flex;
+    align-items: baseline;
+  }
+
+  .stat-card .unit {
+    font-size: 1.25rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    margin-left: 4px;
+  }
+
+  .stat-card .label {
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-muted);
+  }
+
+  /* Novelty Claim Tables */
+  table.novelty-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    text-align: left;
+  }
+
+  table.novelty-table th {
+    font-family: var(--heading);
+    font-weight: 600;
+    padding: 1.5vh 1vw;
+    border-bottom: 2px solid rgba(var(--primary-cyan-rgb), 0.2);
+    color: #ffffff;
+  }
+
+  table.novelty-table td {
+    padding: 1.6vh 1vw;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    color: var(--text-muted);
+    vertical-align: middle;
+  }
+
+  table.novelty-table tr:hover td {
+    color: var(--text-main);
+    background: rgba(255, 255, 255, 0.01);
+  }
+
+  table.novelty-table strong {
+    color: var(--primary-cyan);
+  }
+
+  /* ===========================================
+     SLIDE NAVIGATION NODES
+     =========================================== */
+  #nav {
+    position: fixed;
+    bottom: 3.5vh;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 100;
+    display: flex;
+    gap: 12px;
+  }
+
+  .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .dot:hover {
+    background: rgba(var(--primary-cyan-rgb), 0.5);
+    transform: scale(1.2);
+  }
+
+  .dot.active {
+    background: var(--primary-cyan);
+    box-shadow: 0 0 10px var(--primary-cyan);
+    width: 24px;
+    border-radius: 4px;
+  }
+
+  /* Keyboard hints */
+  #keyboard-hints {
+    position: fixed;
+    bottom: 3vh;
+    right: 2vw;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-muted);
+    opacity: 0.5;
+    z-index: 100;
+  }
+
+  /* ===========================================
+     INTERACTIVE CLEARANCE WORKFLOW SIMULATOR
+     =========================================== */
+  .sim-container {
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: 2vw;
+    height: 52vh;
+    margin-top: 2vh;
+  }
+
+  .sim-console {
+    background: rgba(4, 5, 11, 0.6);
+    border: 1px solid rgba(var(--primary-cyan-rgb), 0.25);
+    border-radius: 12px;
+    padding: 2.5vh 2vw;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .sim-view {
+    background: rgba(13, 20, 45, 0.6);
+    border: 1px solid rgba(var(--primary-cyan-rgb), 0.15);
+    border-radius: 12px;
+    padding: 2.5vh 2vw;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5);
+  }
+
+  .sim-section-title {
+    font-family: var(--heading);
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #ffffff;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    padding-bottom: 8px;
+    margin-bottom: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  /* Controls grid */
+  .control-group {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .sim-checkbox-label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    padding: 10px 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 13px;
+  }
+
+  .sim-checkbox-label:hover {
+    background: rgba(var(--primary-cyan-rgb), 0.05);
+    border-color: rgba(var(--primary-cyan-rgb), 0.2);
+  }
+
+  .sim-checkbox-label span {
+    font-weight: 500;
+  }
+
+  .sim-checkbox-label input {
+    display: none;
+  }
+
+  .sim-status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--danger-red);
+    box-shadow: 0 0 6px var(--danger-red);
+    display: inline-block;
+    transition: background 0.3s, box-shadow 0.3s;
+  }
+
+  .sim-checkbox-label.cleared .sim-status-dot {
+    background: var(--success-green);
+    box-shadow: 0 0 6px var(--success-green);
+  }
+
+  /* Quick Actions buttons */
+  .action-btn-row {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+  }
+
+  .action-btn {
+    flex: 1;
+    font-family: var(--heading);
+    font-size: 11px;
+    font-weight: 600;
+    background: transparent;
+    color: var(--primary-cyan);
+    border: 1px solid rgba(var(--primary-cyan-rgb), 0.4);
+    border-radius: 6px;
+    padding: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .action-btn:hover {
+    background: var(--primary-cyan);
+    color: var(--bg-darker);
+    box-shadow: 0 0 10px rgba(var(--primary-cyan-rgb), 0.4);
+  }
+
+  /* Terminal console */
+  .sim-terminal {
+    font-family: var(--mono);
+    font-size: 10px;
+    background: rgba(0, 0, 0, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 6px;
+    padding: 10px;
+    height: 14vh;
+    overflow-y: auto;
+    color: #a4b9cc;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-top: 12px;
+  }
+
+  .sim-terminal .cmd {
+    color: var(--primary-cyan);
+  }
+
+  .sim-terminal .sql {
+    color: #e5c07b;
+  }
+
+  .sim-terminal .ledger {
+    color: var(--secondary-purple);
+  }
+
+  .sim-terminal .success {
+    color: var(--success-green);
+  }
+
+  /* Student Portal Dashboard View */
+  .student-badge-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .student-badge {
+    font-family: var(--heading);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding: 4px 10px;
+    border-radius: 4px;
+    background: rgba(var(--danger-red-rgb), 0.15);
+    border: 1px solid var(--danger-red);
+    color: var(--danger-red);
+    box-shadow: 0 0 10px rgba(var(--danger-red-rgb), 0.2);
+    transition: all 0.3s ease;
+  }
+
+  .student-badge.cleared {
+    background: rgba(var(--success-green-rgb), 0.15);
+    border-color: var(--success-green);
+    color: var(--success-green);
+    box-shadow: 0 0 10px rgba(var(--success-green-rgb), 0.2);
+  }
+
+  /* Progress bar container */
+  .sim-progress-section {
+    margin: 2vh 0;
+  }
+
+  .sim-progress-title {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+  }
+
+  .sim-progress-bg {
+    width: 100%;
+    height: 14px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 7px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .sim-progress-fill {
+    width: 0%;
+    height: 100%;
+    background: linear-gradient(90deg, var(--secondary-purple), var(--primary-cyan));
+    border-radius: 7px;
+    transition: width 0.6s var(--ease-out-expo), background 0.6s ease;
+    box-shadow: 0 0 10px rgba(var(--primary-cyan-rgb), 0.5);
+  }
+
+  .sim-progress-fill.full {
+    background: linear-gradient(90deg, var(--primary-cyan), var(--success-green));
+    box-shadow: 0 0 15px rgba(var(--success-green-rgb), 0.6);
+  }
+
+  /* Active deficiency summary */
+  .sim-deficiency-box {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    padding: 10px 14px;
+    flex-grow: 1;
+    overflow-y: auto;
+    font-size: 11px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 18vh;
+  }
+
+  .deficiency-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+    padding-bottom: 6px;
+  }
+
+  .deficiency-item:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+
+  .def-title {
+    font-weight: 500;
+    color: #ffffff;
+  }
+
+  .def-dept {
+    font-family: var(--mono);
+    color: var(--text-muted);
+    font-size: 9px;
+    text-transform: uppercase;
+  }
+
+  .def-cost {
+    color: var(--danger-red);
+    font-family: var(--mono);
+    font-weight: 600;
+  }
+
+  .no-deficiencies {
+    color: var(--success-green);
+    text-align: center;
+    padding: 2vh 0;
+    font-weight: 500;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+
+  /* ===========================================
+     OVERVIEW INDEX
+     =========================================== */
+  #overview {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    background: rgba(4, 5, 11, 0.95);
+    backdrop-filter: blur(20px);
+    display: none;
+    overflow-y: auto;
+    padding: 5vh 5vw;
+  }
+
+  .overview-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 3vh 2vw;
+    max-width: 90vw;
+    margin: 0 auto;
+  }
+
+  .overview-card {
+    cursor: pointer;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 2px solid rgba(255, 255, 255, 0.08);
+    transition: all 0.25s ease;
+    background: rgba(13, 20, 45, 0.5);
+  }
+
+  .overview-card:hover {
+    border-color: var(--primary-cyan);
+    transform: translateY(-4px);
+    box-shadow: 0 10px 20px rgba(0, 240, 255, 0.1);
+  }
+
+  .overview-card.active {
+    border-color: var(--primary-cyan);
+    box-shadow: 0 0 15px rgba(0, 240, 255, 0.2);
+  }
+
+  .overview-thumb {
+    width: 100%;
+    aspect-ratio: 16/9;
+    background: var(--bg-dark);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--heading);
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-muted);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    position: relative;
+  }
+
+  .overview-thumb::after {
+    content: "SLIDE";
+    font-family: var(--mono);
+    font-size: 9px;
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    opacity: 0.4;
+    letter-spacing: 0.1em;
+  }
+
+  .overview-label {
+    padding: 10px 14px;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #ffffff;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .overview-label span {
+    color: var(--primary-cyan);
+  }
+</style>
+</head>
+<body>
+
+<!-- Flow Particles Background -->
+<canvas id="flow-canvas"></canvas>
+
+<!-- Slides deck container -->
+<div id="deck">
+
+  <!-- SLIDE 1 · Cover -->
+  <section class="slide active" data-screen-label="01 COVER">
+    <div class="chrome-header reveal d1">
+      <div>Registry: BSIT-CAP3-2026-SC-V1</div>
+      <div>Institutional PaaS Workspace</div>
+    </div>
+    
+    <div class="frame-content" style="display: grid; gap: 3vh; align-content: center; min-height: 70vh;">
+      <div class="kicker reveal d2">
+        <i data-lucide="layers" style="width:14px;height:14px;"></i> &sect; 3 &middot; Proposal
+      </div>
+      <h1 class="h-hero reveal d3" style="font-size: 8.5vw; text-transform: uppercase;">SwiftClear</h1>
+      <h2 class="h-title reveal d4" style="font-weight: 300; font-size: 1.85rem; color: var(--text-muted);">
+        A Web-Based Student Clearance Tracking System with <strong style="color:#fff; font-weight:600;">Automated Departmental Sign-Offs</strong>
+      </h2>
+      <p class="lead reveal d5" style="max-width: 58vw;">
+        Replacing physical queues with real-time relational state integrity, cryptographic non-repudiation logging, and automated SMS deficiency dispatches.
+      </p>
+      
+      <div class="reveal d6" style="margin-top: 3vh; display: flex; gap: 40px; font-size: 12px; font-family: var(--mono); color: var(--text-muted);">
+        <div>SPONSOR: <span style="color:#fff;">ISPSC Campus Office</span></div>
+        <div>ENGINE: <span style="color:#fff;">PostgreSQL / Laravel / React</span></div>
+        <div>STATUS: <span style="color:var(--primary-cyan);">TITLE DEFENSE</span></div>
+      </div>
+    </div>
+
+    <div class="chrome-footer reveal d6">
+      <div>SwiftClear Proposal &middot; 2026</div>
+      <div>SC-DECK // PAGE 01</div>
+    </div>
+  </section>
+
+  <!-- SLIDE 2 · The Scene -->
+  <section class="slide" data-screen-label="02 THE SCENE">
+    <div class="chrome-header reveal d1">
+      <div>Section 1.0 &middot; Context</div>
+      <div>&sect; 02 / 10</div>
+    </div>
+
+    <div class="frame-content">
+      <div class="kicker reveal d1">
+        <i data-lucide="info" style="width:12px;height:12px;"></i> Historical Context
+      </div>
+      <h2 class="h-title reveal d2">Days in line.<br>Wasted sheets. Delayed degrees.</h2>
+      <p class="lead reveal d3" style="margin-bottom: 5vh;">
+        At the end of every semester, students spend days carrying paper clearance cards between campus desks, only learning about library fines or lab fees when they reach the front of the queue.
+      </p>
+
+      <div class="grid-3" style="margin-top: 2vh;">
+        <div class="glass-card stat-card reveal d4">
+          <div class="label">Average Processing Time</div>
+          <div class="nb">3.5<span class="unit">days</span></div>
+          <p style="font-size:12px; color:var(--text-muted);">Walking, queuing, and waiting across campus offices.</p>
+        </div>
+        <div class="glass-card stat-card reveal d5">
+          <div class="label">Paper Consumption</div>
+          <div class="nb">5,000+<span class="unit">sheets</span></div>
+          <p style="font-size:12px; color:var(--text-muted);">Printed, signed, and manually filed every single semester.</p>
+        </div>
+        <div class="glass-card stat-card reveal d6">
+          <div class="label">Proactive Deficiency Alert</div>
+          <div class="nb">0<span class="unit">%</span></div>
+          <p style="font-size:12px; color:var(--text-muted);">Students have no visibility of locks until physical contact.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="chrome-footer reveal d6">
+      <div>SwiftClear Proposal &middot; 2026</div>
+      <div>SC-DECK // PAGE 02</div>
+    </div>
+  </section>
+
+  <!-- SLIDE 3 · The Problem -->
+  <section class="slide" data-screen-label="03 THE PROBLEM">
+    <div class="chrome-header reveal d1">
+      <div>Section 2.0 &middot; Problem Pillars</div>
+      <div>&sect; 03 / 10</div>
+    </div>
+
+    <div class="frame-content">
+      <div class="kicker reveal d1">
+        <i data-lucide="alert-triangle" style="width:12px;height:12px;"></i> Administrative Bottlenecks
+      </div>
+      <h2 class="h-title reveal d2" style="margin-bottom: 4vh;">Three Critical Inefficiencies</h2>
+      
+      <div class="grid-3">
+        <div class="glass-card reveal d3" style="display:flex; flex-direction:column; gap:2vh;">
+          <div class="icon-badge danger">
+            <i data-lucide="hourglass" style="width:20px;height:20px;"></i>
+          </div>
+          <h3 style="font-family:var(--heading); font-size:18px; color:#fff;">Campus Queue Congestion</h3>
+          <p style="font-size:13px; line-height:1.5; color:var(--text-muted);">
+            Fragmented departmental offices create massive physical congestion as thousands of students converge on desks simultaneously during exam weeks.
+          </p>
+        </div>
+        <div class="glass-card reveal d4" style="display:flex; flex-direction:column; gap:2vh;">
+          <div class="icon-badge danger">
+            <i data-lucide="eye-off" style="width:20px;height:20px;"></i>
+          </div>
+          <h3 style="font-family:var(--heading); font-size:18px; color:#fff;">Deficiency Blindness</h3>
+          <p style="font-size:13px; line-height:1.5; color:var(--text-muted);">
+            Students cannot see outstanding obligations (e.g. unreturned books, laboratory fees) beforehand. This results in wasted travel and administrative friction.
+          </p>
+        </div>
+        <div class="glass-card reveal d5" style="display:flex; flex-direction:column; gap:2vh;">
+          <div class="icon-badge danger">
+            <i data-lucide="shield-alert" style="width:20px;height:20px;"></i>
+          </div>
+          <h3 style="font-family:var(--heading); font-size:18px; color:#fff;">Vulnerable Audit Integrity</h3>
+          <p style="font-size:13px; line-height:1.5; color:var(--text-muted);">
+            Paper cards lack immutable auditing. Forged signatures or undocumented overrides cannot be detected, violating government auditing rules.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="chrome-footer reveal d6">
+      <div>SwiftClear Proposal &middot; 2026</div>
+      <div>SC-DECK // PAGE 03</div>
+    </div>
+  </section>
+
+  <!-- SLIDE 4 · Proposed System (Simulation) -->
+  <section class="slide" data-screen-label="04 PROPOSED SYSTEM">
+    <div class="chrome-header reveal d1">
+      <div>Section 3.0 &middot; Demonstration</div>
+      <div>&sect; 04 / 10</div>
+    </div>
+
+    <div class="frame-content">
+      <div class="kicker reveal d1">
+        <i data-lucide="play" style="width:12px;height:12px;"></i> Active Clearance Simulator
+      </div>
+      
+      <!-- Interactive Clearance Simulator Dashboard -->
+      <div class="sim-container reveal d2">
+        
+        <!-- Console Column -->
+        <div class="sim-console">
+          <div>
+            <div class="sim-section-title">
+              <span>ADMINISTRATIVE PORTALS</span>
+              <span style="font-family:var(--mono); font-size:10px; color:var(--primary-cyan);">ROLE: DEPT_HEAD</span>
+            </div>
+            
+            <div class="control-group">
+              <label class="sim-checkbox-label" id="lbl-lib">
+                <span>Library Sign-Off</span>
+                <span class="sim-status-dot"></span>
+                <input type="checkbox" id="chk-lib" onchange="toggleDept('lib', this.checked)">
+              </label>
+              
+              <label class="sim-checkbox-label" id="lbl-acct">
+                <span>Accounting Sign-Off</span>
+                <span class="sim-status-dot"></span>
+                <input type="checkbox" id="chk-acct" onchange="toggleDept('acct', this.checked)">
+              </label>
+              
+              <label class="sim-checkbox-label" id="lbl-dean">
+                <span>Dean's Office Sign-Off</span>
+                <span class="sim-status-dot"></span>
+                <input type="checkbox" id="chk-dean" onchange="toggleDept('dean', this.checked)">
+              </label>
+              
+              <label class="sim-checkbox-label" id="lbl-lab">
+                <span>Laboratory Sign-Off</span>
+                <span class="sim-status-dot"></span>
+                <input type="checkbox" id="chk-lab" onchange="toggleDept('lab', this.checked)">
+              </label>
+            </div>
+
+            <div class="action-btn-row">
+              <button class="action-btn" onclick="simulateReset()">Reset State</button>
+              <button class="action-btn" onclick="simulateResolveAll()">Approve All</button>
+            </div>
+          </div>
+          
+          <div class="sim-terminal" id="terminal-log">
+            <div><span class="cmd">&gt; system_boot</span>: SwiftClear relational matrix listening...</div>
+          </div>
+        </div>
+
+        <!-- Student View Column -->
+        <div class="sim-view">
+          <div>
+            <div class="sim-section-title">
+              <span>STUDENT DASHBOARD PORTAL</span>
+              <span class="student-badge" id="student-badge">LOCKED</span>
+            </div>
+            
+            <div class="student-badge-row">
+              <div style="font-size:12px; color:var(--text-muted);">
+                Student ID: <strong style="color:#fff;">2024-ISPSC-3091</strong><br>
+                Name: <strong style="color:#fff;">Santos, Maria D.</strong>
+              </div>
+              <div style="font-size:11px; font-family:var(--mono); color:var(--primary-cyan);" id="pending-count">
+                Pending: 4 / 4
+              </div>
+            </div>
+
+            <div class="sim-progress-section">
+              <div class="sim-progress-title">
+                <span>Clearance Integrity Matrix</span>
+                <span id="progress-percent">0%</span>
+              </div>
+              <div class="sim-progress-bg">
+                <div class="sim-progress-fill" id="progress-fill"></div>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div style="font-size: 11px; font-family: var(--mono); color: var(--text-muted); margin-bottom: 6px;">
+              ACTIVE DEFICIENCIES
+            </div>
+            <div class="sim-deficiency-box" id="deficiency-box">
+              <div class="deficiency-item" id="def-lib-item">
+                <div>
+                  <div class="def-title">Overdue Library Book: Noli Me Tangere</div>
+                  <div class="def-dept">Library</div>
+                </div>
+                <div class="def-cost">PHP 50.00</div>
+              </div>
+              <div class="deficiency-item" id="def-acct-item">
+                <div>
+                  <div class="def-title">Outstanding Semester Dues</div>
+                  <div class="def-dept">Accounting</div>
+                </div>
+                <div class="def-cost">PHP 120.00</div>
+              </div>
+              <div class="deficiency-item" id="def-dean-item">
+                <div>
+                  <div class="def-title">Missing Guidance Interview</div>
+                  <div class="def-dept">Dean's Office</div>
+                </div>
+                <div class="def-cost">PENDING</div>
+              </div>
+              <div class="deficiency-item" id="def-lab-item">
+                <div>
+                  <div class="def-title">Unreturned Laboratory Flasks</div>
+                  <div class="def-dept">Laboratory</div>
+                </div>
+                <div class="def-cost">PHP 150.00</div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+
+    <div class="chrome-footer reveal d6">
+      <div>Interactive Dashboard Simulator &middot; 2026</div>
+      <div>SC-DECK // PAGE 04</div>
+    </div>
+  </section>
+
+  <!-- SLIDE 5 · Component Coverage Map -->
+  <section class="slide" data-screen-label="05 COMPONENT COVERAGE">
+    <div class="chrome-header reveal d1">
+      <div>Section 4.0 &middot; Architecture</div>
+      <div>&sect; 05 / 10</div>
+    </div>
+
+    <div class="frame-content">
+      <div class="kicker reveal d1">
+        <i data-lucide="cpu" style="width:12px;height:12px;"></i> Core Components
+      </div>
+      <h2 class="h-title reveal d2">Component Coverage Map</h2>
+      
+      <div class="glass-card reveal d3" style="padding: 2.5vh 2.5vw;">
+        <table class="novelty-table">
+          <thead>
+            <tr>
+              <th>COMPONENT</th>
+              <th>TECHNOLOGY</th>
+              <th>ROLE IN SYSTEM</th>
+              <th>VERIFICATION TARGET</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Web App (Admin)</strong></td>
+              <td>Laravel, CSS3 (Tailwind)</td>
+              <td>Role-based portals allowing specific department clearance sign-offs and logging.</td>
+              <td>Query execution delay &lt; 150ms</td>
+            </tr>
+            <tr>
+              <td><strong>Web App (Student)</strong></td>
+              <td>React, WebSockets</td>
+              <td>Interactive dashboard displaying progress meters, locks, and fine logs.</td>
+              <td>State synchronization in &lt; 500ms</td>
+            </tr>
+            <tr>
+              <td><strong>Data Tier</strong></td>
+              <td>PostgreSQL / MySQL</td>
+              <td>Relational mapping, sequential database locks preventing race condition updates.</td>
+              <td>Safe execution &gt; 500 TPS</td>
+            </tr>
+            <tr>
+              <td><strong>Audit Ledger</strong></td>
+              <td>SHA-256 Link Chain</td>
+              <td>Link-chained ledger log containing cryptographic hash of each clearance record.</td>
+              <td>Zero silent status modifications</td>
+            </tr>
+            <tr>
+              <td><strong>Offline Alerts</strong></td>
+              <td>Redis / SMS Gateway</td>
+              <td>Asynchronous worker threads sending SMS notifications of holds/clearances.</td>
+              <td>SMS dispatch latency &lt; 5 seconds</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="chrome-footer reveal d6">
+      <div>SwiftClear Proposal &middot; 2026</div>
+      <div>SC-DECK // PAGE 05</div>
+    </div>
+  </section>
+
+  <!-- SLIDE 6 · Novelty Claim -->
+  <section class="slide" data-screen-label="06 NOVELTY CLAIM">
+    <div class="chrome-header reveal d1">
+      <div>Section 5.0 &middot; Novelty</div>
+      <div>&sect; 06 / 10</div>
+    </div>
+
+    <div class="frame-content">
+      <div class="kicker reveal d1">
+        <i data-lucide="sparkles" style="width:12px;height:12px;"></i> Sourced Gap &amp; Contrast
+      </div>
+      <h2 class="h-title reveal d2">Core Research Novelty</h2>
+      
+      <div class="grid-2" style="margin-top: 1vh;">
+        <div class="glass-card reveal d3" style="display:flex; flex-direction:column; justify-content:center; gap:2vh;">
+          <h3 style="font-family:var(--heading); font-size:22px; color:#fff; display:flex; align-items:center; gap:10px;">
+            <i data-lucide="git-commit" style="color:var(--primary-cyan);"></i> Cryptographic Non-Repudiation
+          </h3>
+          <p style="font-size:14px; line-height:1.6; color:var(--text-muted);">
+            Existing school systems utilize standard relational databases where records are easily modified or back-dated by rogue DBAs. SwiftClear implements a <strong>cryptographically linked audit ledger</strong>. 
+          </p>
+          <p style="font-size:14px; line-height:1.6; color:var(--text-muted);">
+            Every status change is hashed with the previous record's hash, making silent unauthorized overrides mathematically impossible to hide.
+          </p>
+        </div>
+        
+        <div class="glass-card reveal d4" style="display:flex; flex-direction:column; justify-content:center; gap:2vh;">
+          <h3 style="font-family:var(--heading); font-size:22px; color:#fff; display:flex; align-items:center; gap:10px;">
+            <i data-lucide="shield-check" style="color:var(--primary-cyan);"></i> Data Privacy &amp; Minimization
+          </h3>
+          <p style="font-size:14px; line-height:1.6; color:var(--text-muted);">
+            Naively centralized campus portals often violate the <strong>Philippine Data Privacy Act (RA 10173)</strong> by letting librarians or desk clerks view unrelated financial or academic student histories. 
+          </p>
+          <p style="font-size:14px; line-height:1.6; color:var(--text-muted);">
+            We enforce database <strong>Row-Level Security (RLS)</strong>, isolating query bounds by role, ensuring desk heads only see clearance statuses corresponding to their own unit.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="chrome-footer reveal d6">
+      <div>SwiftClear Proposal &middot; 2026</div>
+      <div>SC-DECK // PAGE 06</div>
+    </div>
+  </section>
+
+  <!-- SLIDE 7 · Scope & Boundaries -->
+  <section class="slide" data-screen-label="07 SYSTEM SCOPE">
+    <div class="chrome-header reveal d1">
+      <div>Section 6.0 &middot; Boundaries</div>
+      <div>&sect; 07 / 10</div>
+    </div>
+
+    <div class="frame-content">
+      <div class="kicker reveal d1">
+        <i data-lucide="box" style="width:12px;height:12px;"></i> Scope Limits
+      </div>
+      <h2 class="h-title reveal d2">System Scope &amp; Boundaries</h2>
+      
+      <div class="grid-2">
+        <div class="glass-card reveal d3">
+          <div class="kicker" style="color: var(--success-green); margin-bottom: 2vh;">
+            <i data-lucide="check-circle-2"></i> Explicitly In Scope
+          </div>
+          <ul class="list-unstyled">
+            <li>
+              <i data-lucide="check" style="width:16px;height:16px;color:var(--success-green);margin-top:2px;"></i>
+              <div>
+                <strong>Role-Based Portals</strong>: Independent dashboards for Library, Laboratory, Accounting, Dean, Registrar, and Student.
+              </div>
+            </li>
+            <li>
+              <i data-lucide="check" style="width:16px;height:16px;color:var(--success-green);margin-top:2px;"></i>
+              <div>
+                <strong>Relational Deficiency Logging</strong>: Administrators can create specific deficiencies linking description, fine, and status.
+              </div>
+            </li>
+            <li>
+              <i data-lucide="check" style="width:16px;height:16px;color:var(--success-green);margin-top:2px;"></i>
+              <div>
+                <strong>Asynchronous SMS Pipeline</strong>: Pushing status alerts using queue managers to cellular endpoints.
+              </div>
+            </li>
+            <li>
+              <i data-lucide="check" style="width:16px;height:16px;color:var(--success-green);margin-top:2px;"></i>
+              <div>
+                <strong>Hash-Chained Audit Logs</strong>: Immutable log tracking system modifications securely.
+              </div>
+            </li>
+          </ul>
+        </div>
+        
+        <div class="glass-card reveal d4">
+          <div class="kicker" style="color: var(--danger-red); margin-bottom: 2vh;">
+            <i data-lucide="x-circle"></i> Explicitly Out of Scope
+          </div>
+          <ul class="list-unstyled">
+            <li>
+              <i data-lucide="minus" style="width:16px;height:16px;color:var(--danger-red);margin-top:2px;"></i>
+              <div>
+                <strong>Automatic Payments</strong>: The system does *not* process direct credit cards or bank transfers. Fines are resolved manually when the student registers offline payment.
+              </div>
+            </li>
+            <li>
+              <i data-lucide="minus" style="width:16px;height:16px;color:var(--danger-red);margin-top:2px;"></i>
+              <div>
+                <strong>Scholastic GPA Processing</strong>: The system verifies holds logged by the registrar but does *not* compute transcript content or grade averages.
+              </div>
+            </li>
+            <li>
+              <i data-lucide="minus" style="width:16px;height:16px;color:var(--danger-red);margin-top:2px;"></i>
+              <div>
+                <strong>Automatic Biometrics</strong>: Identification relies on school email accounts and registered IDs rather than face/fingerprint scans.
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="chrome-footer reveal d6">
+      <div>SwiftClear Proposal &middot; 2026</div>
+      <div>SC-DECK // PAGE 07</div>
+    </div>
+  </section>
+
+  <!-- SLIDE 8 · Technical Roadmap -->
+  <section class="slide" data-screen-label="08 ROADMAP">
+    <div class="chrome-header reveal d1">
+      <div>Section 7.0 &middot; Scheduling</div>
+      <div>&sect; 08 / 10</div>
+    </div>
+
+    <div class="frame-content">
+      <div class="kicker reveal d1">
+        <i data-lucide="calendar" style="width:12px;height:12px;"></i> Development Timeline
+      </div>
+      <h2 class="h-title reveal d2">Development Roadmap (4 Months)</h2>
+      
+      <div class="grid-3">
+        <div class="glass-card reveal d3" style="display:flex; flex-direction:column; gap:2.5vh; border-top: 3px solid var(--secondary-purple);">
+          <div style="font-family:var(--mono); font-size:11px; color:var(--text-muted);">PHASE 01 &middot; MONTH 1 - 2</div>
+          <h3 style="font-family:var(--heading); font-size:20px; color:#fff;">Relational Core &amp; Admin Panels</h3>
+          <p style="font-size:13px; line-height:1.5; color:var(--text-muted);">
+            Establish normalized database schema in PostgreSQL. Configure table relationships, migration seeds, and build Laravel administrative interfaces for departmental logins.
+          </p>
+          <div style="font-size:11px; font-family:var(--mono); color:var(--primary-cyan); margin-top:auto;">
+            Deliverable: Functional Admin UI + SQLite Mock DB
+          </div>
+        </div>
+        
+        <div class="glass-card reveal d4" style="display:flex; flex-direction:column; gap:2.5vh; border-top: 3px solid var(--primary-cyan);">
+          <div style="font-family:var(--mono); font-size:11px; color:var(--text-muted);">PHASE 02 &middot; MONTH 3</div>
+          <h3 style="font-family:var(--heading); font-size:20px; color:#fff;">Real-Time Sync &amp; Alerts</h3>
+          <p style="font-size:13px; line-height:1.5; color:var(--text-muted);">
+            Incorporate WebSockets (Laravel Reverb / Socket.io) in the React student client. Program Redis asynchronous worker jobs connected to a local GSM SMS gateway modem.
+          </p>
+          <div style="font-size:11px; font-family:var(--mono); color:var(--primary-cyan); margin-top:auto;">
+            Deliverable: Live Websocket UI + Active SMS Queue
+          </div>
+        </div>
+        
+        <div class="glass-card reveal d5" style="display:flex; flex-direction:column; gap:2.5vh; border-top: 3px solid var(--success-green);">
+          <div style="font-family:var(--mono); font-size:11px; color:var(--text-muted);">PHASE 03 &middot; MONTH 4</div>
+          <h3 style="font-family:var(--heading); font-size:20px; color:#fff;">Audit Ledgers &amp; Stress Tests</h3>
+          <p style="font-size:13px; line-height:1.5; color:var(--text-muted);">
+            Write PostgreSQL SHA-256 record chaining procedures. Conduct high-concurrency simulation checks (&gt;500 TPS) to identify bottlenecks and test RA 10173 view restrictions.
+          </p>
+          <div style="font-size:11px; font-family:var(--mono); color:var(--primary-cyan); margin-top:auto;">
+            Deliverable: Cryptographic Ledger + Performance Report
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="chrome-footer reveal d6">
+      <div>SwiftClear Proposal &middot; 2026</div>
+      <div>SC-DECK // PAGE 08</div>
+    </div>
+  </section>
+
+  <!-- SLIDE 9 · Verification Metrics -->
+  <section class="slide" data-screen-label="09 VERIFICATION">
+    <div class="chrome-header reveal d1">
+      <div>Section 8.0 &middot; Verification</div>
+      <div>&sect; 09 / 10</div>
+    </div>
+
+    <div class="frame-content">
+      <div class="kicker reveal d1">
+        <i data-lucide="check-square" style="width:12px;height:12px;"></i> Falsifiable Benchmarks
+      </div>
+      <h2 class="h-title reveal d2">Verification &amp; Evaluation Plan</h2>
+      
+      <div class="grid-2">
+        <div class="glass-card reveal d3" style="display:flex; flex-direction:column; gap:2.5vh;">
+          <h3 style="font-family:var(--heading); font-size:20px; color:#fff; display:flex; align-items:center; gap:8px;">
+            <i data-lucide="terminal" style="color:var(--primary-cyan);"></i> Automated Testing Metrics
+          </h3>
+          <ul class="list-unstyled">
+            <li>
+              <i data-lucide="activity" style="width:16px;height:16px;color:var(--primary-cyan);margin-top:2px;"></i>
+              <div>
+                <strong>Concurrency Test</strong>: JMeter scripts running 5,000 requests simulating 50 concurrent admin terminals. Target: zero lock deadlocks.
+              </div>
+            </li>
+            <li>
+              <i data-lucide="activity" style="width:16px;height:16px;color:var(--primary-cyan);margin-top:2px;"></i>
+              <div>
+                <strong>Network Latency Check</strong>: Measure delay between admin database write commit and socket message reception. Target: &lt; 500ms.
+              </div>
+            </li>
+            <li>
+              <i data-lucide="activity" style="width:16px;height:16px;color:var(--primary-cyan);margin-top:2px;"></i>
+              <div>
+                <strong>SMS Dispatch Queue Latency</strong>: Benchmark delay from SMS job creation in Redis to gateway GSM transmission. Target: &lt; 5 seconds.
+              </div>
+            </li>
+          </ul>
+        </div>
+        
+        <div class="glass-card reveal d4" style="display:flex; flex-direction:column; gap:2.5vh;">
+          <h3 style="font-family:var(--heading); font-size:20px; color:#fff; display:flex; align-items:center; gap:8px;">
+            <i data-lucide="users" style="color:var(--primary-cyan);"></i> User Evaluation Metrics
+          </h3>
+          <ul class="list-unstyled">
+            <li>
+              <i data-lucide="user-check" style="width:16px;height:16px;color:var(--primary-cyan);margin-top:2px;"></i>
+              <div>
+                <strong>Queue Time Metric</strong>: Measure clearance transaction completion durations for 100 students. Benchmark target reduction: &gt; 90%.
+              </div>
+            </li>
+            <li>
+              <i data-lucide="user-check" style="width:16px;height:16px;color:var(--primary-cyan);margin-top:2px;"></i>
+              <div>
+                <strong>Usability validation</strong>: Deploy System Usability Scale (SUS) survey after campus trial run. Target score: &gt; 80 (Grade A).
+              </div>
+            </li>
+            <li>
+              <i data-lucide="user-check" style="width:16px;height:16px;color:var(--primary-cyan);margin-top:2px;"></i>
+              <div>
+                <strong>Data Minimization Validation</strong>: Audit administrative login sessions, ensuring zero cross-department data leaks are registered.
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="chrome-footer reveal d6">
+      <div>SwiftClear Proposal &middot; 2026</div>
+      <div>SC-DECK // PAGE 09</div>
+    </div>
+  </section>
+
+  <!-- SLIDE 10 · Closing -->
+  <section class="slide" data-screen-label="10 CLOSING">
+    <div class="chrome-header reveal d1">
+      <div>Proposal Concluded</div>
+      <div>&sect; 10 / 10</div>
+    </div>
+    
+    <div class="frame-content" style="display: grid; gap: 4vh; align-content: center; min-height: 70vh;">
+      <div class="kicker reveal d2">
+        <i data-lucide="shield-check" style="width:14px;height:14px;"></i> Secure. Paperless. Transparent.
+      </div>
+      <h1 class="h-hero reveal d3" style="font-size: 6vw;">Eliminating Campus Queues</h1>
+      <h2 class="h-title reveal d4" style="font-weight: 300; font-size: 1.5rem; color: var(--text-muted); line-height: 1.6;">
+        "By enforcing relational integrity constraints, cryptographic auditing, and low-latency alerts, <br>
+        <strong style="color:#fff; font-weight:600;">SwiftClear</strong> constructs a highly secure, reliable, and compliant digital clearinghouse."
+      </h2>
+      
+      <p class="lead reveal d5" style="font-size: 14px; font-family: var(--mono); color: var(--primary-cyan);">
+        BSIT Capstone Proposal Defense &middot; ISPSC tagging grounds
+      </p>
+    </div>
+
+    <div class="chrome-footer reveal d6">
+      <div>SwiftClear Proposal &middot; 2026</div>
+      <div>SC-DECK // PAGE 10</div>
+    </div>
+  </section>
+
+</div>
+
+<!-- Navigation dots container -->
+<div id="nav"></div>
+
+<!-- Hints -->
+<div id="keyboard-hints">Keyboard: LEFT / RIGHT &middot; ESC for Grid Index</div>
+
+<!-- Overview panel -->
+<div id="overview">
+  <div class="overview-grid" id="overview-grid"></div>
+</div>
+
+<script>
+  /* =========================================================================
+     SLIDE DECK ENGINE (Navigation, Keyboards, Wheel, Swipes, Overview Card Grid)
+     ========================================================================= */
+  const deck = document.getElementById('deck');
+  const slides = deck.querySelectorAll('.slide');
+  const nav = document.getElementById('nav');
+  let idx = 0;
+  const total = slides.length;
+  let lock = false;
+
+  deck.style.width = (total * 100) + 'vw';
+
+  // Construct pagination dots
+  slides.forEach((s, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'dot';
+    if (i === 0) btn.classList.add('active');
+    btn.dataset.i = i;
+    btn.onclick = () => go(i);
+    nav.appendChild(btn);
+  });
+
+  function go(n) {
+    if (lock) return;
+    idx = Math.max(0, Math.min(total - 1, n));
+    
+    // Slide transition
+    deck.style.transform = `translateX(${-idx * 100}vw)`;
+    
+    // Toggle active classes
+    slides.forEach((s, i) => s.classList.toggle('active', i === idx));
+    nav.querySelectorAll('.dot').forEach((d, i) => d.classList.toggle('active', i === idx));
+    
+    lock = true;
+    setTimeout(() => { lock = false; }, 800);
+  }
+
+  // Keyboard navigation
+  let overviewOn = false;
+  const overview = document.getElementById('overview');
+  const overviewGrid = document.getElementById('overview-grid');
+
+  function buildOverview() {
+    overviewGrid.innerHTML = '';
+    slides.forEach((s, i) => {
+      const card = document.createElement('div');
+      card.className = `overview-card ${i === idx ? 'active' : ''}`;
+      
+      const thumb = document.createElement('div');
+      thumb.className = 'overview-thumb';
+      
+      // Pull title text or label
+      const kickerText = s.querySelector('.kicker').innerText || 'Slide';
+      thumb.innerText = s.getAttribute('data-screen-label') || kickerText;
+      
+      const label = document.createElement('div');
+      label.className = 'overview-label';
+      label.innerHTML = `<span>PAGE</span> <span>0${i+1}</span>`;
+      
+      card.appendChild(thumb);
+      card.appendChild(label);
+      card.onclick = () => {
+        toggleOverview();
+        go(i);
+      };
+      
+      overviewGrid.appendChild(card);
+    });
+  }
+
+  function toggleOverview() {
+    overviewOn = !overviewOn;
+    if (overviewOn) {
+      buildOverview();
+      overview.style.display = 'block';
+    } else {
+      overview.style.display = 'none';
+    }
+  }
+
+  addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      toggleOverview();
+      return;
+    }
+    if (overviewOn) return;
+    if (e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' ' || e.key === 'ArrowDown') go(idx + 1);
+    if (e.key === 'ArrowLeft' || e.key === 'PageUp' || e.key === 'ArrowUp') go(idx - 1);
+    if (e.key === 'Home') go(0);
+    if (e.key === 'End') go(total - 1);
+  });
+
+  // Scroll wheel accumulator navigation
+  let wheelTO = null, wheelAcc = 0;
+  addEventListener('wheel', e => {
+    if (overviewOn) return;
+    wheelAcc += e.deltaY + e.deltaX;
+    if (Math.abs(wheelAcc) > 60) {
+      go(idx + (wheelAcc > 0 ? 1 : -1));
+      wheelAcc = 0;
+    }
+    clearTimeout(wheelTO);
+    wheelTO = setTimeout(() => { wheelAcc = 0; }, 150);
+  }, { passive: true });
+
+  // Swipe gesture navigation
+  let startX = 0, startY = 0;
+  addEventListener('touchstart', e => {
+    startX = e.touches[0].clientX;
+    startY = e.touches[0].clientY;
+  }, { passive: true });
+
+  addEventListener('touchend', e => {
+    if (overviewOn) return;
+    const diffX = e.changedTouches[0].clientX - startX;
+    const diffY = e.changedTouches[0].clientY - startY;
+    if (Math.abs(diffX) > 60 && Math.abs(diffY) < 55) {
+      go(idx + (diffX > 0 ? -1 : 1));
+    }
+  }, { passive: true });
+
+
+  /* =========================================================================
+     CUSTOM 2D CANVAS: CLEARANCE WORKFLOW NODE NETWORK
+     ========================================================================= */
+  const canvas = document.getElementById('flow-canvas');
+  const ctx = canvas.getContext('2d');
+  
+  let width = canvas.width = window.innerWidth;
+  let height = canvas.height = window.innerHeight;
+  
+  window.addEventListener('resize', () => {
+    width = canvas.width = window.innerWidth;
+    height = canvas.height = window.innerHeight;
+  });
+
+  // Clearance Node entities
+  const nodes = [
+    { id: 'student', label: 'STUDENT REGISTRY', x: 0.5, y: 0.55, size: 25, color: '#00f0ff', isPulse: true },
+    { id: 'lib', label: 'LIBRARY', x: 0.25, y: 0.35, size: 16, color: '#ff007f', checked: false },
+    { id: 'acct', label: 'ACCOUNTING', x: 0.75, y: 0.35, size: 16, color: '#ff007f', checked: false },
+    { id: 'dean', label: 'DEAN OFFICE', x: 0.25, y: 0.75, size: 16, color: '#ff007f', checked: false },
+    { id: 'lab', label: 'LABORATORY', x: 0.5, y: 0.25, size: 16, color: '#ff007f', checked: false },
+    { id: 'registrar', label: 'REGISTRAR', x: 0.75, y: 0.75, size: 18, color: '#8a2be2', checked: false }
+  ];
+
+  // Particle packet list
+  const particles = [];
+  
+  function createParticle(fromNode, toNode, color) {
+    particles.push({
+      fromX: fromNode.realX,
+      fromY: fromNode.realY,
+      toX: toNode.realX,
+      toY: toNode.realY,
+      progress: 0,
+      speed: 0.015 + Math.random() * 0.01,
+      color: color || '#00f0ff',
+      size: 3 + Math.random() * 3
+    });
+  }
+
+  function drawNetwork() {
+    ctx.clearRect(0, 0, width, height);
+
+    // Calculate real pixel positions
+    nodes.forEach(n => {
+      n.realX = width * n.x;
+      n.realY = height * n.y;
+    });
+
+    const studentNode = nodes[0];
+
+    // Draw connection channels (lines)
+    nodes.forEach(n => {
+      if (n.id === 'student') return;
+      
+      // Line styling
+      ctx.beginPath();
+      ctx.moveTo(studentNode.realX, studentNode.realY);
+      ctx.lineTo(n.realX, n.realY);
+      
+      const grad = ctx.createLinearGradient(studentNode.realX, studentNode.realY, n.realX, n.realY);
+      grad.addColorStop(0, 'rgba(0, 240, 255, 0.05)');
+      grad.addColorStop(1, n.checked ? 'rgba(0, 255, 135, 0.15)' : 'rgba(255, 0, 127, 0.15)');
+      
+      ctx.strokeStyle = grad;
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    });
+
+    // Draw concentric data waves around Student Node
+    ctx.beginPath();
+    ctx.arc(studentNode.realX, studentNode.realY, studentNode.size * 2.2 + Math.sin(Date.now() * 0.003) * 5, 0, Math.PI * 2);
+    ctx.strokeStyle = 'rgba(0, 240, 255, 0.05)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    // Update and draw packets
+    for (let i = particles.length - 1; i >= 0; i--) {
+      const p = particles[i];
+      p.progress += p.speed;
+      
+      if (p.progress >= 1) {
+        particles.splice(i, 1);
+        continue;
+      }
+
+      const currX = p.fromX + (p.toX - p.fromX) * p.progress;
+      const currY = p.fromY + (p.toY - p.fromY) * p.progress;
+
+      ctx.beginPath();
+      ctx.arc(currX, currY, p.size, 0, Math.PI * 2);
+      ctx.fillStyle = p.color;
+      ctx.shadowBlur = 8;
+      ctx.shadowColor = p.color;
+      ctx.fill();
+      ctx.shadowBlur = 0; // reset
+    }
+
+    // Draw Nodes
+    nodes.forEach(n => {
+      ctx.beginPath();
+      ctx.arc(n.realX, n.realY, n.size, 0, Math.PI * 2);
+      
+      // Render colors based on clearance checks
+      if (n.id !== 'student') {
+        n.color = n.checked ? 'var(--success-green)' : 'var(--danger-red)';
+      } else {
+        // student registry color shifts to green if all cleared
+        const allCleared = nodes.slice(1).every(node => node.checked);
+        n.color = allCleared ? 'var(--success-green)' : 'var(--primary-cyan)';
+      }
+
+      ctx.fillStyle = 'rgba(8, 10, 21, 0.85)';
+      ctx.strokeStyle = n.color;
+      ctx.lineWidth = 3;
+      ctx.shadowBlur = 10;
+      ctx.shadowColor = n.color;
+      ctx.fill();
+      ctx.shadowBlur = 0; // reset
+      ctx.stroke();
+
+      // Core center detail
+      ctx.beginPath();
+      ctx.arc(n.realX, n.realY, n.size * 0.35, 0, Math.PI * 2);
+      ctx.fillStyle = n.color;
+      ctx.fill();
+
+      // Node label
+      ctx.font = '500 10px "Fira Code", monospace';
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+      ctx.textAlign = 'center';
+      ctx.fillText(n.label, n.realX, n.realY + n.size + 16);
+    });
+  }
+
+  // Loop simulation
+  function tick() {
+    drawNetwork();
+    
+    // Ambient traffic flow
+    if (Math.random() < 0.02) {
+      const targetIdx = 1 + Math.floor(Math.random() * (nodes.length - 1));
+      const targetNode = nodes[targetIdx];
+      const studentNode = nodes[0];
+      
+      if (Math.random() < 0.5) {
+        // Admin to student flow
+        createParticle(targetNode, studentNode, targetNode.color);
+      } else {
+        // Student query flow
+        createParticle(studentNode, targetNode, 'rgba(0, 240, 255, 0.8)');
+      }
+    }
+    
+    requestAnimationFrame(tick);
+  }
+
+  tick();
+
+
+  /* =========================================================================
+     INTERACTIVE DASHBOARD STATES
+     ========================================================================= */
+  const dbState = {
+    lib: false,
+    acct: false,
+    dean: false,
+    lab: false
+  };
+
+  const logsContainer = document.getElementById('terminal-log');
+  
+  function appendLog(text, type = '') {
+    const d = new Date();
+    const timeStr = `${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}:${d.getSeconds().toString().padStart(2,'0')}.${(d.getMilliseconds()/10).toFixed(0).padStart(2,'0')}`;
+    
+    const div = document.createElement('div');
+    if (type === 'cmd') {
+      div.innerHTML = `<span style="color:var(--text-muted)">[${timeStr}]</span> <span class="cmd">&gt; ${text}</span>`;
+    } else if (type === 'sql') {
+      div.innerHTML = `<span style="color:var(--text-muted)">[${timeStr}]</span> <span class="sql">${text}</span>`;
+    } else if (type === 'ledger') {
+      div.innerHTML = `<span style="color:var(--text-muted)">[${timeStr}]</span> <span class="ledger">[LEDGER] ${text}</span>`;
+    } else if (type === 'success') {
+      div.innerHTML = `<span style="color:var(--text-muted)">[${timeStr}]</span> <span class="success">[SYSTEM] ${text}</span>`;
+    } else {
+      div.innerHTML = `<span style="color:var(--text-muted)">[${timeStr}]</span> ${text}`;
+    }
+    
+    logsContainer.appendChild(div);
+    logsContainer.scrollTop = logsContainer.scrollHeight;
+  }
+
+  function toggleDept(dept, approved) {
+    dbState[dept] = approved;
+    
+    // UI Label coloring
+    const lbl = document.getElementById(`lbl-${dept}`);
+    const chk = document.getElementById(`chk-${dept}`);
+    lbl.classList.toggle('cleared', approved);
+    chk.checked = approved;
+    
+    // Node styling sync
+    const networkNode = nodes.find(n => n.id === dept);
+    if (networkNode) {
+      networkNode.checked = approved;
+      
+      // Dispatch visual particles to central registry
+      for(let i=0; i<6; i++) {
+        setTimeout(() => {
+          createParticle(networkNode, nodes[0], approved ? 'var(--success-green)' : 'var(--danger-red)');
+        }, i * 80);
+      }
+    }
+
+    // SQL simulation print
+    appendLog(`SELECT status FROM clearance_status WHERE student_id = '2024-ISPSC-3091' AND dept = '${dept.toUpperCase()}' FOR UPDATE;`, 'sql');
+    appendLog(`UPDATE clearance_status SET status = '${approved ? 'APPROVED' : 'HOLD'}' WHERE student_id = '2024-ISPSC-3091';`, 'sql');
+    
+    // SHA Ledger link logging
+    const mockHash = Math.random().toString(36).substring(2, 10) + Math.random().toString(36).substring(2, 10);
+    appendLog(`Hash block added: SHA256(${mockHash.substring(0,10)}...)`, 'ledger');
+
+    // UI state recalculation
+    recalculateState();
+  }
+
+  function recalculateState() {
+    const list = Object.values(dbState);
+    const approvedCount = list.filter(v => v).length;
+    const totalCount = list.length;
+    const pct = Math.round((approvedCount / totalCount) * 100);
+
+    // Update progress bar
+    const fill = document.getElementById('progress-fill');
+    fill.style.width = `${pct}%`;
+    document.getElementById('progress-percent').innerText = `${pct}%`;
+    
+    const countDiv = document.getElementById('pending-count');
+    countDiv.innerText = `Pending: ${totalCount - approvedCount} / ${totalCount}`;
+
+    // Adjust badge and deficiencies
+    const badge = document.getElementById('student-badge');
+    const defBox = document.getElementById('deficiency-box');
+
+    // Hide or show deficiency items
+    document.getElementById('def-lib-item').style.display = dbState.lib ? 'none' : 'flex';
+    document.getElementById('def-acct-item').style.display = dbState.acct ? 'none' : 'flex';
+    document.getElementById('def-dean-item').style.display = dbState.dean ? 'none' : 'flex';
+    document.getElementById('def-lab-item').style.display = dbState.lab ? 'none' : 'flex';
+
+    if (pct === 100) {
+      fill.classList.add('full');
+      badge.className = 'student-badge cleared';
+      badge.innerText = 'CLEARED';
+      
+      defBox.innerHTML = `
+        <div class="no-deficiencies" id="no-def-widget">
+          <i data-lucide="check-circle" style="width:32px;height:32px;color:var(--success-green)"></i>
+          <span>All Clearances Completed</span>
+          <span style="font-size:9px; color:var(--text-muted); font-family:var(--mono);">GLOBAL LOCK RELEASED</span>
+        </div>
+      `;
+      lucide.createIcons();
+      appendLog(`GLOBAL STATUS UPDATED: student_id '2024-ISPSC-3091' set to CLEARED.`, 'success');
+      appendLog(`SMS deficiency notification dispatched to: +63917XXXX381.`, 'success');
+    } else {
+      fill.classList.remove('full');
+      badge.className = 'student-badge';
+      badge.innerText = 'LOCKED';
+      
+      // Restore deficiency widget structure if empty
+      const hasDefWidget = document.getElementById('no-def-widget');
+      if (hasDefWidget || defBox.children.length === 0) {
+        defBox.innerHTML = `
+          <div class="deficiency-item" id="def-lib-item" style="display:${dbState.lib?'none':'flex'}">
+            <div>
+              <div class="def-title">Overdue Library Book: Noli Me Tangere</div>
+              <div class="def-dept">Library</div>
+            </div>
+            <div class="def-cost">PHP 50.00</div>
+          </div>
+          <div class="deficiency-item" id="def-acct-item" style="display:${dbState.acct?'none':'flex'}">
+            <div>
+              <div class="def-title">Outstanding Semester Dues</div>
+              <div class="def-dept">Accounting</div>
+            </div>
+            <div class="def-cost">PHP 120.00</div>
+          </div>
+          <div class="deficiency-item" id="def-dean-item" style="display:${dbState.dean?'none':'flex'}">
+            <div>
+              <div class="def-title">Missing Guidance Interview</div>
+              <div class="def-dept">Dean's Office</div>
+            </div>
+            <div class="def-cost">PENDING</div>
+          </div>
+          <div class="deficiency-item" id="def-lab-item" style="display:${dbState.lab?'none':'flex'}">
+            <div>
+              <div class="def-title">Unreturned Laboratory Flasks</div>
+              <div class="def-dept">Laboratory</div>
+            </div>
+            <div class="def-cost">PHP 150.00</div>
+          </div>
+        `;
+      }
+    }
+  }
+
+  function simulateReset() {
+    appendLog('System state re-initialization triggered...', 'cmd');
+    toggleDept('lib', false);
+    toggleDept('acct', false);
+    toggleDept('dean', false);
+    toggleDept('lab', false);
+    appendLog('All local administrative caches flushed.', 'success');
+  }
+
+  function simulateResolveAll() {
+    appendLog('Bulk authorization requested...', 'cmd');
+    toggleDept('lib', true);
+    toggleDept('acct', true);
+    toggleDept('dean', true);
+    toggleDept('lab', true);
+  }
+
+  // Initialize Lucide vector icons
+  lucide.createIcons();
+</script>
+</body>
+</html>

@@ -1,0 +1,2207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Capstone 3 Guide & Details - FlexiQueue</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #06080d;
+  --bg-card: rgba(14, 20, 36, 0.7);
+  --bg-card-hover: rgba(20, 30, 52, 0.85);
+  --border: rgba(255, 255, 255, 0.06);
+  --border-hover: rgba(52, 211, 153, 0.25);
+  --text: #e8ecf4;
+  --text-muted: #7a889e;
+  --text-faint: #4a5568;
+  --sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --heading: 'Space Grotesk', system-ui, sans-serif;
+  --mono: 'Fira Code', monospace;
+  
+  --accent: rgb(52, 211, 153);
+  --accent-light: rgba(52, 211, 153, 0.08);
+  --accent-border: rgba(52, 211, 153, 0.2);
+  --accent-glow: rgba(16, 185, 129, 0.15);
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  min-height: 100vh;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+.bg-mesh {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 80% 50% at 20% 20%, rgba(52, 211, 153, 0.06) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 80%, rgba(16, 185, 129, 0.04) 0%, transparent 55%);
+}
+
+.bg-grid {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.01) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.01) 1px, transparent 1px);
+  background-size: 50px 50px;
+}
+
+/* Sticky Top Bar & Sticky Search Bar */
+.sticky-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(6, 8, 13, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  padding: 1rem 2rem;
+  transition: all 0.3s ease;
+}
+
+.header-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.top-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--text-muted);
+  text-decoration: none;
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.4rem 0.8rem;
+  border-radius: 8px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+  transition: all 0.2s ease;
+}
+
+.back-btn:hover {
+  color: var(--text);
+  background: rgba(255,255,255,0.08);
+  border-color: var(--text-muted);
+}
+
+.project-title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.title-icon {
+  font-size: 1.5rem;
+}
+
+.title-badge {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--accent);
+  background: var(--accent-light);
+  border: 1px solid var(--accent-border);
+  padding: 0.2rem 0.6rem;
+  border-radius: 100px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+}
+
+h1 {
+  font-family: var(--heading);
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text);
+}
+
+/* Sticky Search Bar Container */
+.search-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.search-input {
+  width: 100%;
+  padding: 0.8rem 1.2rem 0.8rem 2.8rem;
+  background: rgba(14, 20, 36, 0.9);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 0.95rem;
+  outline: none;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 20px -5px rgba(0,0,0,0.5);
+}
+
+.search-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 15px -3px var(--accent-glow), 0 4px 20px -5px rgba(0,0,0,0.5);
+  background: rgba(20, 30, 52, 0.95);
+}
+
+.search-icon {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  pointer-events: none;
+  font-size: 1rem;
+}
+
+.search-clear {
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 1rem;
+  display: none;
+  padding: 0.2rem;
+}
+
+.search-clear:hover {
+  color: var(--text);
+}
+
+.search-stats {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-family: var(--mono);
+  text-align: right;
+  margin-top: 0.25rem;
+  display: none;
+}
+
+/* Layout */
+.main-layout {
+  position: relative;
+  z-index: 1;
+  max-width: 1400px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 2.5rem;
+  padding: 2.5rem 2rem;
+}
+
+/* Sidebar navigation */
+.sidebar {
+  position: sticky;
+  top: 170px;
+  height: calc(100vh - 200px);
+  overflow-y: auto;
+  padding-right: 1rem;
+}
+
+.sidebar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 4px;
+}
+
+.toc-group {
+  margin-bottom: 1.5rem;
+}
+
+.toc-group-title {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  color: var(--text-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  padding-left: 0.75rem;
+}
+
+.toc-link {
+  display: block;
+  color: var(--text-muted);
+  text-decoration: none;
+  font-size: 0.85rem;
+  padding: 0.5rem 0.75rem;
+  border-left: 2px solid transparent;
+  transition: all 0.2s ease;
+  line-height: 1.4;
+  border-radius: 0 6px 6px 0;
+}
+
+.toc-link:hover {
+  color: var(--text);
+  background: rgba(255,255,255,0.02);
+  border-left-color: var(--text-faint);
+}
+
+.toc-link.active {
+  color: var(--accent);
+  font-weight: 500;
+  border-left-color: var(--accent);
+  background: var(--accent-light);
+}
+
+/* Main Content Area */
+.content-pane {
+  max-width: 900px;
+}
+
+.content-section {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 2.5rem;
+  margin-bottom: 2rem;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition: all 0.3s ease;
+}
+
+.content-section:hover {
+  border-color: rgba(52, 211, 153, 0.15);
+}
+
+.section-title {
+  font-family: var(--heading);
+  font-size: 1.8rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+  background: linear-gradient(135deg, #fff 0%, rgba(52, 211, 153, 0.85) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Typography inside Content Sections */
+p {
+  font-size: 0.95rem;
+  line-height: 1.65;
+  color: var(--text-muted);
+  margin-bottom: 1.25rem;
+}
+
+strong {
+  color: var(--text);
+  font-weight: 600;
+}
+
+h3 {
+  font-family: var(--heading);
+  font-size: 1.3rem;
+  color: var(--text);
+  margin: 2rem 0 1rem 0;
+  font-weight: 500;
+}
+
+h4 {
+  font-family: var(--heading);
+  font-size: 1.1rem;
+  color: var(--text);
+  margin: 1.5rem 0 0.75rem 0;
+  font-weight: 500;
+}
+
+ul, ol {
+  margin-bottom: 1.25rem;
+  padding-left: 1.5rem;
+}
+
+li {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--text-muted);
+  margin-bottom: 0.5rem;
+}
+
+blockquote {
+  border-left: 3px solid var(--accent);
+  background: var(--accent-light);
+  padding: 1rem 1.25rem;
+  margin: 1.5rem 0;
+  border-radius: 0 8px 8px 0;
+  font-style: italic;
+}
+
+blockquote p {
+  margin-bottom: 0;
+  color: var(--text);
+}
+
+hr {
+  border: 0;
+  height: 1px;
+  background: var(--border);
+  margin: 2.5rem 0;
+}
+
+/* Code Blocks */
+pre {
+  background: #020306;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.25rem;
+  margin: 1.5rem 0;
+  overflow-x: auto;
+}
+
+code {
+  font-family: var(--mono);
+  font-size: 0.85rem;
+  color: rgba(52, 211, 153, 0.95);
+  background: rgba(52, 211, 153, 0.05);
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+}
+
+pre code {
+  color: #cfd8e3;
+  background: none;
+  padding: 0;
+  border-radius: 0;
+}
+
+/* Table Styling */
+.table-container {
+  width: 100%;
+  overflow-x: auto;
+  margin: 1.5rem 0;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 0.9rem;
+}
+
+th {
+  background: rgba(255,255,255,0.02);
+  color: var(--text);
+  font-weight: 600;
+  padding: 1rem;
+  border-bottom: 1px solid var(--border);
+  font-family: var(--heading);
+}
+
+td {
+  padding: 1rem;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+tr:last-child td {
+  border-bottom: none;
+}
+
+tr:hover td {
+  background: rgba(255,255,255,0.01);
+  color: var(--text);
+}
+
+/* Mock Q&A Accordion */
+.qa-filters {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+}
+
+.filter-btn {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  font-family: var(--mono);
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.filter-btn:hover, .filter-btn.active {
+  background: var(--accent-light);
+  border-color: var(--accent-border);
+  color: var(--accent);
+}
+
+.qa-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.qa-item {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: rgba(255,255,255,0.01);
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.qa-item:hover {
+  border-color: var(--accent-border);
+  background: rgba(255,255,255,0.02);
+}
+
+.qa-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  background: none;
+  border: none;
+  color: var(--text);
+  font-family: var(--heading);
+  font-size: 0.95rem;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  outline: none;
+  justify-content: space-between;
+}
+
+.qa-q-badge {
+  width: 24px;
+  height: 24px;
+  background: var(--accent-light);
+  border: 1px solid var(--accent-border);
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.qa-question-text {
+  flex: 1;
+  line-height: 1.4;
+}
+
+.qa-toggle {
+  font-size: 1.2rem;
+  color: var(--text-faint);
+  transition: transform 0.3s ease;
+  padding-left: 0.5rem;
+}
+
+.qa-body {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.qa-answer {
+  padding: 0 1.25rem 1.25rem 3.25rem;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--text-muted);
+}
+
+.qa-answer p {
+  margin-bottom: 0.75rem;
+}
+
+.qa-answer p:last-child {
+  margin-bottom: 0;
+}
+
+.qa-item.open {
+  border-color: var(--accent-border);
+  background: rgba(52, 211, 153, 0.02);
+  box-shadow: 0 4px 20px -10px var(--accent-glow);
+}
+
+.qa-item.open .qa-body {
+  max-height: 1200px; /* Large enough for detailed answers */
+}
+
+.qa-item.open .qa-toggle {
+  transform: rotate(45deg);
+  color: var(--accent);
+}
+
+/* Highlighted search text */
+mark.highlight {
+  background: rgba(var(--accent), 0.25);
+  color: var(--text);
+  border-radius: 4px;
+  padding: 0.1rem 0.2rem;
+  border-bottom: 2px solid var(--accent);
+}
+
+/* Search Flex Layout with AI Button */
+.search-flex-container {
+  display: flex;
+  gap: 0.75rem;
+  width: 100%;
+  align-items: center;
+}
+
+.ai-explore-btn {
+  background: linear-gradient(135deg, rgba(var(--accent), 0.2) 0%, rgba(var(--accent), 0.05) 100%);
+  color: var(--text);
+  border: 1px solid rgba(var(--accent), 0.35);
+  border-radius: 10px;
+  padding: 0.8rem 1.25rem;
+  font-weight: 600;
+  font-family: var(--sans);
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  white-space: nowrap;
+  box-shadow: 0 0 15px -3px rgba(var(--accent), 0.1), 0 4px 20px -5px rgba(0,0,0,0.5);
+}
+
+.ai-explore-btn:hover {
+  border-color: rgba(var(--accent), 0.7);
+  background: linear-gradient(135deg, rgba(var(--accent), 0.3) 0%, rgba(var(--accent), 0.15) 100%);
+  box-shadow: 0 0 20px -2px rgba(var(--accent), 0.35), 0 4px 20px -5px rgba(0,0,0,0.5);
+  transform: translateY(-1px);
+}
+
+.ai-explore-btn:active {
+  transform: translateY(1px);
+  box-shadow: 0 0 10px -2px rgba(var(--accent), 0.2);
+}
+
+.ai-icon {
+  font-size: 1.1rem;
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+@keyframes pulse-glow {
+  0%, 100% { transform: scale(1); filter: drop-shadow(0 0 2px rgba(var(--accent), 0.5)); }
+  50% { transform: scale(1.1); filter: drop-shadow(0 0 6px rgba(var(--accent), 0.8)); }
+}
+
+/* Toast Notification Styles */
+.ai-toast {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  background: rgba(10, 15, 30, 0.95);
+  border: 1px solid rgba(var(--accent), 0.3);
+  border-radius: 12px;
+  padding: 1rem 1.5rem;
+  color: var(--text);
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.6), 0 0 30px -5px rgba(var(--accent), 0.3);
+  transform: translateY(150%) scale(0.9);
+  opacity: 0;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
+  max-width: 350px;
+}
+
+.ai-toast.show {
+  transform: translateY(0) scale(1);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.toast-content {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.toast-icon {
+  font-size: 1.5rem;
+}
+
+.toast-text-wrapper {
+  display: flex;
+  flex-direction: column;
+}
+
+.toast-title {
+  font-family: var(--heading);
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--text);
+}
+
+.toast-desc {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.toast-progress {
+  height: 3px;
+  background: var(--accent);
+  width: 100%;
+  border-radius: 2px;
+  transform-origin: left;
+  transform: scaleX(0);
+}
+
+.toast-progress.animate {
+  animation: progress-bar linear forwards;
+}
+
+@keyframes progress-bar {
+  from { transform: scaleX(1); }
+  to { transform: scaleX(0); }
+}
+
+/* Search overlay for empty search results */
+.no-results {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: var(--text-muted);
+  display: none;
+}
+
+.no-results-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+/* Floating Mobile Menu Button & Drawer */
+.mobile-menu-toggle {
+  display: none;
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  z-index: 110;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #000;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 30px -5px var(--accent-glow);
+  transition: all 0.3s ease;
+}
+
+.mobile-menu-toggle:hover {
+  transform: scale(1.05);
+}
+
+/* Responsive Breakpoints */
+@media (max-width: 1024px) {
+  .main-layout {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    padding: 1.5rem 1.25rem;
+    position: static;
+    z-index: auto;
+  }
+  
+  .content-pane {
+    min-width: 0;
+    width: 100%;
+  }
+  
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: -300px;
+    width: 280px;
+    height: 100vh;
+    z-index: 1000;
+    background: #090d16;
+    border-right: 1px solid var(--border);
+    padding: 2rem 1.5rem;
+    transition: left 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  
+  .sidebar.open {
+    left: 0;
+    box-shadow: 20px 0 60px rgba(0,0,0,0.8);
+  }
+  
+  .mobile-menu-toggle {
+    display: flex;
+  }
+  
+  .content-section {
+    padding: 1.75rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .sticky-header {
+    padding: 0.5rem 0.75rem;
+  }
+  
+  .header-container {
+    gap: 0.5rem;
+  }
+  
+  h1 {
+    font-size: 1.1rem;
+  }
+  
+  .project-title {
+    flex-wrap: nowrap;
+    gap: 0.4rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  .search-flex-container {
+    flex-direction: row;
+    gap: 0.5rem;
+    align-items: center;
+  }
+  
+  .search-wrapper {
+    flex: 1;
+  }
+  
+  .ai-explore-btn {
+    width: auto;
+    padding: 0.6rem 0.8rem;
+    font-size: 0.85rem;
+    white-space: nowrap;
+  }
+  
+  .ai-btn-text-extra {
+    display: none;
+  }
+  
+  .content-section {
+    padding: 1.25rem;
+    border-radius: 12px;
+  }
+  
+  .section-title {
+    font-size: 1.4rem;
+  }
+  
+  .qa-answer {
+    padding-left: 1.25rem;
+  }
+  
+  /* Prevent tables from causing horizontal page scrolling */
+  table {
+    font-size: 0.8rem;
+  }
+  
+  th, td {
+    padding: 0.75rem 0.5rem;
+  }
+}
+
+/* Overlay for mobile drawer */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  z-index: 999;
+  backdrop-filter: blur(4px);
+}
+
+.sidebar-overlay.open {
+  display: block;
+}
+</style>
+  <!-- MathJax for rendering LaTeX formulas -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true
+      },
+      options: {
+        ignoreHtmlClass: 'tex2jax_ignore',
+        processHtmlClass: 'tex2jax_process'
+      }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+  <div class="bg-mesh"></div>
+  <div class="bg-grid"></div>
+
+  <!-- Sticky Header containing search and title -->
+  <header class="sticky-header">
+    <div class="header-container">
+      <div class="top-nav">
+        <a class="back-btn" href="../../index.html">&larr; Dashboard</a>
+        <div class="project-title">
+          <span class="title-icon">🏗️</span>
+          <h1>FlexiQueue</h1>
+          <span class="title-badge">Capstone 3</span>
+        </div>
+      </div>
+      
+      <!-- Sticky Search Bar -->
+      <div class="search-flex-container">
+        <div class="search-wrapper">
+          <span class="search-icon">&#x1F50D;</span>
+          <input type="text" class="search-input" id="search-input" placeholder="Search guide or type AI question, then click 'Explore with AI'...">
+          <button class="search-clear" id="search-clear">&times;</button>
+        </div>
+        <button class="ai-explore-btn" id="ai-explore-btn" onclick="exploreWithAI()">
+          <span class="ai-icon">✨</span> Explore <span class="ai-btn-text-extra">with AI</span>
+        </button>
+      </div>
+      <div class="search-stats" id="search-stats">Showing all sections</div>
+    </div>
+  </header>
+
+  <!-- Sidebar Overlay -->
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+  <!-- Floating Mobile Menu Button -->
+  <button class="mobile-menu-toggle" id="mobile-menu-toggle">&#x2630;</button>
+
+  <!-- Main Layout -->
+  <div class="main-layout">
+    <!-- Sidebar navigation -->
+    <aside class="sidebar" id="sidebar">
+      <div class="toc-group">
+  <div class="toc-group-title">Core Defense Guide</div>
+  <a href="#title-defense-guide-flexiqueue" class="toc-link" data-target="title-defense-guide-flexiqueue">Title Defense Guide: FlexiQueue</a>
+  <a href="#1-title-defense-alignment-and-structural-overview" class="toc-link" data-target="1-title-defense-alignment-and-structural-overview">1. Title Defense Alignment & Structural Overview</a>
+  <a href="#cat-the-core-shift" class="toc-link" data-target="cat-the-core-shift">The Core Shift</a>
+  <a href="#cat-system-target-metrics" class="toc-link" data-target="cat-system-target-metrics">System Target Metrics</a>
+  <a href="#2-11-section-defense-pacing-5-minute-budget" class="toc-link" data-target="2-11-section-defense-pacing-5-minute-budget">2. 11-Section Defense Pacing (5-Minute Budget)</a>
+  <a href="#cat-section-1--the-title-15-seconds" class="toc-link" data-target="cat-section-1--the-title-15-seconds">Section 1 — The Title (15 Seconds)</a>
+  <a href="#cat-section-2--the-scene-30-seconds" class="toc-link" data-target="cat-section-2--the-scene-30-seconds">Section 2 — The Scene (30 Seconds)</a>
+  <a href="#cat-section-3--the-problem-30-seconds" class="toc-link" data-target="cat-section-3--the-problem-30-seconds">Section 3 — The Problem (30 Seconds)</a>
+  <a href="#cat-section-4--proposed-system-and-architecture-45-seconds" class="toc-link" data-target="cat-section-4--proposed-system-and-architecture-45-seconds">Section 4 — Proposed System & Architecture (45 Seconds)</a>
+  <a href="#cat-section-5--live-demonstration-45-seconds" class="toc-link" data-target="cat-section-5--live-demonstration-45-seconds">Section 5 — Live Demonstration (45 Seconds)</a>
+  <a href="#cat-section-6--component-coverage-45-seconds" class="toc-link" data-target="cat-section-6--component-coverage-45-seconds">Section 6 — Component Coverage (45 Seconds)</a>
+  <a href="#cat-section-7--novelty-claim-30-seconds" class="toc-link" data-target="cat-section-7--novelty-claim-30-seconds">Section 7 — Novelty Claim (30 Seconds)</a>
+  <a href="#cat-section-8--system-scope-and-boundaries-30-seconds" class="toc-link" data-target="cat-section-8--system-scope-and-boundaries-30-seconds">Section 8 — System Scope & Boundaries (30 Seconds)</a>
+  <a href="#cat-section-9--roadmap-15-seconds" class="toc-link" data-target="cat-section-9--roadmap-15-seconds">Section 9 — Roadmap (15 Seconds)</a>
+  <a href="#cat-section-10--verification-15-seconds" class="toc-link" data-target="cat-section-10--verification-15-seconds">Section 10 — Verification (15 Seconds)</a>
+  <a href="#cat-section-11--closing-15-seconds" class="toc-link" data-target="cat-section-11--closing-15-seconds">Section 11 — Closing (15 Seconds)</a>
+  <a href="#3-system-architecture-deep-dive" class="toc-link" data-target="3-system-architecture-deep-dive">3. System Architecture Deep-Dive</a>
+  <a href="#cat-physical-deployment-topology" class="toc-link" data-target="cat-physical-deployment-topology">Physical Deployment Topology</a>
+  <a href="#cat-student-queue-journey-sequence-flow" class="toc-link" data-target="cat-student-queue-journey-sequence-flow">Student Queue Journey Sequence Flow</a>
+  <a href="#4-key-technical-arguments" class="toc-link" data-target="4-key-technical-arguments">4. Key Technical Arguments</a>
+  <a href="#5-mock-qanda-30-anticipated-questions-and-answers" class="toc-link" data-target="5-mock-qanda-30-anticipated-questions-and-answers">5. Mock Q&A: 30 Anticipated Questions & Answers</a>
+  <a href="#cat-category-a-architecture-and-offline-first" class="toc-link" data-target="cat-category-a-architecture-and-offline-first">Category A: Architecture & Offline-First</a>
+  <a href="#cat-category-b-kiosk-and-display-surfaces" class="toc-link" data-target="cat-category-b-kiosk-and-display-surfaces">Category B: Kiosk & Display Surfaces</a>
+  <a href="#cat-category-c-queueing-theory-and-performance" class="toc-link" data-target="cat-category-c-queueing-theory-and-performance">Category C: Queueing Theory & Performance</a>
+  <a href="#cat-category-d-security-and-privacy" class="toc-link" data-target="cat-category-d-security-and-privacy">Category D: Security & Privacy</a>
+  <a href="#cat-category-e-implementation-and-hardware" class="toc-link" data-target="cat-category-e-implementation-and-hardware">Category E: Implementation & Hardware</a>
+  <a href="#cat-category-f-general-capstone-alignment" class="toc-link" data-target="cat-category-f-general-capstone-alignment">Category F: General Capstone Alignment</a>
+</div>
+<div class="toc-group">
+  <div class="toc-group-title">Supplementary Knowledge</div>
+  <a href="#supp-flexiqueue capstone research grounding" class="toc-link" data-target="supp-flexiqueue capstone research grounding">Flexiqueue Capstone Research Grounding</a>
+  <a href="#supp-flexiqueue-pitch" class="toc-link" data-target="supp-flexiqueue-pitch">Flexiqueue Pitch</a>
+</div>
+    </aside>
+
+    <!-- Main Content Pane -->
+    <main class="content-pane" id="content-pane">
+      <section id="title-defense-guide-flexiqueue" class="content-section">
+  <h2 class="section-title searchable">Title Defense Guide: FlexiQueue</h2>
+  <p class='searchable'><em>A Comprehensive Strategic Roadmap, System Architecture Deep-Dive, and Mock Q&amp;A for the Capstone Title Defense</em></p>
+  <hr>
+</section>
+<section id="1-title-defense-alignment-and-structural-overview" class="content-section">
+  <h2 class="section-title searchable">1. Title Defense Alignment & Structural Overview</h2>
+</section>
+<section id="cat-the-core-shift" class="content-section">
+  <h2 class="section-title searchable">The Core Shift</h2>
+  <p class='searchable'>Unlike conventional institutional websites or static clearance applications, <strong>FlexiQueue</strong> operates as a <strong>Multi-Surface Queue Orchestration Engine</strong>. It solves the severe queue congestion, announcement fatigue, and dynamic routing breakdowns experienced at institutional service lines (such as SUC Registrars, Cashiers, Advising Desks, and Libraries) by coordinating physical screens and devices into a real-time, offline-resilient state machine.</p>
+  <p class='searchable'><em></em>MATH<em>BLOCK</em>0<em></em></p>
+</section>
+<section id="cat-system-target-metrics" class="content-section">
+  <h2 class="section-title searchable">System Target Metrics</h2>
+  <ul class='searchable'>
+  <li><strong>Token-to-Screen Propagation</strong>: <em></em>MATH<em>BLOCK</em>0<em></em> from administrative call to public display board updates using WebSockets.</li>
+  <li><strong>Local Failover Resilience</strong>: <em></em>MATH<em>BLOCK</em>0<em></em> queueing uptime in the local LAN environment during active WAN outages.</li>
+  <li><strong>Kiosk Transaction Speed</strong>: <em></em>MATH<em>BLOCK</em>0<em></em> average walk-up token generation time on the self-service kiosk.</li>
+  <li><strong>Text-to-Speech (TTS) Dispatch Delay</strong>: <em></em>MATH<em>BLOCK</em>0<em></em> from call trigger to localized voice announcement execution on display screens.</li>
+  <li><strong>ML Prediction Accuracy</strong>: Mean Absolute Error (MAE) <em></em>MATH<em>BLOCK</em>0<em></em> minutes in predicting wait times based on historical transaction logs.</li>
+  <li><strong>Audit Trail Integrity</strong>: <em></em>MATH<em>BLOCK</em>0<em></em> immutable transaction writes via append-only logs for all queue transitions.</li>
+  </ul>
+  <hr>
+</section>
+<section id="2-11-section-defense-pacing-5-minute-budget" class="content-section">
+  <h2 class="section-title searchable">2. 11-Section Defense Pacing (5-Minute Budget)</h2>
+</section>
+<section id="cat-section-1--the-title-15-seconds" class="content-section">
+  <h2 class="section-title searchable">Section 1 — The Title (15 Seconds)</h2>
+  <blockquote><p><strong>Slide 1: Formal Title</strong></p>
+<ul>
+<li><strong>Title</strong>: <em>FlexiQueue: A Multi-Surface Queue Management and Service Routing Platform</em></li>
+<li><strong>Verbal Lead</strong>: <em>&quot;Good morning, members of the panel. We propose <strong>FlexiQueue</strong>, a highly configurable queue management and service routing platform. It coordinates self-service kiosks, WebSocket display boards, staff panels, and mobile status checkers into a unified service delivery flow. Our research focuses on how local-first web architectures can maintain institutional queueing operations during network outages while ensuring strict transaction auditing.&quot;</em></li>
+</ul></blockquote>
+</section>
+<section id="cat-section-2--the-scene-30-seconds" class="content-section">
+  <h2 class="section-title searchable">Section 2 — The Scene (30 Seconds)</h2>
+  <blockquote><p><strong>Slide 2: Context and Hook</strong></p>
+<ul>
+<li><strong>Visuals</strong>: High-contrast split UI showing crowded hallways of students waiting in lines at the Registrar and Cashier versus a neat layout of coordinated display monitors.</li>
+<li><strong>Verbal Lead</strong>: <em>&quot;Queueing is a reality on any campus. Students spend hours navigating a daily maze of registrar windows, cashier lines, and academic advising counters. When a student reaches a window only to be told they must pay a fee first, they must exit, queue at the Cashier, and then restart the Registrar line from scratch. FlexiQueue addresses this physical friction by linking these distinct journeys into an orchestrated flow.&quot;</em></li>
+</ul></blockquote>
+</section>
+<section id="cat-section-3--the-problem-30-seconds" class="content-section">
+  <h2 class="section-title searchable">Section 3 — The Problem (30 Seconds)</h2>
+  <blockquote><p><strong>Slide 3: The Three Administrative Bottlenecks</strong></p>
+<ul>
+<li><strong>Visuals</strong>: Three grid cards detailing: (1) Disjointed Journeys, (2) Announcement Fatigue, and (3) Infrastructure Costs.</li>
+<li><strong>Verbal Lead</strong>: <em>&quot;We have identified three core bottlenecks. First, disjointed journeys: there is no dynamic cross-department handoff. Second, vocal announcement fatigue: staff waste energy shouting names, and students miss calls in crowded corridors. Third, high infrastructure costs: commercial queue management systems are expensive and require proprietary hardware, while cloud-only solutions fail completely during internet outages.&quot;</em></li>
+</ul></blockquote>
+</section>
+<section id="cat-section-4--proposed-system-and-architecture-45-seconds" class="content-section">
+  <h2 class="section-title searchable">Section 4 — Proposed System & Architecture (45 Seconds)</h2>
+  <blockquote><p><strong>Slide 4: System Architecture &amp; Topology Map</strong></p>
+<ul>
+<li><strong>Visuals</strong>: Glowing SVG connections linking Kiosk, Local LAN Server, Public Display Boards, Staff Panels, and Mobile views.</li>
+<li><strong>Verbal Lead</strong>: <em>&quot;To address these issues, we present our deployment architecture. FlexiQueue runs completely as a local-first system. Self-service kiosks print tickets at the entrance, and display screens show called tokens in the lobby. Clerks call tokens from staff panels, and students track wait times on their phones. All interfaces communicate locally with the LAN server running a dynamic FlowEngine database, protecting the campus from internet downtime.&quot;</em></li>
+</ul></blockquote>
+</section>
+<section id="cat-section-5--live-demonstration-45-seconds" class="content-section">
+  <h2 class="section-title searchable">Section 5 — Live Demonstration (45 Seconds)</h2>
+  <blockquote><p><strong>Slide 5: Live Demonstration (Interactive Simulator)</strong></p>
+<ul>
+<li><strong>Visuals</strong>: Three-column live simulator showing Kiosk UI, Display Board UI, and Staff Panel with real-time transaction logs and localized voice speech output.</li>
+<li><strong>Verbal Lead</strong>: <em>&quot;Here is our simulator. A student claims a ticket at the kiosk. When staff click &#x27;Call Next&#x27; on their panel, the lobby display updates and calls the token using text-to-speech. Most importantly, if a registrar clerk identifies a cashier deficiency, they can transfer the token directly to the Cashier queue using our FlowEngine, avoiding the need for a new ticket and mapping the entire student journey.&quot;</em></li>
+</ul></blockquote>
+</section>
+<section id="cat-section-6--component-coverage-45-seconds" class="content-section">
+  <h2 class="section-title searchable">Section 6 — Component Coverage (45 Seconds)</h2>
+  <blockquote><p><strong>Slide 6: Technical Component Map</strong></p>
+<ul>
+<li><strong>Visuals</strong>: Five-row table mapping the 5 curriculum pillars (Web, Mobile, ML, IoT, Mapping) to FlexiQueue surfaces.</li>
+<li><strong>Verbal Lead</strong>: <em>&quot;Our system satisfies the five capstone pillars. The Web portal for admin and clerks uses Laravel 12 and Svelte 5. The Mobile status tracker runs responsive status pages. For ML, a Random Forest regression model predicts waiting times. The IoT pillar covers our self-service kiosks running on Orange Pi SBCs and ESC/POS thermal printers. The Mapping pillar implements Leaflet.js to show students the path to Cashier or Registrar desks during transfers.&quot;</em></li>
+</ul></blockquote>
+</section>
+<section id="cat-section-7--novelty-claim-30-seconds" class="content-section">
+  <h2 class="section-title searchable">Section 7 — Novelty Claim (30 Seconds)</h2>
+  <blockquote><p><strong>Slide 7: Innovations &amp; Comparison Matrix</strong></p>
+<ul>
+<li><strong>Visuals</strong>: Comparison matrix showing FlexiQueue vs. Standard QMS.</li>
+<li><strong>Verbal Lead</strong>: <em>&quot;FlexiQueue&#x27;s novelty lies in its local-first architecture. Unlike commercial systems that require proprietary controllers, FlexiQueue runs on low-cost single-board computers over the local LAN. It maintains 100% queue availability even when the school&#x27;s WAN link is down, and writes every transaction to an immutable log for audit reporting.&quot;</em></li>
+</ul></blockquote>
+</section>
+<section id="cat-section-8--system-scope-and-boundaries-30-seconds" class="content-section">
+  <h2 class="section-title searchable">Section 8 — System Scope & Boundaries (30 Seconds)</h2>
+  <blockquote><p><strong>Slide 8: In-Scope and Out-of-Scope Lists</strong></p>
+<ul>
+<li><strong>Visuals</strong>: Split column list of scopes and boundaries.</li>
+<li><strong>Verbal Lead</strong>: <em>&quot;Our project scope includes the multi-surface views, FlowEngine routing rules, ML wait estimation, Leaflet routing maps, and append-only database logs. Out of scope are native mobile app store packages and global WAN-wide queueing during active offline states, keeping the hardware footprint lightweight and browser-compatible.&quot;</em></li>
+</ul></blockquote>
+</section>
+<section id="cat-section-9--roadmap-15-seconds" class="content-section">
+  <h2 class="section-title searchable">Section 9 — Roadmap (15 Seconds)</h2>
+  <blockquote><p><strong>Slide 9: Milestone Timeline</strong></p>
+<ul>
+<li><strong>Visuals</strong>: 5-phase horizontal timeline from DB design to validation.</li>
+<li><strong>Verbal Lead</strong>: <em>&quot;The development timeline is structured over 7 weeks. We will focus on the FlowEngine, database schema, and ML wait-time regression modeling first, followed by Svelte 5 surface views, Leaflet campus maps, WebSockets, TTS, Device Lock enforcement, and final load testing.&quot;</em></li>
+</ul></blockquote>
+</section>
+<section id="cat-section-10--verification-15-seconds" class="content-section">
+  <h2 class="section-title searchable">Section 10 — Verification (15 Seconds)</h2>
+  <blockquote><p><strong>Slide 10: Quality &amp; Testing Metrics</strong></p>
+<ul>
+<li><strong>Visuals</strong>: Automated and manual testing criteria cards.</li>
+<li><strong>Verbal Lead</strong>: <em>&quot;We will verify system performance using automated latency benchmarks under simulated station loads and validate the kiosk transaction speed through manual user acceptance testing, targeting a System Usability Scale score of 80.&quot;</em></li>
+</ul></blockquote>
+</section>
+<section id="cat-section-11--closing-15-seconds" class="content-section">
+  <h2 class="section-title searchable">Section 11 — Closing (15 Seconds)</h2>
+  <blockquote><p><strong>Slide 11: Conclusion Badge</strong></p>
+<ul>
+<li><strong>Visuals</strong>: &quot;Orchestrating Campus Services&quot; tagline with key badges.</li>
+<li><strong>Verbal Lead</strong>: <em>&quot;FlexiQueue transforms chaotic, disconnected queues into an organized, real-time, multi-screen experience. Thank you, and we are ready for your questions.&quot;</em></li>
+</ul></blockquote>
+  <hr>
+</section>
+<section id="3-system-architecture-deep-dive" class="content-section">
+  <h2 class="section-title searchable">3. System Architecture Deep-Dive</h2>
+</section>
+<section id="cat-physical-deployment-topology" class="content-section">
+  <h2 class="section-title searchable">Physical Deployment Topology</h2>
+  <p class='searchable'>This diagram shows how different physical screens are deployed inside a school campus (e.g. the Registrar and Cashier office) and connect to the local server.</p>
+  <pre class="searchable"><code class="language-mermaid">graph TD
+    subgraph Kiosk [&quot;Entrance Kiosk Desk&quot;]
+        K1[&quot;Orange Pi Kiosk Screen&quot;]
+        P1[&quot;Thermal Ticket Printer&quot;]
+        K1 --&gt;|triggers| P1
+    end
+
+    subgraph DisplayArea [&quot;Lobby / Waiting Area&quot;]
+        D1[&quot;WebSocket Display TV&quot;]
+        S1[&quot;Amplified Audio Speakers&quot;]
+        D1 --&gt;|drives| S1
+    end
+
+    subgraph StaffStations [&quot;Service Windows&quot;]
+        W1[&quot;Window 1 (Registrar PC)&quot;]
+        W2[&quot;Window 2 (Registrar PC)&quot;]
+        W3[&quot;Window 3 (Cashier PC)&quot;]
+    end
+
+    LocalServer[&quot;Local LAN Server (Raspberry Pi/PC) &lt;br&gt; [SQLite + Laravel Reverb WS]&quot;]
+
+    K1 --&gt;|HTTP Post: Claim Token| LocalServer
+    LocalServer --&gt;|WS Push: Now Serving| D1
+    W1 --&gt;|HTTP Post: Call Next / Transfer| LocalServer
+    W2 --&gt;|HTTP Post: Call Next| LocalServer
+    W3 --&gt;|HTTP Post: Call Next| LocalServer
+    LocalServer --&gt;|WS Push: Update Desk| W1</code></pre>
+</section>
+<section id="cat-student-queue-journey-sequence-flow" class="content-section">
+  <h2 class="section-title searchable">Student Queue Journey Sequence Flow</h2>
+  <p class='searchable'>This diagram tracks a student&#x27;s queue session state as they move through different surfaces, including a cross-department queue transfer.</p>
+  <pre class="searchable"><code class="language-mermaid">sequenceDiagram
+    autonumber
+    actor Student
+    participant Kiosk as Self-Service Kiosk
+    participant DB as SQLite Database
+    participant Disp as Public Display Board
+    participant StaffReg as Staff Panel (Registrar)
+    participant StaffCsh as Staff Panel (Cashier)
+    
+    Student-&gt;&gt;Kiosk: Select &quot;Registrar&quot; &amp; click Print
+    Kiosk-&gt;&gt;DB: INSERT into queue_sessions (REG-101, status=WAITING)
+    DB--&gt;&gt;Kiosk: Confirm insertion
+    Kiosk-&gt;&gt;Student: Print thermal ticket (REG-101) with status QR
+    
+    StaffReg-&gt;&gt;DB: Click &quot;Call Next&quot; -&gt; Fetch next waiting token
+    DB-&gt;&gt;DB: Update REG-101 status=CALLING
+    DB--&gt;&gt;StaffReg: Return REG-101 payload
+    StaffReg-&gt;&gt;Disp: Broadcast WebSocket event (NowServing REG-101 at Window 1)
+    Disp-&gt;&gt;Disp: Visual flash &amp; Speak TTS audio call
+    Student-&gt;&gt;StaffReg: Proceed to Window 1
+    StaffReg-&gt;&gt;DB: Click &quot;Start Service&quot; -&gt; Update status=SERVING
+    
+    Note over StaffReg, Student: Clerks detects Cashier payment deficiency
+    
+    StaffReg-&gt;&gt;DB: Click &quot;Transfer to Cashier&quot;
+    DB-&gt;&gt;DB: Update REG-101 status=TRANSFERRED -&gt; Insert CSH waiting queue
+    DB--&gt;&gt;StaffReg: Transfer logged in TransactionLog
+    
+    StaffCsh-&gt;&gt;DB: Click &quot;Call Next&quot; -&gt; Fetch next cashier token (REG-101)
+    DB-&gt;&gt;DB: Update REG-101 status=CALLING (at Cashier)
+    StaffCsh-&gt;&gt;Disp: Broadcast WebSocket event (NowServing REG-101 at Window 3)
+    Disp-&gt;&gt;Disp: Visual flash &amp; Speak TTS call
+    Student-&gt;&gt;StaffCsh: Proceed to Window 3 &amp; pay fee
+    StaffCsh-&gt;&gt;DB: Click &quot;Complete&quot; -&gt; Update status=COMPLETED
+    DB-&gt;&gt;DB: Commit audit logs</code></pre>
+  <hr>
+</section>
+<section id="4-key-technical-arguments" class="content-section">
+  <h2 class="section-title searchable">4. Key Technical Arguments</h2>
+  <ol class='searchable'>
+  <li><strong>Why not use cloud-only queueing?</strong></li>
+  </ol>
+  <p class='searchable'>Internet outages are a common failure point for public school campuses. By using an offline-first LAN deployment, FlexiQueue runs completely independent of the cloud. The local SQLite database processes all transactions locally, and synchronizes to central MariaDB servers asynchronously once internet connectivity is restored.</p>
+  <ol class='searchable'>
+  <li><strong>How is dynamic routing handled?</strong></li>
+  </ol>
+  <p class='searchable'>We implement the <strong>State Pattern</strong> for queue sessions. State transitions are governed by a central <code>FlowEngine</code> rather than inline code inside controllers. This allows us to route a single ticket ID across different departments (Registrar <em></em>MATH<em>BLOCK</em>0<em></em> Cashier <em></em>MATH<em>BLOCK</em>1<em></em> Library) cleanly, preserving the student&#x27;s queue identity.</p>
+  <ol class='searchable'>
+  <li><strong>How is waiting time predicted using Machine Learning?</strong></li>
+  </ol>
+  <p class='searchable'>Wait time estimation goes beyond static averages. We run a local python regression service utilizing <strong>Random Forest Regressor</strong>. Features include: current queue length, active serving rate of the window clerk, hour of day, and day of week. Training runs periodically on historical transaction logs. Mean Absolute Error is predicted to be under 2 minutes, which is displayed on student mobile status screens.</p>
+  <ol class='searchable'>
+  <li><strong>How is physical mapping integrated?</strong></li>
+  </ol>
+  <p class='searchable'>We integrate <strong>Leaflet.js</strong> on the student&#x27;s mobile queue status page. A custom indoor floor plan map is rendered. When a student is transferred from Window 1 (Registrar) to Window 3 (Cashier), the map highlights Window 3 and draws a visual route vector from the student&#x27;s estimated location (or starting window) to the destination desk, preventing navigation confusion in complex buildings.</p>
+  <ol class='searchable'>
+  <li><strong>How do you prevent users from tampering with public display screens?</strong></li>
+  </ol>
+  <p class='searchable'>We implement the <strong>Device Authorization &amp; Lock (DeviceLock)</strong> model. When a Pi SBC boots, it must be authorized by an admin scanner scanning a one-time setup QR code. The server then drops a secure, cryptographically signed cookie that locks that browser instance to its designated Kiosk or Display mode, preventing access to URL routes.</p>
+  <hr>
+</section>
+<section id="5-mock-qanda-30-anticipated-questions-and-answers" class="content-section">
+  <h2 class="section-title searchable">5. Mock Q&A: 30 Anticipated Questions & Answers</h2>
+</section>
+<section id="cat-category-a-architecture-and-offline-first" class="content-section">
+  <h2 class="section-title searchable">Category A: Architecture & Offline-First</h2>
+  <hr>
+  <div class="qa-list" style="margin-top: 1.5rem;">
+    <div class="qa-item searchable" data-qa-id="qa-1" data-category="Category A: Architecture & Offline-First">
+      <button class="qa-header">
+        <span class="qa-q-badge">Q</span>
+        <span class="qa-question-text">Why SQLite on the Edge and MariaDB on Central?</span>
+        <span class="qa-toggle">+</span>
+      </button>
+      <div class="qa-body">
+        <div class="qa-answer"><p>SQLite runs as a zero-configuration, single-file database. It has an extremely low memory footprint (less than 10MB RAM), making it perfect to run directly on cheap single-board computers like an Orange Pi. MariaDB is used on the central cloud server to handle multi-site aggregation, reporting, and high concurrent reads for administration dashboards.</p></div>
+      </div>
+    </div>
+    <div class="qa-item searchable" data-qa-id="qa-2" data-category="Category A: Architecture & Offline-First">
+      <button class="qa-header">
+        <span class="qa-q-badge">Q</span>
+        <span class="qa-question-text">How do you synchronize data between SQLite and MariaDB?</span>
+        <span class="qa-toggle">+</span>
+      </button>
+      <div class="qa-body">
+        <div class="qa-answer"><p>We write all queue events to an append-only <code>transaction_logs</code> table. A background job polls this table for unsynced logs. If a WAN connection is active, it POSTs chunks of these logs to the Central server. On Central, a sync controller replays the logs to reconstruct the session history, ensuring database consistency.</p></div>
+      </div>
+    </div>
+    <div class="qa-item searchable" data-qa-id="qa-3" data-category="Category A: Architecture & Offline-First">
+      <button class="qa-header">
+        <span class="qa-q-badge">Q</span>
+        <span class="qa-question-text">What happens if the local LAN server goes down?</span>
+        <span class="qa-toggle">+</span>
+      </button>
+      <div class="qa-body">
+        <div class="qa-answer"><p>Since the system runs locally over the LAN, we deploy a backup local server configuration. If the primary local server fails, a secondary Pi on the same subnet can be promoted to run the SQLite database, using backup files copied hourly.</p></div>
+      </div>
+    </div>
+    <div class="qa-item searchable" data-qa-id="qa-4" data-category="Category A: Architecture & Offline-First">
+      <button class="qa-header">
+        <span class="qa-q-badge">Q</span>
+        <span class="qa-question-text">Why use Laravel Reverb instead of Pusher?</span>
+        <span class="qa-toggle">+</span>
+      </button>
+      <div class="qa-body">
+        <div class="qa-answer"><p>Pusher is a cloud-hosted service that requires an internet connection. Laravel Reverb is an open-source, local-first WebSocket server written in PHP. By running Reverb on the local Pi server, we can broadcast ticket call events across display boards and staff panels on the local LAN without needing any internet connection.</p></div>
+      </div>
+    </div>
+    <div class="qa-item searchable" data-qa-id="qa-5" data-category="Category A: Architecture & Offline-First">
+      <button class="qa-header">
+        <span class="qa-q-badge">Q</span>
+        <span class="qa-question-text">How do you handle write conflicts when syncing SQLite to Central?</span>
+        <span class="qa-toggle">+</span>
+      </button>
+      <div class="qa-body">
+        <div class="qa-answer"><p>Because each site generates tokens scoped strictly to that site (e.g. <code>SITE_ID</code> prefix or unique UUIDs), and because the transaction log is append-only, there are no structural write collisions. Central simply appends new records. We follow a &quot;Last-Write-Wins&quot; strategy for session states.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+<section id="cat-category-b-kiosk-and-display-surfaces" class="content-section">
+  <h2 class="section-title searchable">Category B: Kiosk & Display Surfaces</h2>
+  <hr>
+  <div class="qa-list" style="margin-top: 1.5rem;">
+    <div class="qa-item searchable" data-qa-id="qa-6" data-category="Category B: Kiosk & Display Surfaces">
+      <button class="qa-header">
+        <span class="qa-q-badge">Q</span>
+        <span class="qa-question-text">What happens if the thermal printer runs out of paper?</span>
+        <span class="qa-toggle">+</span>
+      </button>
+      <div class="qa-body">
+        <div class="qa-answer"><p>The kiosk hardware has a paper sensor connected to a GPIO pin on the single-board computer. When the paper sensor triggers, the Kiosk UI displays an alert and automatically switches to &quot;Paperless Mode&quot;, displaying a digital ticket on the touchscreen and prompting the student to scan a QR code to save the token on their phone.</p></div>
+      </div>
+    </div>
+    <div class="qa-item searchable" data-qa-id="qa-7" data-category="Category B: Kiosk & Display Surfaces">
+      <button class="qa-header">
+        <span class="qa-q-badge">Q</span>
+        <span class="qa-question-text">How does the Device Lock feature work?</span>
+        <span class="qa-toggle">+</span>
+      </button>
+      <div class="qa-body">
+        <div class="qa-answer"><p>It uses a custom middleware <code>EnforceDeviceLock</code>. When a device accesses public routes like <code>/kiosk</code> or <code>/display</code>, the middleware verifies if a signed, encrypted cookie <code>fq<em>device</em>token</code> exists. If not, the screen is blocked and displays a provisioning QR code.</p></div>
+      </div>
+    </div>
+    <div class="qa-item searchable" data-qa-id="qa-8" data-category="Category B: Kiosk & Display Surfaces">
+      <button class="qa-header">
+        <span class="qa-q-badge">Q</span>
+        <span class="qa-question-text">Can a student bypass the kiosk and join the queue from home?</span>
+        <span class="qa-toggle">+</span>
+      </button>
+      <div class="qa-body">
+        <div class="qa-answer"><p>No. Joining the queue requires scanning a geo-fenced QR code posted physically at the campus entrance. The public triage web page uses coordinate verification or requires the local WiFi network&#x27;s SSID to validate that the student is physically present.</p></div>
+      </div>
+    </div>
+    <div class="qa-item searchable" data-qa-id="qa-9" data-category="Category B: Kiosk & Display Surfaces">
+      <button class="qa-header">
+        <span class="qa-q-badge">Q</span>
+        <span class="qa-question-text">How does the Web Speech API handle noisy hallways?</span>
+        <span class="qa-toggle">+</span>
+      </button>
+      <div class="qa-body">
+        <div class="qa-answer"><p>Display boards are connected to physical, amplified wall speakers. We adjust the rate and pitch of the synthesis voice to optimize clarity. The staff panel also features a &quot;Repeat Audio&quot; button, allowing clerks to trigger the announcement again if needed.</p></div>
+      </div>
+    </div>
+    <div class="qa-item searchable" data-qa-id="qa-10" data-category="Category B: Kiosk & Display Surfaces">
+      <button class="qa-header">
+        <span class="qa-q-badge">Q</span>
+        <span class="qa-question-text">How do you provision a new screen?</span>
+        <span class="qa-toggle">+</span>
+      </button>
+      <div class="qa-body">
+        <div class="qa-answer"><p>An administrator opens the screen URL on the new Pi. The screen displays a provisioning QR code. The admin logs into their mobile dashboard, scans the QR code, associates the screen with a specific campus site and mode, and clicks approve. The screen instantly reloads into its locked view.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+<section id="cat-category-c-queueing-theory-and-performance" class="content-section">
+  <h2 class="section-title searchable">Category C: Queueing Theory & Performance</h2>
+  <hr>
+  <div class="qa-list" style="margin-top: 1.5rem;">
+    <div class="qa-item searchable" data-qa-id="qa-11" data-category="Category C: Queueing Theory & Performance">
+      <button class="qa-header">
+        <span class="qa-q-badge">Q</span>
+        <span class="qa-question-text">Why model this as an M/M/c system?</span>
+        <span class="qa-toggle">+</span>
+      </button>
+      <div class="qa-body">
+        <div class="qa-answer"><p>A SUC service station (like 3 Cashier windows serving a single queue line) matches the M/M/c model: Poisson arrivals, exponential service times, and <em></em>MATH<em>BLOCK</em>0<em></em> parallel servers. This mathematical model allows us to calculate theoretical wait times, identify bottlenecks, and optimize staff allocation.</p></div>
+      </div>
+    </div>
+    <div class="qa-item searchable" data-qa-id="qa-12" data-category="Category C: Queueing Theory & Performance">
+      <button class="qa-header">
+        <span class="qa-q-badge">Q</span>
+        <span class="qa-question-text">How does the Random Forest model predict wait times?</span>
+        <span class="qa-toggle">+</span>
+      </button>
+      <div class="qa-body">
+        <div class="qa-answer"><p>Standard QMS uses a static average (e.g. number of people ahead multiplied by 5 minutes). Our machine learning model fits a regression tree using variables such as the current queue depth, the window clerk&#x27;s historical service rate, time of day (to account for lunch breaks), and day of the week. This captures non-linear shifts in service speed.</p></div>
+      </div>
+    </div>
+    <div class="qa-item searchable" data-qa-id="qa-13" data-category="Category C: Queueing Theory & Performance">
+      <button class="qa-header">
+        <span class="qa-q-badge">Q</span>
+        <span class="qa-question-text">What features are passed to the ML wait prediction model?</span>
+        <span class="qa-toggle">+</span>
+      </button>
+      <div class="qa-body">
+        <div class="qa-answer"><p>The features are: <code>queue<em>length</code> (integer), <code>active</em>clerks</code> (integer), <code>clerk<em>historical</em>rate</code> (minutes per ticket, float), <code>hour<em>of</em>day</code> (integer), <code>day<em>of</em>week</code> (integer), and <code>is<em>priority</em>lane</code> (boolean). It outputs <code>estimated_minutes</code> (float).</p></div>
+      </div>
+    </div>
+    <div class="qa-item searchable" data-qa-id="qa-14" data-category="Category C: Queueing Theory & Performance">
+      <button class="qa-header">
+        <span class="qa-q-badge">Q</span>
+        <span class="qa-question-text">How does the system handle priority lanes (senior citizens, PWDs)?</span>
+        <span class="qa-toggle">+</span>
+      </button>
+      <div class="qa-body">
+        <div class="qa-answer"><p>FlexiQueue implements an <em>alternate ratio interleaving logic</em> in <code>StationQueueService</code>. For example, a 3:1 ratio means the system will call three regular tokens, then one priority token (or vice versa), preventing regular queues from stalling while giving priority clients faster access.</p></div>
+      </div>
+    </div>
+    <div class="qa-item searchable" data-qa-id="qa-15" data-category="Category C: Queueing Theory & Performance">
+      <button class="qa-header">
+        <span class="qa-q-badge">Q</span>
+        <span class="qa-question-text">Why not use standard FIFO (First In, First Out) for all services?</span>
+        <span class="qa-toggle">+</span>
+      </button>
+      <div class="qa-body">
+        <div class="qa-answer"><p>FIFO is insufficient when students have different transaction types. FlexiQueue separates services into tracks (e.g. Regular vs. Incomplete document clearance). This allows the system to route quick tasks through faster tracks while complex queries are separated, reducing average wait times.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+<section id="cat-category-d-security-and-privacy" class="content-section">
+  <h2 class="section-title searchable">Category D: Security & Privacy</h2>
+  <hr>
+  <div class="qa-list" style="margin-top: 1.5rem;">
+    <div class="qa-item searchable" data-qa-id="qa-16" data-category="Category D: Security & Privacy">
+      <button class="qa-header">
+        <span class="qa-q-badge">Q</span>
+        <span class="qa-question-text">How is the system compliant with the Data Privacy Act (RA 10173)?</span>
+        <span class="qa-toggle">+</span>
+      </button>
+      <div class="qa-body">
+        <div class="qa-answer"><p>FlexiQueue enforces privacy through minimization. The public display boards only show token codes like <code>REG-105</code>, masking student names. Furthermore, students can opt to register anonymously at the kiosk.</p></div>
+      </div>
+    </div>
+    <div class="qa-item searchable" data-qa-id="qa-17" data-category="Category D: Security & Privacy">
+      <button class="qa-header">
+        <span class="qa-q-badge">Q</span>
+        <span class="qa-question-text">What measures prevent staff from manipulating queue statistics?</span>
+        <span class="qa-toggle">+</span>
+      </button>
+      <div class="qa-body">
+        <div class="qa-answer"><p>All station events write directly to an append-only <code>transaction_logs</code> table. Database triggers block <code>UPDATE</code> and <code>DELETE</code> commands, making the audit trail tamper-proof. COA auditors can verify that no queue data was deleted or altered post-hoc.</p></div>
+      </div>
+    </div>
+    <div class="qa-item searchable" data-qa-id="qa-18" data-category="Category D: Security & Privacy">
+      <button class="qa-header">
+        <span class="qa-q-badge">Q</span>
+        <span class="qa-question-text">How do you prevent CSRF attacks on the public triage pages?</span>
+        <span class="qa-toggle">+</span>
+      </button>
+      <div class="qa-body">
+        <div class="qa-answer"><p>All HTTP requests are routed through Laravel&#x27;s standard CSRF middleware. Dynamic actions on the kiosk and display utilize secure tokenized API routes validated by the signed device cookies.</p></div>
+      </div>
+    </div>
+    <div class="qa-item searchable" data-qa-id="qa-19" data-category="Category D: Security & Privacy">
+      <button class="qa-header">
+        <span class="qa-q-badge">Q</span>
+        <span class="qa-question-text">Are student login credentials stored on the local Pi server?</span>
+        <span class="qa-toggle">+</span>
+      </button>
+      <div class="qa-body">
+        <div class="qa-answer"><p>No. Local Pi servers only store transient queue session tokens. Authentication and student profile directories reside securely in the central cloud system.</p></div>
+      </div>
+    </div>
+    <div class="qa-item searchable" data-qa-id="qa-20" data-category="Category D: Security & Privacy">
+      <button class="qa-header">
+        <span class="qa-q-badge">Q</span>
+        <span class="qa-question-text">How do you secure data sync payloads sent over WAN?</span>
+        <span class="qa-toggle">+</span>
+      </button>
+      <div class="qa-body">
+        <div class="qa-answer"><p>Payloads are encrypted and transmitted via HTTPS using signed API bearer tokens. Central verifies the signature and site metadata before committing the transaction log logs.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+<section id="cat-category-e-implementation-and-hardware" class="content-section">
+  <h2 class="section-title searchable">Category E: Implementation & Hardware</h2>
+  <hr>
+  <div class="qa-list" style="margin-top: 1.5rem;">
+    <div class="qa-item searchable" data-qa-id="qa-21" data-category="Category E: Implementation & Hardware">
+      <button class="qa-header">
+        <span class="qa-q-badge">Q</span>
+        <span class="qa-question-text">Why use Orange Pi instead of Raspberry Pi?</span>
+        <span class="qa-toggle">+</span>
+      </button>
+      <div class="qa-body">
+        <div class="qa-answer"><p>Orange Pi board models (such as Orange Pi One or Zero) cost roughly 50% less than Raspberry Pi boards while providing identical processor performance, ethernet connections, and GPIO ports for printers. This makes multi-screen deployments budget-friendly for SUCs.</p></div>
+      </div>
+    </div>
+    <div class="qa-item searchable" data-qa-id="qa-22" data-category="Category E: Implementation & Hardware">
+      <button class="qa-header">
+        <span class="qa-q-badge">Q</span>
+        <span class="qa-question-text">How does Leaflet.js handle indoor mapping?</span>
+        <span class="qa-toggle">+</span>
+      </button>
+      <div class="qa-body">
+        <div class="qa-answer"><p>Standard maps (like Google Maps) lack details on internal room layouts and window locations. We create a custom 2D grid overlay of the campus administrative floor plan, save it as image tiles, and load it into Leaflet.js. Desks are represented as coordinate points, allowing us to draw vector routing lines dynamically.</p></div>
+      </div>
+    </div>
+    <div class="qa-item searchable" data-qa-id="qa-23" data-category="Category E: Implementation & Hardware">
+      <button class="qa-header">
+        <span class="qa-q-badge">Q</span>
+        <span class="qa-question-text">What happens if the local network is isolated and the map tiles cannot be fetched?</span>
+        <span class="qa-toggle">+</span>
+      </button>
+      <div class="qa-body">
+        <div class="qa-answer"><p>The custom floor plan image tiles and the Leaflet.js library are cached locally on the LAN server. When a client connects to the local LAN wifi, the assets are served directly from the local server&#x27;s disk, ensuring the map works fully offline.</p></div>
+      </div>
+    </div>
+    <div class="qa-item searchable" data-qa-id="qa-24" data-category="Category E: Implementation & Hardware">
+      <button class="qa-header">
+        <span class="qa-q-badge">Q</span>
+        <span class="qa-question-text">How is the local Pi server backed up?</span>
+        <span class="qa-toggle">+</span>
+      </button>
+      <div class="qa-body">
+        <div class="qa-answer"><p>The system runs a cron job that backs up the SQLite database file (<code>db.sqlite</code>) to an external USB flash drive and triggers a sync payload to the central cloud every hour.</p></div>
+      </div>
+    </div>
+    <div class="qa-item searchable" data-qa-id="qa-25" data-category="Category E: Implementation & Hardware">
+      <button class="qa-header">
+        <span class="qa-q-badge">Q</span>
+        <span class="qa-question-text">Can the system work with existing TV displays?</span>
+        <span class="qa-toggle">+</span>
+      </button>
+      <div class="qa-body">
+        <div class="qa-answer"><p>Yes. Any display monitor or TV featuring an HDMI input port can be turned into a FlexiQueue Display Board by connecting the Orange Pi SBC running the locked browser page.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+<section id="cat-category-f-general-capstone-alignment" class="content-section">
+  <h2 class="section-title searchable">Category F: General Capstone Alignment</h2>
+  <div class="qa-list" style="margin-top: 1.5rem;">
+    <div class="qa-item searchable" data-qa-id="qa-26" data-category="Category F: General Capstone Alignment">
+      <button class="qa-header">
+        <span class="qa-q-badge">Q</span>
+        <span class="qa-question-text">Why is this project suited for a BSIT capstone?</span>
+        <span class="qa-toggle">+</span>
+      </button>
+      <div class="qa-body">
+        <div class="qa-answer"><p>The project involves complex web systems architecture (Laravel/Svelte 5), hardware-software integration (Pi SBCs, thermal printers), real-time communications (WebSockets), machine learning prediction model, and mapping locator integration, aligning with the BSIT curriculum standards.</p></div>
+      </div>
+    </div>
+    <div class="qa-item searchable" data-qa-id="qa-27" data-category="Category F: General Capstone Alignment">
+      <button class="qa-header">
+        <span class="qa-q-badge">Q</span>
+        <span class="qa-question-text">How does this system help university cashiers?</span>
+        <span class="qa-toggle">+</span>
+      </button>
+      <div class="qa-body">
+        <div class="qa-answer"><p>University cashiers receive multiple payment types (tuition, exam permits, library fines). By separating these into tracks, cashier staff can handle quick transactions at designated windows while keeping long transactions in a separate track.</p></div>
+      </div>
+    </div>
+    <div class="qa-item searchable" data-qa-id="qa-28" data-category="Category F: General Capstone Alignment">
+      <button class="qa-header">
+        <span class="qa-q-badge">Q</span>
+        <span class="qa-question-text">What happens when a student misses their token call?</span>
+        <span class="qa-toggle">+</span>
+      </button>
+      <div class="qa-body">
+        <div class="qa-answer"><p>The clerk clicks &quot;No Show&quot;. The token transitions to the <code>NO_SHOW</code> state. The student can go to a kiosk or scan their ticket QR code to click &quot;Re-queue&quot;, placing them back in the waiting line without needing a new token number.</p></div>
+      </div>
+    </div>
+    <div class="qa-item searchable" data-qa-id="qa-29" data-category="Category F: General Capstone Alignment">
+      <button class="qa-header">
+        <span class="qa-q-badge">Q</span>
+        <span class="qa-question-text">How do you gather historical data for university reports?</span>
+        <span class="qa-toggle">+</span>
+      </button>
+      <div class="qa-body">
+        <div class="qa-answer"><p>The central server provides an analytics dashboard that pulls from the synced transaction logs. It generates charts showing average wait times, window processing times, and peak transaction hours.</p></div>
+      </div>
+    </div>
+    <div class="qa-item searchable" data-qa-id="qa-30" data-category="Category F: General Capstone Alignment">
+      <button class="qa-header">
+        <span class="qa-q-badge">Q</span>
+        <span class="qa-question-text">How does the system handle power fluctuations on campus?</span>
+        <span class="qa-toggle">+</span>
+      </button>
+      <div class="qa-body">
+        <div class="qa-answer"><p>The Pi SBCs are deployed with simple power surge protectors. Since SQLite writes transactions using strict ACID-compliant database locking, the database files are protected from corruption during unexpected power cuts.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+<section id="supp-flexiqueue capstone research grounding" class="content-section">
+  <h2 class="section-title searchable">Flexiqueue Capstone Research Grounding</h2>
+  <h3 class="searchable">Theoretical Foundations and Multi-Surface Deployment of FlexiQueue: An Open-Source, Offline-First Queue Orchestration Platform for Institutional Service Lines</h3>
+  <p class='searchable'><em>A comprehensive academic and engineering research specification detailing queueing theory models, multi-surface screen deployments, local-first database replication, write-once audit logs, and text-to-speech announcement pipelines in resource-constrained institutional environments.</em></p>
+  <hr>
+  <h3 class="searchable">1. Introduction & Contextual Grounding</h3>
+  <p class='searchable'>In public institutions, tertiary education facilities, and State Universities and Colleges (SUCs) in developing regions like the Philippines, physical queueing (&quot;pila&quot;) is an unavoidable administrative bottleneck. During peak academic events—such as semester enrollment, clearance sign-offs, graduation applications, and tuition fee payments—hundreds of students cluster around administrative offices. The registrar, accounting windows, scholarship desks, clinic, guidance office, and college libraries become highly congested environments.</p>
+  <p class='searchable'>This traditional queueing environment suffers from several structural failures:</p>
+  <ol class='searchable'>
+  <li><strong>Vocal announcement Fatigue &amp; Auditory Masking</strong>: Administrative clerks must repeatedly shout names or manually click simple, disconnected LED number displays. In crowded, echoing hallways, students regularly miss their turn, causing backlogs and leading to clusters of anxious crowds around windows.</li>
+  <li><strong>Disjointed Service Routing (Dynamic Deficiencies)</strong>: Academic transactions are sequential but decentralized. For example, a student lining up at the Registrar&#x27;s window may be told they have an outstanding library fee. The student must leave the window, line up at the Cashier to pay, wait in a third line at the Library to clear the book, and then return to the Registrar—starting the entire queue journey from scratch. No mechanism exists to &quot;transfer&quot; or put a student&#x27;s queue state on hold across offices.</li>
+  <li><strong>Infrastructure Instability &amp; Cost Barriers</strong>: Commercial queue management systems (QMS) such as Qmatic or Wavetec require proprietary hardware and expensive enterprise licensing. Lightweight web solutions depend on constant internet access (WAN). In municipal areas where SUCs operate, frequent internet outages freeze cloud-based queue systems, rendering them useless during high-stakes enrollment windows.</li>
+  </ol>
+  <p class='searchable'><strong>FlexiQueue</strong> solves these issues by shifting queue management from static, cloud-first counters to an <strong>offline-first, multi-surface orchestration platform</strong> deployed on low-cost single-board computers (like Raspberry Pi or Orange Pi) running over the local area network (LAN). It coordinates a self-service triage kiosk, WebSocket-driven display boards, clerk calling dashboards, and a mobile public triage page into a unified state-driven service engine.</p>
+  <hr>
+  <h3 class="searchable">2. Queueing Theory & Dynamic Routing Foundations</h3>
+  <p class='searchable'>To systematically reduce wait times, FlexiQueue incorporates classical queueing theory models into its database routing and state progression engine.</p>
+  <h3 class="searchable">The M/M/c Queueing Model</h3>
+  <p class='searchable'>Each program or service track in FlexiQueue behaves as a multi-server queueing system, represented under Kendall’s notation as <strong>M/M/c</strong>:</p>
+  <ul class='searchable'>
+  <li><strong>Arrival Process (M)</strong>: Student arrivals follow a Poisson distribution with an average arrival rate of <em></em>MATH<em>BLOCK</em>0<em></em> (tokens per hour).</li>
+  <li><strong>Service Process (M)</strong>: Service times follow an exponential distribution with an average service rate of <em></em>MATH<em>BLOCK</em>0<em></em> (tokens served per hour per window).</li>
+  <li><strong>Servers (c)</strong>: The number of active, assigned staff terminals (<em></em>MATH<em>BLOCK</em>0<em></em>) open for that specific station track.</li>
+  </ul>
+  <p class='searchable'>The system utilization factor (<em></em>MATH<em>BLOCK</em>1<em></em>), which represents the average fraction of time that the windows are busy, is defined as: <em></em>MATH<em>BLOCK</em>0<em></em></p>
+  <p class='searchable'>To prevent infinite queue expansion, the system must maintain <em></em>MATH<em>BLOCK</em>1<em></em>. Under this condition, the probability that an arriving student must wait in line (<em></em>MATH<em>BLOCK</em>2<em></em>) is governed by the Erlang C formula: <em></em>MATH<em>BLOCK</em>0<em></em></p>
+  <h3 class="searchable">Little's Law and Waiting Time Estimation</h3>
+  <p class='searchable'>FlexiQueue utilizes Little&#x27;s Law to display real-time wait times on student mobile triage interfaces. Little&#x27;s Law states that the average number of clients in a stationary queueing system (<em></em>MATH<em>BLOCK</em>1<em></em>) is equal to the long-term average effective arrival rate (<em></em>MATH<em>BLOCK</em>2<em></em>) multiplied by the average time (<em></em>MATH<em>BLOCK</em>3<em></em>) that a client spends in the system: <em></em>MATH<em>BLOCK</em>0<em></em></p>
+  <p class='searchable'>Separating this into queue waiting time (<em></em>MATH<em>BLOCK</em>1<em></em>) and service time: <em></em>MATH<em>BLOCK</em>0<em></em></p>
+  <p class='searchable'>Where <em></em>MATH<em>BLOCK</em>1<em></em> is the average number of students waiting in the queue. FlexiQueue&#x27;s backend dynamically calculates the estimated wait time (<em></em>MATH<em>BLOCK</em>2<em></em>) for a newly issued token based on active queue length and historical service rates: <em></em>MATH<em>BLOCK</em>0<em></em> Where <em></em>MATH<em>BLOCK</em>3<em></em> is the number of pending tokens ahead of the student in that track, and <em></em>MATH<em>BLOCK</em>4<em></em> is the moving average of service completions over the past 30 minutes.</p>
+  <h3 class="searchable">Dynamic Flow Engine Routing & State Transitions</h3>
+  <p class='searchable'>Rather than treating a queue token as a static number, FlexiQueue models each token&#x27;s journey as an audited state machine governed by the <code>FlowEngine</code>.</p>
+  <pre class="searchable"><code class="language-mermaid">stateDiagram-v2
+    [*] --&gt; WAITING : Kiosk Issue (Bind)
+    WAITING --&gt; CALLING : Staff &quot;Call Next&quot; (WS Broadcast)
+    CALLING --&gt; SERVING : Student Arrived (Start)
+    CALLING --&gt; NO_SHOW : Timeout (No-Show)
+    NO_SHOW --&gt; WAITING : Re-queue
+    NO_SHOW --&gt; CANCELLED : Expired
+    SERVING --&gt; COMPLETED : Service Done
+    SERVING --&gt; TRANSFERRED : Flow Transfer (Route Change)
+    TRANSFERRED --&gt; WAITING : Join Target Queue
+    COMPLETED --&gt; [*]
+    CANCELLED --&gt; [*]</code></pre>
+  <p class='searchable'>When a student has a multi-office dependency (e.g. clearance deficiency), the clerk clicks <strong>Transfer</strong> on the Staff Panel. The <code>FlowEngine</code> updates the session&#x27;s active program, changes its track step, and places the token back into the target department&#x27;s <code>WAITING</code> queue. The student retains their original token ID (preserving their overall identity), but is routed dynamically through the school&#x27;s service lines.</p>
+  <hr>
+  <h3 class="searchable">3. Multi-Surface Topology & Hardware Deployment</h3>
+  <p class='searchable'>FlexiQueue&#x27;s physical architecture relies on a coordinated set of screen-based deployment surfaces, each serving a specific participant in the queue cycle.</p>
+  <pre class="searchable"><code class="language-">       [ Public Mobile Triage ] (Student Phone - Scan QR to Join/Track)
+                  ▲
+                  │ HTTP
+                  ▼
+[ Self-Service Kiosk ] ──(LAN/WebSockets)──► [ WebSocket Display Board ]
+  (Touchscreen SBC + Printer)                 (Large TV Monitor + TTS Audio)
+                  ▲                                    ▲
+                  │                                    │ WebSockets
+                  └─────────► [ Staff Panel ] ─────────┘
+                            (Clerk Web App)</code></pre>
+  <h3 class="searchable">1. Self-Service Kiosk Surface</h3>
+  <ul class='searchable'>
+  <li><strong>Hardware</strong>: A Raspberry Pi 4 or Orange Pi One single-board computer connected to a 10-inch capacitive touchscreen, a QR code camera scanner, and a thermal receipt printer.</li>
+  <li><strong>Functional Interface</strong>: A simplified full-screen browser interface running in kiosk mode. Students walk up, select their target service program (e.g., Registrar, Cashier, Advising, Library), input minimal details, and click &quot;Print Ticket&quot;.</li>
+  <li><strong>Settings Cascade</strong>: Custom Kiosk parameters (timeouts, camera status, printer thermal density) are resolved from the database settings cascade and enforced locally.</li>
+  </ul>
+  <h3 class="searchable">2. WebSocket-Driven Display Board Surface</h3>
+  <ul class='searchable'>
+  <li><strong>Hardware</strong>: An LCD/LED TV monitor mounted in high-traffic hallways, driven by a cheap Raspberry Pi Zero W running a locked browser.</li>
+  <li><strong>Functional Interface</strong>: A high-visibility dashboard that displays the current &quot;Now Serving&quot; tickets alongside their designated Windows (e.g., <code>REG-101 at Window 1</code>). When a new token is called, the display board flashes visually, updates the queue lists, and triggers the audio pipeline.</li>
+  <li><strong>Audio Pipeline</strong>: The board runs a local Text-to-Speech (TTS) audio synthesizer that broadcasts announcements through attached speakers.</li>
+  </ul>
+  <h3 class="searchable">3. Staff Station Panel Surface</h3>
+  <ul class='searchable'>
+  <li><strong>Hardware</strong>: Existing office desktop computers or laptops used by registrar clerks, cashiers, and advisors.</li>
+  <li><strong>Functional Interface</strong>: A Svelte 5 staff panel running in a standard web browser.</li>
+  <li><strong>Controls</strong>: Clerks have four primary actions:</li>
+  <li><code>Call Next</code>: Pulls the highest priority token from the track step.</li>
+  <li><code>Complete</code>: Concludes the current service and logs the transaction.</li>
+  <li><code>Transfer</code>: Forwards the active ticket to another station queue.</li>
+  <li><code>Hold / No-Show</code>: Suspends the ticket if the student does not appear within the allotted timeout window.</li>
+  </ul>
+  <h3 class="searchable">4. Public Mobile Triage Surface</h3>
+  <ul class='searchable'>
+  <li><strong>Hardware</strong>: Student-owned smartphones.</li>
+  <li><strong>Functional Interface</strong>: By scanning a QR code posted at the building entrance or printed on the kiosk ticket, students access a lightweight web page (<code>/display/status/{qr_hash}</code>). This page displays the real-time queue list, their relative position, and their estimated waiting time, allowing them to wait in ventilated outdoor spaces instead of congested corridors.</li>
+  </ul>
+  <hr>
+  <h3 class="searchable">4. Database Schema & Transactional Integrity</h3>
+  <p class='searchable'>FlexiQueue uses a relational database schema designed for high-concurrency write operations.</p>
+  <h3 class="searchable">Entity-Relationship Model (3NF)</h3>
+  <pre class="searchable"><code class="language-mermaid">erDiagram
+    TENANT ||--o{ SITE : owns
+    SITE ||--o{ PROGRAM : configures
+    PROGRAM ||--o{ SERVICE_TRACK : contains
+    SERVICE_TRACK ||--o{ TRACK_STEP : defines
+    TRACK_STEP ||--|| STATION : maps
+    SESSION }o--|| PROGRAM : runs_in
+    SESSION }o--|| SERVICE_TRACK : follows
+    SESSION ||--o{ TRANSACTION_LOG : audits
+    DEVICE ||--o{ DEVICE_LOCK : locks
+    
+    SESSION {
+        int id PK
+        string token_number
+        string qr_hash UK
+        string status
+        int current_step_id FK
+        datetime created_at
+        datetime updated_at
+    }
+    
+    TRANSACTION_LOG {
+        int id PK
+        int session_id FK
+        string action_type
+        int staff_user_id
+        string destination_station
+        string payload_json
+        datetime created_at
+    }</code></pre>
+  <h3 class="searchable">The Immutable Audit Ledger (`transaction_logs`)</h3>
+  <p class='searchable'>To comply with the Commission on Audit (COA) guidelines for public institutions, every state change in a queue session must be recorded in an immutable ledger.</p>
+  <ul class='searchable'>
+  <li><strong>Database Constraints</strong>: The <code>transaction_logs</code> table is append-heavy. DB level triggers or application hooks block any SQL <code>UPDATE</code> or <code>DELETE</code> commands on this table.</li>
+  <li><strong>Structure</strong>: Every log stores the exact event transition, the clerk&#x27;s user ID, the station ID, and a JSON payload detailing the parameters of the transition.</li>
+  </ul>
+  <h3 class="searchable">SQLite Edge and MariaDB Central Sync</h3>
+  <p class='searchable'>For local-first resilience, individual sites (campuses) deploy a local server running <strong>SQLite</strong> (a single-file, zero-maintenance relational engine suitable for SBC flash cards). All local transactions write immediately to the SQLite database. An asynchronous background sync service monitors WAN connectivity. When the internet is online, local <code>transaction_logs</code> rows are pushed to the <strong>MariaDB</strong> central cloud database via tokenized API payloads, guaranteeing centralized records and reporting without sacrificing local availability.</p>
+  <hr>
+  <h3 class="searchable">5. Device Authorization & Lock Model</h3>
+  <p class='searchable'>Publicly deployed screens (kiosks, displays) are highly vulnerable to user tampering. FlexiQueue addresses this via an automated <strong>Device Lock &amp; Provisioning Pipeline</strong>.</p>
+  <h3 class="searchable">Provisioning Sequence</h3>
+  <pre class="searchable"><code class="language-mermaid">sequenceDiagram
+    autonumber
+    participant Device as Kiosk/Display SBC
+    participant Central as Central Web Server
+    participant Admin as Admin Mobile Phone
+    
+    Device-&gt;&gt;Central: Boot -&gt; Open Browser to Auth URL
+    Central--&gt;&gt;Device: Generate Unique Provisioning Token &amp; QR Code
+    Device-&gt;&gt;Device: Display Provisioning QR on Screen
+    Admin-&gt;&gt;Central: Scan QR via Admin Dashboard -&gt; Select Site &amp; Room
+    Admin-&gt;&gt;Central: Approve Device Provisioning
+    Central-&gt;&gt;Device: Broadcast Approval via WebSockets (Reverb)
+    Device-&gt;&gt;Device: Store Encrypted &#x27;device_lock&#x27; Cookie in Browser
+    Device-&gt;&gt;Device: Lock Screen to Site Scope -&gt; Render Kiosk/Display UI</code></pre>
+  <ul class='searchable'>
+  <li><strong>EnforceDeviceLock Middleware</strong>: The application intercepts all requests to public pages. If the browser lacks a valid, signed <code>device_lock</code> cookie, it is redirected to the provisioning screen.</li>
+  <li><strong>Cookie Lockdown</strong>: Once provisioned, the device lock cookie binds the browser session to a specific Site and Program mode. A user cannot escape the fullscreen kiosk view or display layout to access the admin dashboard or staff controls.</li>
+  </ul>
+  <hr>
+  <h3 class="searchable">6. Text-to-Speech (TTS) Calling Pipeline</h3>
+  <p class='searchable'>Clear, localized audio calls are critical for removing announcement fatigue. FlexiQueue breaks token calls into structured segments, enabling customizable voice phrases.</p>
+  <h3 class="searchable">Announcer Structure</h3>
+  <pre class="searchable"><code class="language-">┌────────────────────────────────────────────────────────┐
+│                      TOKEN CALL                        │
+├───────────────────┬───────────────────┬────────────────┤
+│    Pre-Phrase     │   Spoken Token    │  Bridge Tail   │
+│   &quot;Now serving&quot;   │     &quot;R-101&quot;       │   &quot;please go&quot;  │
+└───────────────────┴───────────────────┴────────────────┘
+                                │
+                                ▼
+┌────────────────────────────────────────────────────────┐
+│                   STATION DIRECTIONS                   │
+├───────────────────────────────┬────────────────────────┤
+│       Connector Phrase        │    Station Location    │
+│            &quot;to&quot;               │      &quot;Window 1&quot;        │
+└───────────────────────────────┴────────────────────────┘</code></pre>
+  <ul class='searchable'>
+  <li><strong>Segment 1 (Token Call)</strong>: Combines the introductory phrase, the spelled-out token digits, and a trailing bridge (e.g. <em>&quot;Now serving ticket registrar one-zero-one...&quot;</em>).</li>
+  <li><strong>Segment 2 (Station Directions)</strong>: Appends the routing connector and station name (e.g. <em>&quot;...please proceed to Window 1&quot;</em>).</li>
+  <li><strong>Adapter Pattern &amp; Synthesizer Selection</strong>: The system utilizes an abstract <code>TtsEngine</code> contract. At runtime, the browser display board utilizes the native HTML5 <strong>Web Speech API</strong> for zero-cost, localized speech synthesis. Higher tiers can switch to a cloud-based ElevenLabs or Google Cloud TTS adapter for high-fidelity regional voices (e.g. Tagalog or Ilocano accents).</li>
+  </ul>
+  <hr>
+  <h3 class="searchable">7. Policy & Legal Compliance</h3>
+  <h3 class="searchable">Data Privacy Act (DPA - RA 10173) Compliance</h3>
+  <p class='searchable'>As a queue system handling student journeys, FlexiQueue enforces strict privacy boundaries:</p>
+  <ol class='searchable'>
+  <li><strong>Minimization</strong>: Kiosks collect only proportional data. Students can join queues anonymously (producing a standard random token with no identifying records) or bind their profiles via encrypted student ID hashes.</li>
+  <li><strong>Visual Masking</strong>: Public display boards do not expose student names or emails. They display only the alphanumeric token identifier (<code>REG-105</code>).</li>
+  <li><strong>Data Retention</strong>: Local SQLite database tables purge completed session data every 24 hours, transferring the transactional audit records to the central cloud for long-term storage under strict database access control lists (ACLs).</li>
+  </ol>
+  <h3 class="searchable">COA Audit Integrity</h3>
+  <p class='searchable'>To justify graduation credentials, scholarship disbursements, and fee collection clearances to government auditors, the system guarantees non-repudiation:</p>
+  <ul class='searchable'>
+  <li>Every change in a token status is logged with the clerk&#x27;s timestamp, IP address, and unique user signature.</li>
+  <li>The transaction log database table uses a strict write-once configuration, meaning even database administrators cannot modify historical logs without breaking database constraints.</li>
+  </ul>
+  <hr>
+  <h3 class="searchable">8. Related Literature & Gap Analysis</h3>
+  <h3 class="searchable">Commercial Solutions vs. Academic Gaps</h3>
+  <p class='searchable'>Existing commercial queue management systems (such as QLess and Qmatic) are built as closed proprietary ecosystems, making them cost-prohibitive for municipal public high schools and SUCs in developing nations.</p>
+  <p class='searchable'>While academic research exists on queue optimizations using Poisson models, there is a clear <strong>engineering gap</strong>: there are no documented open-source queue architectures that combine:</p>
+  <ol class='searchable'>
+  <li>Local-first LAN edge synchronization with SQLite to survive local connectivity failures.</li>
+  <li>Multi-surface screen locking (DeviceLock) to turn low-cost single-board computers (Raspberry Pi/Orange Pi) into secure public kiosks and display panels.</li>
+  <li>Bilingual Text-to-Speech (TTS) engines optimized for local dialects.</li>
+  </ol>
+  <p class='searchable'>FlexiQueue addresses this gap, providing a secure, affordable, and flexible queueing infrastructure for institutional service lines.</p>
+</section>
+<section id="supp-flexiqueue-pitch" class="content-section">
+  <h2 class="section-title searchable">Flexiqueue Pitch</h2>
+  <h3 class="searchable">FlexiQueue: Title Defense Presentation Script</h3>
+  <p class='searchable'><strong>Time Limit</strong>: ~5 Minutes <strong>Focus</strong>: Multi-surface orchestration, local-first LAN architecture, dynamic queue routing (FlowEngine), wait prediction ML regressions, and physical indoor mapping desk guides.</p>
+  <hr>
+  <h3 class="searchable">Slide 1: Title & Introduction (15 Seconds)</h3>
+  <ul class='searchable'>
+  <li><strong>Slide Visuals</strong>: Title: <strong>FlexiQueue: A Highly Configurable, Multi-Surface Queue Management and Service Routing Platform</strong> and an emerald glassmorphic layout.</li>
+  <li><strong>Verbal Script</strong>:</li>
+  </ul>
+  <blockquote><p><em>&quot;Good morning, members of the panel. We propose <strong>FlexiQueue</strong>: a highly configurable, multi-surface queue management and service routing platform. Our research investigates how institutional service lines—such as university registrars, cashiers, and department desks—can coordinate physical kiosks, display boards, and mobile web pages to reduce wait times, manage student journeys, and ensure continuous operations during active network outages.&quot;</em></p></blockquote>
+  <hr>
+  <h3 class="searchable">Slide 2: The Scene (30 Seconds)</h3>
+  <ul class='searchable'>
+  <li><strong>Slide Visuals</strong>: Split layout contrasting long student lines outside registrar offices with a clean simulated command-line output showing automated token transitions.</li>
+  <li><strong>Verbal Script</strong>:</li>
+  </ul>
+  <blockquote><p><em>&quot;Let&#x27;s establish the scene. On any campus, queues or &#x27;pila&#x27; are a daily reality. During enrollment or graduation weeks, thousands of students wait for hours outside the Registrar, Cashier, Advising desks, and Library. Currently, if a student reaches a window only to find out they have a cashier deficiency, they must leave the window, line up at the Cashier, and then queue all over again at the Registrar. This physical friction wastes time, causes hall congestion, and leads to massive inefficiencies.&quot;</em></p></blockquote>
+  <hr>
+  <h3 class="searchable">Slide 3: The Problem (30 Seconds)</h3>
+  <ul class='searchable'>
+  <li><strong>Slide Visuals</strong>: Three distinct cards detailing: (1) Disjointed Journeys, (2) Announcement Fatigue, and (3) High Infrastructure Costs.</li>
+  <li><strong>Verbal Script</strong>:</li>
+  </ul>
+  <blockquote><p><em>&quot;Our system addresses three critical bottlenecks. First, disjointed journeys: there is no dynamic cross-department handoff, forcing students to restart queue lines. Second, vocal announcement fatigue: staff waste energy shouting names, and students miss calls in noisy corridors. Third, high infrastructure costs: commercial systems are prohibitively expensive and require proprietary hardware, while cloud-only solutions fail completely during campus internet outages, paralyzing operations.&quot;</em></p></blockquote>
+  <hr>
+  <h3 class="searchable">Slide 4: Proposed System & Architecture (45 Seconds)</h3>
+  <ul class='searchable'>
+  <li><strong>Slide Visuals</strong>: A visual architecture node map with glowing SVG connecting flow lines separating: (1) Entrance Self-Service Kiosk, (2) Local LAN Server, (3) Lobby Display TV, (4) Clerk Staff Stations, and (5) Student Mobile status page.</li>
+  <li><strong>Verbal Script</strong>:</li>
+  </ul>
+  <blockquote><p><em>&quot;To solve these bottlenecks, we present the FlexiQueue deployment architecture. It is built entirely as a local-first system. At the entrance, an Orange Pi-driven self-service kiosk prints tickets. In the lobby, WebSocket-based display screens show and announce the called numbers. Windows staff call tokens from their desks, and students monitor queue status on their phones. All devices connect locally to the LAN server running a dynamic FlowEngine routing database.&quot;</em></p></blockquote>
+  <hr>
+  <h3 class="searchable">Slide 5: Live Demonstration (45 Seconds)</h3>
+  <ul class='searchable'>
+  <li><strong>Slide Visuals</strong>: Three-column active simulator showing Kiosk ticket printing, Display Board updates, and Staff Calling Panel with an append-only terminal log.</li>
+  <li><strong>Verbal Script</strong>:</li>
+  </ul>
+  <blockquote><p><em>&quot;Here, we can simulate the multi-surface interaction. A student walks up to the kiosk and prints a ticket. When staff click &#x27;Call Next&#x27; on their terminal, the WebSocket-driven display board updates and calls the token with localized text-to-speech. Most importantly, if a registrar clerk identifies a cashier deficiency, they can transfer the token directly to the Cashier queue using the system&#x27;s FlowEngine, bypassing the need for a new number and linking the student&#x27;s journey together.&quot;</em></p></blockquote>
+  <hr>
+  <h3 class="searchable">Slide 6: Component Coverage Mapping (45 Seconds)</h3>
+  <ul class='searchable'>
+  <li><strong>Slide Visuals</strong>: Five-row table detailing the 5 Capstone Pillars: (1) Web (Admin &amp; Staff window panels), (2) Mobile (Responsive status pages), (3) ML (Random Forest wait time regressions), (4) IoT (Orange Pi ticket kiosk + printer), and (5) Mapping (Leaflet.js desk physical routes).</li>
+  <li><strong>Verbal Script</strong>:</li>
+  </ul>
+  <blockquote><p><em>&quot;Our system covers all five pillars of our curriculum. The Web portal for administrative and clerk controls runs on Laravel 12 and Svelte 5. The Mobile interface provides students with responsive queue tracking. For machine learning, a Random Forest regression model runs on the local server to predict wait times using historical transaction data. The IoT component integrates Orange Pi SBCs with ESC/POS thermal printers. Finally, the Mapping component uses Leaflet.js to render indoor layouts that guide students during window-to-window transfers.&quot;</em></p></blockquote>
+  <hr>
+  <h3 class="searchable">Slide 7: Novelty Claim (30 Seconds)</h3>
+  <ul class='searchable'>
+  <li><strong>Slide Visuals</strong>: Comparison matrix showing FlexiQueue vs. Standard QMS.</li>
+  <li><strong>Verbal Script</strong>:</li>
+  </ul>
+  <blockquote><p><em>&quot;FlexiQueue&#x27;s novelty lies in its local-first architecture. While standard web ticket counters crash when the internet drops, FlexiQueue operates completely on the local LAN using an edge SQLite database on low-cost single-board computers (like Orange Pi). Transactions sync to the central cloud once connection returns. Furthermore, every queue event is written to an immutable transaction log, providing a tamper-proof audit trail for government compliance.&quot;</em></p></blockquote>
+  <hr>
+  <h3 class="searchable">Slide 8: System Scope & Boundaries (30 Seconds)</h3>
+  <ul class='searchable'>
+  <li><strong>Slide Visuals</strong>: In-scope and Out-of-scope columns showing system boundaries.</li>
+  <li><strong>Verbal Script</strong>:</li>
+  </ul>
+  <blockquote><p><em>&quot;Our project scope includes the multi-surface views, FlowEngine routing rules, ML wait estimation, Leaflet routing maps, and append-only database logs. Out of scope are native mobile app packages and global WAN-wide queueing during active offline states. By keeping all interfaces browser-based and locking devices using signed cookies, we eliminate complex app installations and keep the hardware footprint lightweight.&quot;</em></p></blockquote>
+  <hr>
+  <h3 class="searchable">Slide 9: Development Roadmap (15 Seconds)</h3>
+  <ul class='searchable'>
+  <li><strong>Slide Visuals</strong>: 5-phase horizontal timeline from DB design to validation.</li>
+  <li><strong>Verbal Script</strong>:</li>
+  </ul>
+  <blockquote><p><em>&quot;We have planned a 7-week development timeline. We begin with database normalization, FlowEngine rules, and wait-time regression modeling. We then build the Svelte 5 surface views and integrate Leaflet campus maps, followed by WebSocket broadcasts, TTS announcement queues, and final performance load testing.&quot;</em></p></blockquote>
+  <hr>
+  <h3 class="searchable">Slide 10: Verification Plan (15 Seconds)</h3>
+  <ul class='searchable'>
+  <li><strong>Slide Visuals</strong>: Automated and manual testing criteria cards.</li>
+  <li><strong>Verbal Script</strong>:</li>
+  </ul>
+  <blockquote><p><em>&quot;We will verify system performance using automated latency benchmarks under simulated loads, and validate the kiosk transaction speed through manual user acceptance testing, targeting a System Usability Scale score of 80.&quot;</em></p></blockquote>
+  <hr>
+  <h3 class="searchable">Slide 11: Conclusion (15 Seconds)</h3>
+  <ul class='searchable'>
+  <li><strong>Slide Visuals</strong>: &quot;Orchestrating Campus Services&quot; tagline with key badges.</li>
+  <li><strong>Verbal Script</strong>:</li>
+  </ul>
+  <blockquote><p><em>&quot;FlexiQueue transforms chaotic, disconnected queues into an organized, real-time, multi-screen experience. It is flexible, budget-friendly, and resilient. Thank you, and we are now open for your questions.&quot;</em></p></blockquote>
+</section>
+      
+      <div class="no-results" id="no-results">
+        <div class="no-results-icon">🕵️‍♂️</div>
+        <h3>No matching concepts found</h3>
+        <p style="margin-bottom: 1.5rem;">Try searching for other terms like "architecture", "security", or specific components.</p>
+        <button class="ai-explore-btn" onclick="exploreWithAI()" style="margin: 0 auto; display: inline-flex;">
+          <span class="ai-icon">✨</span> Explore <span class="ai-btn-text-extra">with AI</span>
+        </button>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    // Q&A Accordion Toggle
+    document.querySelectorAll('.qa-header').forEach(header => {
+      header.addEventListener('click', () => {
+        const item = header.parentElement;
+        item.classList.toggle('open');
+      });
+    });
+
+    // Category Filter for Q&A
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        
+        const cat = btn.getAttribute('data-cat');
+        document.querySelectorAll('.qa-item').forEach(item => {
+          if (cat === 'all' || item.getAttribute('data-category') === cat) {
+            item.style.display = 'block';
+          } else {
+            item.style.display = 'none';
+          }
+        });
+      });
+    });
+
+    // Mobile Navigation Drawer Toggle
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+    const menuToggle = document.getElementById('mobile-menu-toggle');
+
+    function toggleMobileMenu() {
+      sidebar.classList.toggle('open');
+      overlay.classList.toggle('open');
+      if (sidebar.classList.contains('open')) {
+        menuToggle.innerHTML = '&times;';
+        menuToggle.style.background = '#f87171'; // soft red for close
+      } else {
+        menuToggle.innerHTML = '&#x2630;';
+        menuToggle.style.background = 'var(--accent)';
+      }
+    }
+
+    menuToggle.addEventListener('click', toggleMobileMenu);
+    overlay.addEventListener('click', toggleMobileMenu);
+    
+    // Close mobile menu when link clicked
+    document.querySelectorAll('.toc-link').forEach(link => {
+      link.addEventListener('click', () => {
+        if (window.innerWidth <= 1024) {
+          toggleMobileMenu();
+        }
+      });
+    });
+
+    // Table of Contents Active Link Highlight on Scroll
+    const observerOptions = {
+      root: null,
+      rootMargin: '-10% 0px -70% 0px',
+      threshold: 0
+    };
+
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const id = entry.target.getAttribute('id');
+          document.querySelectorAll('.toc-link').forEach(link => {
+            if (link.getAttribute('data-target') === id) {
+              link.classList.add('active');
+            } else {
+              link.classList.remove('active');
+            }
+          });
+        }
+      });
+    }, observerOptions);
+
+    document.querySelectorAll('section.content-section').forEach(section => {
+      observer.observe(section);
+    });
+
+    // Client-side Search Engine
+    const searchInput = document.getElementById('search-input');
+    const searchClear = document.getElementById('search-clear');
+    const searchStats = document.getElementById('search-stats');
+    const noResults = document.getElementById('no-results');
+
+    // Create search index mapping from searchable items
+    const searchIndex = [];
+    document.querySelectorAll('.content-section').forEach(section => {
+      const sectionId = section.getAttribute('id');
+      const sectionTitle = section.querySelector('.section-title').textContent;
+      
+      // Store standard searchable elements (paragraphs, list items, headers)
+      section.querySelectorAll('.searchable').forEach(el => {
+        // Skip elements inside qa-item answers to avoid double-processing, Q&As handled separately below
+        if (el.closest('.qa-item')) return;
+        
+        searchIndex.push({
+          element: el,
+          sectionId: sectionId,
+          type: 'text',
+          originalHTML: el.innerHTML,
+          text: el.textContent.toLowerCase()
+        });
+      });
+      
+      // Store Q&A cards
+      section.querySelectorAll('.qa-item').forEach(qaItem => {
+        const qText = qaItem.querySelector('.qa-question-text');
+        const aContent = qaItem.querySelector('.qa-answer');
+        
+        searchIndex.push({
+          element: qaItem,
+          sectionId: sectionId,
+          type: 'qa',
+          qaItem: qaItem,
+          qTextEl: qText,
+          aContentEl: aContent,
+          originalQHTML: qText.innerHTML,
+          originalAHTML: aContent.innerHTML,
+          qText: qText.textContent.toLowerCase(),
+          aText: aContent.textContent.toLowerCase()
+        });
+      });
+    });
+
+    searchInput.addEventListener('input', runSearch);
+    searchClear.addEventListener('click', () => {
+      searchInput.value = '';
+      runSearch();
+      searchInput.focus();
+    });
+
+    function runSearch() {
+      const query = searchInput.value.trim().toLowerCase();
+      
+      if (query === '') {
+        searchClear.style.display = 'none';
+        searchStats.style.display = 'none';
+        noResults.style.display = 'none';
+        
+        // Reset all elements
+        searchIndex.forEach(item => {
+          if (item.type === 'text') {
+            item.element.innerHTML = item.originalHTML;
+            item.element.style.display = '';
+          } else if (item.type === 'qa') {
+            item.qTextEl.innerHTML = item.originalQHTML;
+            item.aContentEl.innerHTML = item.originalAHTML;
+            item.qaItem.style.display = '';
+            item.qaItem.classList.remove('open');
+          }
+        });
+        
+        // Show all sections & reset links
+        document.querySelectorAll('section.content-section').forEach(sec => {
+          sec.style.display = '';
+        });
+        document.querySelectorAll('.toc-link').forEach(link => {
+          link.style.opacity = '';
+          link.style.pointerEvents = '';
+        });
+        return;
+      }
+      
+      searchClear.style.display = 'block';
+      
+      // Multi-term support: split query by whitespace
+      const terms = query.split(/\s+/).filter(t => t.length > 0);
+      
+      let matchCount = 0;
+      const visibleSections = new Set();
+      
+      // Perform search filtering
+      searchIndex.forEach(item => {
+        if (item.type === 'text') {
+          // Check if every search term is found in the text
+          const matches = terms.every(term => item.text.includes(term));
+          if (matches) {
+            matchCount++;
+            visibleSections.add(item.sectionId);
+            item.element.style.display = '';
+            item.element.innerHTML = highlightText(item.originalHTML, query);
+          } else {
+            item.element.style.display = 'none';
+          }
+        } else if (item.type === 'qa') {
+          // Check for each search term in Q or A
+          const matches = terms.every(term => item.qText.includes(term) || item.aText.includes(term));
+          
+          if (matches) {
+            matchCount++;
+            visibleSections.add(item.sectionId);
+            item.qaItem.style.display = '';
+            
+            // Highlight matching parts
+            const qMatchesAny = terms.some(term => item.qText.includes(term));
+            const aMatchesAny = terms.some(term => item.aText.includes(term));
+            
+            if (qMatchesAny) {
+              item.qTextEl.innerHTML = highlightText(item.originalQHTML, query);
+            } else {
+              item.qTextEl.innerHTML = item.originalQHTML;
+            }
+            
+            if (aMatchesAny) {
+              item.aContentEl.innerHTML = highlightText(item.originalAHTML, query);
+            } else {
+              item.aContentEl.innerHTML = item.originalAHTML;
+            }
+            
+            // Auto expand matching Q&A items!
+            item.qaItem.classList.add('open');
+          } else {
+            item.qaItem.style.display = 'none';
+            item.qaItem.classList.remove('open');
+          }
+        }
+      });
+      
+      // Filter main content sections based on whether they contain any matches
+      document.querySelectorAll('section.content-section').forEach(sec => {
+        const id = sec.getAttribute('id');
+        if (visibleSections.has(id)) {
+          sec.style.display = '';
+        } else {
+          sec.style.display = 'none';
+        }
+      });
+      
+      // Update sidebar TOC link styling (dim sections with no results)
+      document.querySelectorAll('.toc-link').forEach(link => {
+        const targetId = link.getAttribute('data-target');
+        if (visibleSections.has(targetId)) {
+          link.style.opacity = '1';
+          link.style.pointerEvents = 'auto';
+        } else {
+          link.style.opacity = '0.3';
+          link.style.pointerEvents = 'none';
+        }
+      });
+      
+      // Update status info
+      searchStats.style.display = 'block';
+      searchStats.textContent = 'Found ' + matchCount + ' matching concept(s) across ' + visibleSections.size + ' section(s)';
+      
+      if (matchCount === 0) {
+        noResults.style.display = 'block';
+      } else {
+        noResults.style.display = 'none';
+      }
+    }
+
+    function highlightText(htmlText, query) {
+      const terms = query.split(/\s+/).filter(t => t.length > 0);
+      if (terms.length === 0) return htmlText;
+      
+      // Sort terms by length descending to prevent shorter sub-terms from mangling HTML markup of longer terms
+      terms.sort((a, b) => b.length - a.length);
+      
+      let highlighted = htmlText;
+      terms.forEach(term => {
+        const escQuery = term.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+        // Regex matches query outside of HTML tags (<...>) and prevents recursive marking
+        const regex = new RegExp('(' + escQuery + ')(?=[^>]*<|[^>]*$)', 'gi');
+        highlighted = highlighted.replace(regex, '<mark class="highlight">$1</mark>');
+      });
+      return highlighted;
+    }
+
+    // --- Toast Notification ---
+    function showToast(title, desc, duration = 3000) {
+      const toast = document.getElementById('ai-toast');
+      if (!toast) return;
+      const toastTitle = toast.querySelector('.toast-title');
+      const toastDesc = toast.querySelector('.toast-desc');
+      const progress = toast.querySelector('.toast-progress');
+      
+      if (toastTitle) toastTitle.textContent = title;
+      if (toastDesc) toastDesc.textContent = desc;
+      
+      toast.classList.add('show');
+      progress.classList.remove('animate');
+      void progress.offsetWidth; // Trigger DOM reflow
+      progress.style.animationDuration = `${duration}ms`;
+      progress.classList.add('animate');
+      
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, duration);
+    }
+
+    // --- DOM Knowledge Base Text Extraction ---
+    function getKnowledgeBaseText() {
+      let textParts = [];
+      
+      document.querySelectorAll('section.content-section').forEach(section => {
+        const titleEl = section.querySelector('.section-title');
+        if (titleEl) {
+          textParts.push(`\n# ${titleEl.textContent.trim()}\n`);
+        }
+        
+        section.querySelectorAll('.searchable').forEach(el => {
+          if (el.classList.contains('qa-item')) {
+            const qText = el.querySelector('.qa-question-text')?.textContent.trim() || '';
+            const aText = el.querySelector('.qa-answer')?.textContent.trim() || '';
+            textParts.push(`Q: ${qText}\nA: ${aText}\n`);
+          } else if (el.closest('.qa-item')) {
+            // Avoid duplicate processing of elements nested inside Q&As
+            return;
+          } else {
+            const tag = el.tagName.toLowerCase();
+            const text = el.textContent.trim();
+            if (!text) return;
+            
+            if (tag.startsWith('h')) {
+              textParts.push(`## ${text}\n`);
+            } else {
+              textParts.push(`${text}\n`);
+            }
+          }
+        });
+      });
+      
+      return textParts.join('\n').trim();
+    }
+
+    // --- Explore with AI (Redirect to Gemini) ---
+    function exploreWithAI() {
+      const query = document.getElementById('search-input').value.trim();
+      const title = document.querySelector('.project-title h1')?.textContent || 'this capstone project';
+      const tagline = document.querySelector('.project-title h1')?.nextElementSibling?.textContent || '';
+      
+      const knowledgeBase = getKnowledgeBaseText();
+      
+      let promptText = `You are an AI assistant helping me analyze the capstone project "${title}" (${tagline}).\n\n`;
+      if (query) {
+        promptText += `My question/focus is: "${query}"\n\n`;
+      } else {
+        promptText += `Please help me explore this capstone project.\n\n`;
+      }
+      
+      promptText += `Here is the comprehensive project documentation and knowledge base for context:\n`;
+      promptText += `=========================================\n`;
+      promptText += knowledgeBase;
+      promptText += `\n=========================================\n\n`;
+      
+      if (query) {
+        promptText += `Please answer my question ("${query}") based on the documentation provided above. If the information isn't directly in the docs, use your general knowledge but clearly indicate what is from the docs and what is external extrapolation.`;
+      } else {
+        promptText += `Please provide a strategic overview of this project, list its core architecture elements, point out key panel defense risks/questions, and suggest how the presenters can best pitch this to a jury.`;
+      }
+      
+      const maxUrlLength = 6000;
+      
+      // Prepare short prompt for Gemini URL query parameter
+      let shortPrompt = `I want to explore the capstone project "${title}". `;
+      if (query) {
+        shortPrompt += `My question is: "${query}". `;
+      }
+      shortPrompt += `I have copied the entire project knowledge base/documentation to my clipboard. I will paste it in my next message. Please prepare to receive it.`;
+      
+      const encodedShort = encodeURIComponent(shortPrompt);
+      const geminiUrl = `https://gemini.google.com/app?q=${encodedShort}`;
+      
+      // Copy prompt to clipboard
+      navigator.clipboard.writeText(promptText).then(() => {
+        showToast(
+          "📋 Context Copied!",
+          "Use Ctrl+V (or Cmd+V) to paste the full documentation in Gemini. Redirecting in 4 seconds...",
+          4000
+        );
+        setTimeout(() => {
+          window.open(geminiUrl, '_blank');
+        }, 3800);
+      }).catch(err => {
+        console.error("Clipboard copy failed, falling back to direct URL redirect: ", err);
+        
+        let fallbackPrompt = promptText;
+        if (fallbackPrompt.length > maxUrlLength) {
+          fallbackPrompt = fallbackPrompt.substring(0, maxUrlLength - 100) + "... [truncated due to URL limits]";
+        }
+        const encodedFallback = encodeURIComponent(fallbackPrompt);
+        const fallbackUrl = `https://gemini.google.com/app?q=${encodedFallback}`;
+        
+        showToast(
+          "✨ Redirecting...",
+          "Opening Gemini with direct URL prompt...",
+          2000
+        );
+        setTimeout(() => {
+          window.open(fallbackUrl, '_blank');
+        }, 1500);
+      });
+    }
+  </script>
+  
+  <!-- Toast HTML -->
+  <div id="ai-toast" class="ai-toast">
+    <div class="toast-content">
+      <span class="toast-icon">✨</span>
+      <div class="toast-text-wrapper">
+        <div class="toast-title">Copying Knowledge Base...</div>
+        <div class="toast-desc">Copying context to clipboard and opening Gemini</div>
+      </div>
+    </div>
+    <div class="toast-progress"></div>
+  </div>
+</body>
+</html>

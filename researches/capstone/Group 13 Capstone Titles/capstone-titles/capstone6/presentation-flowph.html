@@ -1,0 +1,2150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FlowPH — Dimension-Agnostic Government Funds Tracker and Citizen Watchdog Network</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest"></script>
+
+<style>
+/* =========================================================================
+THEMING AND VARIABLES (Government Gold and Transparent Teal)
+========================================================================= */
+:root {
+  --bg-dark: #070a13;
+  --bg-darker: #04060b;
+  --bg-panel: rgba(11, 16, 30, 0.75);
+  --primary-gold: #d4af37;
+  --primary-gold-rgb: 212, 175, 55;
+  --accent-teal: #14b8a6;
+  --accent-teal-rgb: 20, 184, 166;
+  --accent-blue: #3b82f6;
+  --accent-blue-rgb: 59, 130, 246;
+  --success-green: #10b981;
+  --warning-amber: #f59e0b;
+  --danger-crimson: #ef4444;
+  --text-light: #f3f4f6;
+  --text-muted: #9ca3af;
+  --mono: 'Fira Code', monospace;
+  --sans: 'Plus Jakarta Sans', sans-serif;
+  --heading: 'Playfair Display', serif;
+  --border-style: 1px solid rgba(212, 175, 55, 0.2);
+  --border-focus: 1px solid rgba(20, 184, 166, 0.5);
+  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--bg-darker);
+  color: var(--text-light);
+  font-family: var(--sans);
+  overflow: hidden;
+  height: 100vh;
+  width: 100vw;
+  user-select: none;
+}
+
+/* =========================================================================
+BACKGROUND CANVAS AND MATRIX GRID
+========================================================================= */
+#bg-canvas {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  background-color: var(--bg-darker);
+}
+
+.matrix-grid {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-image: 
+    linear-gradient(rgba(20, 184, 166, 0.012) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(20, 184, 166, 0.012) 1px, transparent 1px);
+  background-size: 50px 50px;
+  background-position: center;
+  mask-image: radial-gradient(circle at 50% 50%, black, transparent 95%);
+  pointer-events: none;
+}
+
+/* =========================================================================
+SLIDE DECK FRAMEWORK (6 Slides)
+========================================================================= */
+#deck {
+  display: flex;
+  position: absolute;
+  inset: 0;
+  width: 600vw; /* 6 slides */
+  height: 100vh;
+  transition: transform 0.8s cubic-bezier(0.77, 0, 0.175, 1);
+}
+
+.slide {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  padding: 35px 50px;
+  overflow: hidden;
+}
+
+/* CHROME LAYOUTS (Header / Footer / Cards) */
+.chrome-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  color: var(--primary-gold);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+  border-bottom: var(--border-style);
+  padding-bottom: 12px;
+}
+
+.chrome-header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.chrome-header-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.chrome-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  border-top: var(--border-style);
+  padding-top: 12px;
+  margin-top: auto;
+  font-family: var(--mono);
+}
+
+.chrome-footer-left {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.chrome-footer-right {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+/* Glass Panels */
+.glass-panel {
+  background: var(--bg-panel);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: var(--border-style);
+  border-radius: 12px;
+  padding: 30px;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+  transition: var(--transition);
+}
+
+.glass-panel:hover {
+  border-color: rgba(20, 184, 166, 0.3);
+}
+
+/* =========================================================================
+SLIDE CONTENT TYPOGRAPHY AND LAYOUT UTILITIES
+========================================================================= */
+.h-full { height: 100%; }
+.flex { display: flex; }
+.col { flex-direction: column; }
+.row { flex-direction: row; }
+.center { align-items: center; justify-content: center; }
+.space-between { justify-content: space-between; }
+.gap-10 { gap: 10px; }
+.gap-20 { gap: 20px; }
+.gap-30 { gap: 30px; }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+
+h1 {
+  font-family: var(--heading);
+  font-size: 3.5rem;
+  font-weight: 600;
+  color: var(--text-light);
+  line-height: 1.1;
+  margin-bottom: 5px;
+}
+
+h1 span {
+  background: linear-gradient(135deg, var(--primary-gold) 30%, var(--accent-teal));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.slide-subtitle {
+  font-size: 1.1rem;
+  color: var(--text-muted);
+  margin-bottom: 25px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-family: var(--mono);
+}
+
+/* Slide 1 - Title custom elements */
+.logo-emblem {
+  font-family: var(--heading);
+  font-size: 4rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--primary-gold), var(--accent-teal));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  border: 2px solid var(--primary-gold);
+  border-radius: 50%;
+  width: 120px;
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 40px rgba(212, 175, 55, 0.15);
+  margin-bottom: 25px;
+  position: relative;
+}
+
+.logo-emblem::before {
+  content: '';
+  position: absolute;
+  inset: -6px;
+  border: 1px dashed var(--accent-teal);
+  border-radius: 50%;
+  animation: rotate 20s linear infinite;
+}
+
+@keyframes rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.badge-tag {
+  background: rgba(212, 175, 55, 0.1);
+  color: var(--primary-gold);
+  border: 1px solid rgba(212, 175, 55, 0.25);
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.title-card {
+  max-width: 900px;
+  align-self: center;
+  margin-top: auto;
+  margin-bottom: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+/* =========================================================================
+SLIDE 2 - THE OPAQUE LEDGER
+========================================================================= */
+.opaque-vault-graphic {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  height: 380px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: var(--border-style);
+}
+
+.file-pile {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  width: 70%;
+  z-index: 1;
+}
+
+.file-item {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 12px 18px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  font-family: var(--mono);
+  font-size: 0.85rem;
+}
+
+.file-item i {
+  color: var(--primary-gold);
+}
+
+.shroud-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(rgba(7, 10, 19, 0.1), rgba(7, 10, 19, 0.9));
+  backdrop-filter: blur(2.5px);
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 30px;
+  text-align: center;
+}
+
+.shroud-overlay p {
+  color: var(--danger-crimson);
+  font-family: var(--mono);
+  font-size: 0.9rem;
+  letter-spacing: 0.05em;
+  margin-bottom: 5px;
+}
+
+.shroud-overlay h3 {
+  font-family: var(--heading);
+  font-size: 1.8rem;
+  color: var(--text-light);
+}
+
+.problem-card {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.problem-pill {
+  background: rgba(239, 68, 68, 0.04);
+  border: 1px solid rgba(239, 68, 68, 0.15);
+  border-radius: 8px;
+  padding: 18px 24px;
+  display: flex;
+  gap: 20px;
+  transition: var(--transition);
+}
+
+.problem-pill:hover {
+  border-color: rgba(239, 68, 68, 0.35);
+  background: rgba(239, 68, 68, 0.07);
+}
+
+.problem-pill-icon {
+  background: rgba(239, 68, 68, 0.12);
+  color: var(--danger-crimson);
+  width: 45px;
+  height: 45px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.problem-pill-content h4 {
+  font-size: 1.1rem;
+  margin-bottom: 4px;
+  color: var(--text-light);
+}
+
+.problem-pill-content p {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+/* =========================================================================
+SLIDE 3 - PROPOSED ARCHITECTURE
+========================================================================= */
+.architecture-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 25px;
+  margin-top: 10px;
+}
+
+.arch-card {
+  display: flex;
+  flex-direction: column;
+  height: 420px;
+}
+
+.arch-card-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  border-bottom: 1px dashed rgba(212, 175, 55, 0.15);
+  padding-bottom: 15px;
+}
+
+.arch-card-header h3 {
+  font-family: var(--heading);
+  font-size: 1.4rem;
+  color: var(--primary-gold);
+}
+
+.arch-icon {
+  color: var(--accent-teal);
+  background: rgba(20, 184, 166, 0.08);
+  width: 40px;
+  height: 40px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.arch-body {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.arch-item {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 6px;
+  padding: 8px 12px;
+}
+
+.arch-item strong {
+  color: var(--text-light);
+  display: block;
+  margin-bottom: 3px;
+  font-size: 0.9rem;
+}
+
+/* DB Table visualizer */
+.db-table {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  background: #020408;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 6px;
+  margin-top: 5px;
+  overflow: hidden;
+}
+
+.db-table-header {
+  background: rgba(212, 175, 55, 0.15);
+  color: var(--primary-gold);
+  padding: 6px 12px;
+  font-weight: 600;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.db-table-fields {
+  padding: 8px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.db-field {
+  display: flex;
+  justify-content: space-between;
+}
+
+.db-field span:first-child {
+  color: #38bdf8;
+}
+
+.db-field span:last-child {
+  color: #a855f7;
+}
+
+/* =========================================================================
+SLIDE 4 - COMPONENT COVERAGE MAP
+========================================================================= */
+.comp-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+.comp-table th, .comp-table td {
+  padding: 14px 20px;
+  text-align: left;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.comp-table th {
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  color: var(--primary-gold);
+  border-bottom: 2px solid rgba(212, 175, 55, 0.25);
+  background: rgba(255,255,255,0.01);
+  text-transform: uppercase;
+}
+
+.comp-table td {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.comp-table tr:hover td {
+  color: var(--text-light);
+  background: rgba(20, 184, 166, 0.02);
+}
+
+.comp-table strong {
+  color: var(--text-light);
+}
+
+/* =========================================================================
+SLIDE 5 - INTERACTIVE PLAYGROUND (THE CORE DEV DEMO)
+========================================================================= */
+.playground-grid {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 25px;
+  height: 420px;
+}
+
+.control-bar {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.control-btn {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--text-muted);
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.control-btn:hover {
+  background: rgba(20, 184, 166, 0.05);
+  color: var(--text-light);
+}
+
+.control-btn.active {
+  background: rgba(20, 184, 166, 0.15);
+  border-color: var(--accent-teal);
+  color: var(--accent-teal);
+  box-shadow: 0 0 15px rgba(20, 184, 166, 0.15);
+}
+
+/* Interactive Flow Container */
+.flow-diagram-container {
+  background: #020408;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  height: 345px;
+  position: relative;
+  overflow: hidden;
+  padding: 15px;
+}
+
+.flow-svg {
+  width: 100%;
+  height: 100%;
+}
+
+.flow-node {
+  fill: #0c1524;
+  stroke: rgba(212, 175, 55, 0.35);
+  stroke-width: 1.5;
+  rx: 6;
+  ry: 6;
+  transition: var(--transition);
+  cursor: pointer;
+}
+
+.flow-node:hover {
+  fill: #112038;
+  stroke: var(--primary-gold);
+}
+
+.flow-node.highlighted {
+  fill: rgba(20, 184, 166, 0.15);
+  stroke: var(--accent-teal);
+  filter: drop-shadow(0 0 5px rgba(20,184,166,0.3));
+}
+
+.flow-node-text {
+  font-family: var(--sans);
+  font-size: 11px;
+  fill: var(--text-light);
+  font-weight: 500;
+  pointer-events: none;
+  text-anchor: middle;
+}
+
+.flow-node-subtext {
+  font-family: var(--mono);
+  font-size: 10px;
+  fill: var(--primary-gold);
+  pointer-events: none;
+  text-anchor: middle;
+}
+
+.flow-path {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.05);
+  stroke-width: 2;
+  transition: var(--transition);
+}
+
+.flow-path.active {
+  stroke: rgba(20, 184, 166, 0.35);
+  stroke-width: 4;
+  stroke-dasharray: 8, 4;
+  animation: dash 30s linear infinite;
+}
+
+.flow-path.flagged {
+  stroke: rgba(239, 68, 68, 0.4);
+  stroke-width: 4;
+  stroke-dasharray: 8, 4;
+  animation: dash 15s linear infinite;
+}
+
+@keyframes dash {
+  to {
+    stroke-dashoffset: -1000;
+  }
+}
+
+/* Vault Ledger */
+.vault-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.vault-ledger-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+  margin-bottom: 12px;
+}
+
+.vault-ledger-table th {
+  font-family: var(--mono);
+  font-weight: 500;
+  color: var(--text-muted);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  padding: 6px 10px;
+  text-align: left;
+}
+
+.vault-ledger-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.vault-ledger-table tr.active td {
+  background: rgba(212, 175, 55, 0.08);
+  color: var(--text-light);
+}
+
+.vault-ledger-table tr:hover td {
+  background: rgba(255,255,255,0.02);
+}
+
+/* Status Badges */
+.status-indicator {
+  display: inline-block;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.status-indicator.verified {
+  background: rgba(16, 185, 129, 0.15);
+  color: var(--success-green);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+}
+
+.status-indicator.partial {
+  background: rgba(245, 158, 11, 0.15);
+  color: var(--warning-amber);
+  border: 1px solid rgba(245, 158, 11, 0.25);
+}
+
+.status-indicator.unverified {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-muted);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.status-indicator.flagged {
+  background: rgba(239, 68, 68, 0.15);
+  color: var(--danger-crimson);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+}
+
+/* Details Vault Card */
+.vault-card {
+  background: #020408;
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 8px;
+  padding: 15px;
+  font-size: 0.75rem;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.vault-card-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.vault-card-row strong {
+  color: var(--primary-gold);
+}
+
+.vault-card-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.vault-action-btn {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--text-light);
+  font-size: 0.7rem;
+  padding: 6px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+
+.vault-action-btn:hover {
+  background: rgba(255,255,255,0.06);
+}
+
+.vault-action-btn.active-flag {
+  background: rgba(239, 68, 68, 0.15);
+  border-color: var(--danger-crimson);
+  color: var(--danger-crimson);
+}
+
+.vault-action-btn.active-upload {
+  background: rgba(16, 185, 129, 0.15);
+  border-color: var(--success-green);
+  color: var(--success-green);
+}
+
+/* Bottom logs terminal */
+.terminal-logs {
+  background: #010204;
+  border: 1px solid rgba(255,255,255,0.05);
+  border-radius: 6px;
+  padding: 8px 15px;
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  color: #10b981;
+  height: 48px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  margin-top: 12px;
+}
+
+/* =========================================================================
+SLIDE 6 - SCOPE, BOUNDARIES AND ROADMAP
+========================================================================= */
+.boundaries-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.boundary-block h4 {
+  color: var(--primary-gold);
+  font-family: var(--mono);
+  font-size: 0.85rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  border-bottom: 1px dashed rgba(255,255,255,0.08);
+  padding-bottom: 5px;
+}
+
+.boundary-block ul {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.boundary-block ul li {
+  position: relative;
+  padding-left: 18px;
+}
+
+.boundary-block ul li::before {
+  content: '▪';
+  position: absolute;
+  left: 0;
+  color: var(--accent-teal);
+}
+
+.boundary-block.out-scope ul li::before {
+  color: var(--danger-crimson);
+}
+
+.roadmap-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.roadmap-step {
+  display: flex;
+  gap: 15px;
+}
+
+.roadmap-num {
+  background: rgba(20, 184, 166, 0.1);
+  color: var(--accent-teal);
+  border: 1px solid rgba(20, 184, 166, 0.25);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--mono);
+  font-size: 0.85rem;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.roadmap-details h5 {
+  font-size: 0.95rem;
+  color: var(--text-light);
+  margin-bottom: 2px;
+}
+
+.roadmap-details p {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  line-height: 1.3;
+}
+
+/* =========================================================================
+CONTROLS: INDICATORS AND BUTTONS
+========================================================================= */
+.deck-controls {
+  position: absolute;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  z-index: 10;
+}
+
+.dot-indicator {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.dot-indicator:hover {
+  background: rgba(255, 255, 255, 0.4);
+}
+
+.dot-indicator.active {
+  background: var(--accent-teal);
+  box-shadow: 0 0 10px var(--accent-teal);
+  transform: scale(1.2);
+}
+
+.nav-arrow-btn {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.nav-arrow-btn:hover {
+  background: rgba(20, 184, 166, 0.05);
+  border-color: var(--accent-teal);
+  color: var(--text-light);
+}
+
+.fullscreen-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.fullscreen-btn:hover {
+  color: var(--accent-teal);
+}
+</style>
+</head>
+<body>
+
+<!-- Interactive nodes canvas background -->
+<canvas id="bg-canvas"></canvas>
+<div class="matrix-grid"></div>
+
+<!-- Slide Deck Container -->
+<div id="deck">
+
+  <!-- SLIDE 1: TITLE (The Anchor) -->
+  <section class="slide center">
+    <div class="title-card glass-panel" style="max-width: 900px; padding: 40px;">
+      <div class="logo-emblem">FΦ</div>
+      <h1 style="font-size: 3.2rem; line-height: 1.2;">FlowPH</h1>
+      <h2 style="font-family: var(--heading); font-size: 1.35rem; color: var(--primary-gold); margin-top: 15px; font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px; border-bottom: 1px dashed rgba(212,175,55,0.2); padding-bottom: 15px;">
+        Dimension-Agnostic Government Funds Tracker and Citizen Watchdog Network
+      </h2>
+      <p class="slide-subtitle" style="margin-top:20px; font-weight: 500; font-size: 1.12rem; color: var(--accent-teal); line-height: 1.5;">
+        A decoupled financial lineage pipeline and community monitoring network for tracing government expenditures from national allocations down to supplier disbursements.
+      </p>
+    </div>
+  </section>
+
+  <!-- SLIDE 2: THE OPAQUE LEDGER (The Hook and Scene) -->
+  <section class="slide">
+    <div class="chrome-header">
+      <div class="chrome-header-left">
+        <i data-lucide="shield-alert" style="width:16px; height:16px;"></i>
+        <span>Pillar 1: The Problem Scene</span>
+      </div>
+      <div class="chrome-header-right">FlowPH Title Defense</div>
+    </div>
+    
+    <div class="grid-2" style="margin-top:auto; margin-bottom:auto;">
+      <div class="opaque-vault-graphic">
+        <div class="file-pile">
+          <div class="file-item"><i data-lucide="file-text"></i> DBM_Budget_Allocations_2025.pdf (1,245 pages)</div>
+          <div class="file-item"><i data-lucide="file-spreadsheet"></i> DOH_Procurement_Receipts_R4A.csv (Row count: 25,000)</div>
+          <div class="file-item"><i data-lucide="file-archive"></i> COA_Audit_Exceptions_Scanned.pdf (Static scan)</div>
+        </div>
+        <div class="shroud-overlay">
+          <p>CITIZEN DISCOVERY IS BLOCKED</p>
+          <h3>The Opaque Ledger</h3>
+        </div>
+      </div>
+      
+      <div class="problem-card">
+        <div class="problem-pill">
+          <div class="problem-pill-icon"><i data-lucide="database-backup"></i></div>
+          <div class="problem-pill-content">
+            <h4>Siloed Infrastructure</h4>
+            <p>Data scattered across disparate agency sites in completely conflicting structures, blocking end-to-end trace loops.</p>
+          </div>
+        </div>
+        <div class="problem-pill">
+          <div class="problem-pill-icon"><i data-lucide="eye-off"></i></div>
+          <div class="problem-pill-content">
+            <h4>Linear Blind Spots</h4>
+            <p>Allocations can be traced to departments, but disbursement records stop short of private suppliers and specific contracts.</p>
+          </div>
+        </div>
+        <div class="problem-pill">
+          <div class="problem-pill-icon"><i data-lucide="file-signature"></i></div>
+          <div class="problem-pill-content">
+            <h4>The Proof Vacuum</h4>
+            <p>No systematic linking between ledger rows and actual evidentiary documents (invoices, vouchers, COA reports).</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="chrome-footer">
+      <div class="chrome-footer-left"><span>01 / The Scene</span></div>
+      <div class="chrome-footer-right">FlowPH: Transparency Architecture</div>
+    </div>
+  </section>
+
+  <!-- SLIDE 3: DECOUPLED INGESTION AND STORAGE (Proposed System) -->
+  <section class="slide">
+    <div class="chrome-header">
+      <div class="chrome-header-left">
+        <i data-lucide="git-branch" style="width:16px; height:16px;"></i>
+        <span>Pillar 2: Proposed Web-Based Solution Architecture</span>
+      </div>
+      <div class="chrome-header-right">FlowPH Title Defense</div>
+    </div>
+    
+    <h2 style="font-family:var(--heading); font-size:1.8rem; margin-bottom:10px; border-left:3px solid var(--accent-teal); padding-left:15px;">Decoupled Ingestion and Dimension-Agnostic Storage Strategy</h2>
+    
+    <div class="architecture-grid">
+      <div class="arch-card glass-panel">
+        <div class="arch-card-header">
+          <div class="arch-icon"><i data-lucide="filter"></i></div>
+          <h3>Ingestion and Adapters</h3>
+        </div>
+        <div class="arch-body">
+          <p>Acts as a buffer to absorb structural chaos. Special-purpose adapters ingest and normalize scraped raw files (DBM XLS, PhilGEPS CSV, DPWH Portals, COA PDFs) before database insertion, protecting the core storage schema.</p>
+          <div class="db-table">
+            <div class="db-table-header">Raw Scraped Inputs (Chaos)</div>
+            <div class="db-table-fields">
+              <div class="db-field"><span>DBM Budget Spreadsheets</span></div>
+              <div class="db-field"><span>DPWH Project PDF Portals</span></div>
+              <div class="db-field"><span>COA Audit Reports and Scans</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="arch-card glass-panel">
+        <div class="arch-card-header">
+          <div class="arch-icon"><i data-lucide="hard-drive"></i></div>
+          <h3>Resilient Storage Core</h3>
+        </div>
+        <div class="arch-body">
+          <p>Decouples records from rigid government hierarchies using three stable tables (`FLOWS`, `FLOW_DIMENSIONS`, `FLOW_EVIDENCE`). Zero SQL migrations are required when departments re-organize or introduce new reporting metrics.</p>
+          <div class="db-table">
+            <div class="db-table-header">Unified Storage (Dimension-Agnostic)</div>
+            <div class="db-table-fields">
+              <div class="db-field"><span>flows (Vectors)</span></div>
+              <div class="db-field"><span>flow_dimensions (Key-Value Tags)</span></div>
+              <div class="db-field"><span>flow_evidence (Verification Vault)</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="arch-card glass-panel">
+        <div class="arch-card-header">
+          <div class="arch-icon"><i data-lucide="cpu"></i></div>
+          <h3>Translation and Resolver</h3>
+        </div>
+        <div class="arch-body">
+          <p>The Laravel backend resolves dynamic queries at runtime, translating database rows into standardized node-link structures.</p>
+          <div class="arch-item">
+            <strong>Runtime Query Pivot</strong>
+            Aggregates flow volumes and traverses key-value metadata dynamically (e.g. Sector → Agency → Supplier).
+          </div>
+          <div class="arch-item">
+            <strong>D3.js Visualization Feed</strong>
+            Feeds clean JSON arrays directly to client-side visualization components, decoupling the frontend from data origins.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="chrome-footer">
+      <div class="chrome-footer-left"><span>02 / Proposed System</span></div>
+      <div class="chrome-footer-right">FlowPH: Ingestion and Storage Architecture</div>
+    </div>
+  </section>
+
+  <!-- SLIDE 4: WEB FRAMEWORK, SCALE AND PERFORMANCE MAP -->
+  <section class="slide">
+    <div class="chrome-header">
+      <div class="chrome-header-left">
+        <i data-lucide="table" style="width:16px; height:16px;"></i>
+        <span>Pillar 3: Web Framework and Performance Map</span>
+      </div>
+      <div class="chrome-header-right">FlowPH Title Defense</div>
+    </div>
+    
+    <h2 style="font-family:var(--heading); font-size:1.8rem; margin-bottom:20px; border-left:3px solid var(--accent-teal); padding-left:15px;">System Scaling and Technology Integration</h2>
+    
+    <div class="glass-panel" style="padding:0; overflow:hidden; margin-top:auto; margin-bottom:auto;">
+      <table class="comp-table">
+        <thead>
+          <tr>
+            <th>System Layer</th>
+            <th>Selected Technology</th>
+            <th>Strategic Capability and Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>API and Security</strong></td>
+            <td><strong>Laravel (PHP)</strong></td>
+            <td>Manages secure department API gates, source origin validation, and bulk ingestion queue workers.</td>
+          </tr>
+          <tr>
+            <td><strong>Transaction Engine</strong></td>
+            <td><strong>PostgreSQL</strong></td>
+            <td>Performs dynamic dimension grouping using composite index queries and stores raw JSONB payloads for data audits.</td>
+          </tr>
+          <tr>
+            <td><strong>Concurrency and Cache</strong></td>
+            <td><strong>Redis</strong></td>
+            <td>Asynchronously processes large scraped batches in background jobs and caches pre-computed aggregates for sub-100ms loads.</td>
+          </tr>
+          <tr>
+            <td><strong>Visual Canvas</strong></td>
+            <td><strong>D3.js / Vanilla JS</strong></td>
+            <td>Renders multi-tiered Sankey diagrams client-side, enabling smooth interactive drill-downs and animations in the browser.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="chrome-footer">
+      <div class="chrome-footer-left"><span>03 / Component Map</span></div>
+      <div class="chrome-footer-right">FlowPH: Scaling and Technology Integration</div>
+    </div>
+  </section>
+
+  <!-- SLIDE 5: GOVERNANCE AND VERIFICATION SIMULATOR (Rigor) -->
+  <section class="slide">
+    <div class="chrome-header">
+      <div class="chrome-header-left">
+        <i data-lucide="activity" style="width:16px; height:16px;"></i>
+        <span>Pillar 4: Governance and Transparency Mechanics</span>
+      </div>
+      <div class="chrome-header-right">FlowPH Title Defense</div>
+    </div>
+    
+    <div class="playground-grid">
+      <!-- Left Panel: Flow diagram -->
+      <div class="glass-panel col">
+        <div class="control-bar">
+          <span style="font-family:var(--mono); font-size:0.8rem; color:var(--primary-gold); align-self:center; margin-right:10px;">Pivot Dimension:</span>
+          <button class="control-btn active" id="btn-sector" onclick="switchDimension('sector')">Sector Focus</button>
+          <button class="control-btn" id="btn-agency" onclick="switchDimension('agency')">Agency Focus</button>
+          <button class="control-btn" id="btn-vendor" onclick="switchDimension('vendor')">Supplier Focus</button>
+        </div>
+        
+        <div class="flow-diagram-container">
+          <svg class="flow-svg" id="flow-svg">
+            <!-- Connection Paths -->
+            <path class="flow-path active" id="path-1" d="M 50,150 Q 150,80 250,80" />
+            <path class="flow-path active" id="path-2" d="M 50,150 Q 150,220 250,220" />
+            <path class="flow-path active" id="path-3" d="M 250,80 Q 350,80 450,80" />
+            <path class="flow-path active" id="path-4" d="M 250,220 Q 350,220 450,220" />
+            
+            <!-- Nodes (Drill-down interactive elements) -->
+            <!-- Root -->
+            <g id="node-root" onclick="selectNode('root')">
+              <rect class="flow-node highlighted" x="10" y="120" width="80" height="60" />
+              <text class="flow-node-text" x="50" y="145">Citizen Taxes</text>
+              <text class="flow-node-subtext" x="50" y="162">₱100M</text>
+            </g>
+            
+            <!-- Mid Level 1 -->
+            <g id="node-mid-1" onclick="selectNode('mid-1')">
+              <rect class="flow-node" x="210" y="50" width="80" height="60" />
+              <text class="flow-node-text" x="250" y="75" id="node-mid-1-text">Social</text>
+              <text class="flow-node-subtext" x="250" y="92" id="node-mid-1-val">₱60M</text>
+            </g>
+            <g id="node-mid-2" onclick="selectNode('mid-2')">
+              <rect class="flow-node" x="210" y="190" width="80" height="60" />
+              <text class="flow-node-text" x="250" y="215" id="node-mid-2-text">Infra</text>
+              <text class="flow-node-subtext" x="250" y="232" id="node-mid-2-val">₱40M</text>
+            </g>
+            
+            <!-- End Level -->
+            <g id="node-end-1" onclick="selectNode('end-1')">
+              <rect class="flow-node" x="410" y="50" width="80" height="60" />
+              <text class="flow-node-text" x="450" y="75" id="node-end-1-text">PharmaCorp</text>
+              <text class="flow-node-subtext" x="450" y="92" id="node-end-1-val">₱60M</text>
+            </g>
+            <g id="node-end-2" onclick="selectNode('end-2')">
+              <rect class="flow-node" x="410" y="190" width="80" height="60" />
+              <text class="flow-node-text" x="450" y="215" id="node-end-2-text">ABC Const.</text>
+              <text class="flow-node-subtext" x="450" y="232" id="node-end-2-val">₱40M</text>
+            </g>
+          </svg>
+        </div>
+      </div>
+      
+      <!-- Right Panel: Ledger Table + Evidence Vault Details -->
+      <div class="vault-panel">
+        <div class="glass-panel vault-card" style="padding: 20px; display: flex; flex-direction: column; justify-content: flex-start; min-height: 480px;">
+          <!-- Slide 5 Tab Bar -->
+          <div style="display: flex; gap: 8px; margin-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 8px; flex-shrink: 0;">
+            <button class="control-btn active" id="tab-btn-ledger" onclick="switchVaultTab('ledger')" style="font-size:0.75rem; padding: 6px 12px; flex: 1; text-align: center; border-radius: 4px; border: 1px solid transparent; background: transparent; cursor: pointer; transition: all 0.2s;">
+              <i data-lucide="shield-check" style="width:12px; height:12px; vertical-align:middle; margin-right:4px;"></i> Live Ledger
+            </button>
+            <button class="control-btn" id="tab-btn-staging" onclick="switchVaultTab('staging')" style="font-size:0.75rem; padding: 6px 12px; flex: 1; text-align: center; border-radius: 4px; border: 1px solid transparent; background: transparent; cursor: pointer; transition: all 0.2s; position: relative;">
+              <i data-lucide="server-crash" style="width:12px; height:12px; vertical-align:middle; margin-right:4px;"></i> Staging Sandbox
+              <span id="staging-alert-dot" style="display:none; position:absolute; top:4px; right:4px; width:6px; height:6px; background:var(--warning-amber); border-radius:50%;"></span>
+            </button>
+          </div>
+
+          <!-- TAB 1: LIVE LEDGER AND CITIZEN WATCHDOGS -->
+          <div id="tab-content-ledger" style="display: flex; flex-direction: column; height: calc(100% - 40px); overflow-y: auto;">
+            <table class="vault-ledger-table" style="margin-bottom: 10px;">
+              <thead>
+                <tr>
+                  <th>Flow ID</th>
+                  <th>Supplier / Destination</th>
+                  <th>Amount</th>
+                  <th>State</th>
+                </tr>
+              </thead>
+              <tbody id="ledger-rows-body">
+                <tr id="row-0" class="active" onclick="selectLedgerRow(0)">
+                  <td>FLOW-001</td>
+                  <td id="led-vendor-0">PharmaCorp</td>
+                  <td>₱60,000,000</td>
+                  <td><span class="status-indicator verified" id="badge-0">VERIFIED</span></td>
+                </tr>
+                <tr id="row-1" onclick="selectLedgerRow(1)">
+                  <td>FLOW-002</td>
+                  <td id="led-vendor-1">ABC Construction</td>
+                  <td>₱40,000,000</td>
+                  <td><span class="status-indicator verified" id="badge-1">VERIFIED</span></td>
+                </tr>
+              </tbody>
+            </table>
+            
+            <!-- Detailed Card showing verification indicators -->
+            <div id="evidence-details-card" style="display: flex; flex-direction: column; gap: 6px; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.03); border-radius: 6px; padding: 10px;">
+              <div class="vault-card-row">
+                <span>Transaction ID:</span>
+                <strong id="card-flow-id">FLOW-001</strong>
+              </div>
+              <div class="vault-card-row">
+                <span>Destination Entity:</span>
+                <strong id="card-vendor">PharmaCorp</strong>
+              </div>
+              <div class="vault-card-row">
+                <span>Receipt Upload:</span>
+                <span id="card-receipt-state" style="color:var(--success-green); font-weight:600;"><i data-lucide="check" style="width:12px; height:12px; vertical-align:middle;"></i> Uploaded</span>
+              </div>
+              <div class="vault-card-row">
+                <span>Document Hash:</span>
+                <span id="card-hash" style="color:var(--accent-teal); font-family:var(--mono);">e3b0c442...5991b785</span>
+              </div>
+              <div class="vault-card-row">
+                <span>COA Audit Exceptions:</span>
+                <span id="card-coa-state" style="color:var(--success-green); font-weight:600;">None Detected</span>
+              </div>
+              
+              <!-- AI Watchdog Diagnostics Panel -->
+              <div style="margin-top: 4px; padding: 8px; background: rgba(20, 184, 166, 0.03); border: 1px solid rgba(20, 184, 166, 0.15); border-radius: 4px;">
+                <div style="font-family:var(--mono); font-size:0.65rem; color:var(--accent-teal); display:flex; align-items:center; gap:4px; margin-bottom:2px; font-weight: 600;">
+                  <i data-lucide="brain" style="width:11px; height:11px;"></i>
+                  <span>AI WATCHDOG DIAGNOSIS</span>
+                </div>
+                <div id="watchdog-anomalies-list" style="font-size:0.68rem; color:var(--text-muted); line-height: 1.25; font-family: var(--mono);">
+                  Scan complete. No standard pricing anomalies detected. Relational linkages verified.
+                </div>
+              </div>
+              
+              <div class="vault-card-actions" style="margin-top: 6px;">
+                <button class="vault-action-btn" id="btn-toggle-receipt" onclick="toggleReceiptState()">
+                  <i data-lucide="file-minus" style="width:12px; height:12px;"></i> Delete Receipt
+                </button>
+                <button class="vault-action-btn" id="btn-toggle-coa" onclick="toggleCoaState()">
+                  <i data-lucide="flag" style="width:12px; height:12px;"></i> Flag COA Exception
+                </button>
+                <button class="vault-action-btn" id="btn-dossier" onclick="compileCoadossier()" style="background: rgba(212,175,55,0.08); border-color: rgba(212,175,55,0.2); color: var(--primary-gold);">
+                  <i data-lucide="file-text" style="width:12px; height:12px;"></i> COA Dossier
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB 2: INGESTION STAGING SANDBOX -->
+          <div id="tab-content-staging" style="display:none; flex-direction:column; height: calc(100% - 40px); justify-content:space-between;">
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-family:var(--mono); font-size:0.75rem; color:var(--text-muted);">Ingestion Pipeline Sandbox</span>
+                <span class="status-indicator unverified" id="staging-status-badge" style="font-size:0.6rem;">Idle</span>
+              </div>
+
+              <!-- Simulator Trigger Buttons -->
+              <div style="display:flex; gap:6px;">
+                <button class="vault-action-btn" onclick="triggerScraperSim('lgu')" style="background:rgba(245,158,11,0.06); border-color:rgba(245,158,11,0.2); color:var(--warning-amber); padding: 8px;">
+                  <i data-lucide="scan" style="width:12px; height:12px;"></i> Run LGU Scraper
+                </button>
+                <button class="vault-action-btn" onclick="triggerScraperSim('api')" style="background:rgba(56,189,248,0.06); border-color:rgba(56,189,248,0.2); color:#38bdf8; padding: 8px;">
+                  <i data-lucide="webhook" style="width:12px; height:12px;"></i> API Webhook Push
+                </button>
+              </div>
+
+              <!-- Staging Ledger View -->
+              <div id="staging-diff-container" style="background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.05); border-radius:6px; padding:10px; font-size:0.7rem; min-height: 180px; display: flex; flex-direction: column; justify-content: center;">
+                <div style="text-align:center; color:var(--text-muted); padding:20px 0;">
+                  <i data-lucide="inbox" style="width:28px; height:28px; margin-bottom:8px; opacity:0.3; display:block; margin-left:auto; margin-right:auto;"></i>
+                  Sandbox empty.<br>Run LGU scraper or API webhook push to ingest pending financial data.
+                </div>
+              </div>
+            </div>
+
+            <div id="staging-actions-bar" style="display:none; gap:6px; margin-top:10px;">
+              <button class="vault-action-btn" onclick="discardStaging()" style="border-color:rgba(239,68,68,0.3); color:var(--danger-crimson); flex: 0.3;">
+                Discard
+              </button>
+              <button class="vault-action-btn active-upload" onclick="commitStagingDiff()" style="font-weight:600; flex: 0.7;">
+                <i data-lucide="database" style="width:12px; height:12px;"></i> Commit Staged Update
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Terminal logs bottom -->
+    <div class="terminal-logs" id="terminal-logs">[00:00:00.00] System Initialized. Dynamic Dimension Resolver stands by...</div>
+
+    <div class="chrome-footer">
+      <div class="chrome-footer-left"><span>04 / Interactive Simulator</span></div>
+      <div class="chrome-footer-right">FlowPH: Governance Engine</div>
+    </div>
+  </section>
+
+  <!-- SLIDE 6: SCOPE, ROADMAP AND DIFFICULTY (Execution) -->
+  <section class="slide">
+    <div class="chrome-header">
+      <div class="chrome-header-left">
+        <i data-lucide="check-square" style="width:16px; height:16px;"></i>
+        <span>Pillar 5: Project Roadmap and Limits</span>
+      </div>
+      <div class="chrome-header-right">FlowPH Title Defense</div>
+    </div>
+    
+    <div class="grid-2" style="margin-top:auto; margin-bottom:auto;">
+      <div class="boundaries-panel glass-panel">
+        <h3 style="font-family:var(--heading); font-size:1.4rem; color:var(--primary-gold); margin-bottom:10px;">Project Scope Boundaries</h3>
+        <div class="boundary-block">
+          <h4>In Scope</h4>
+          <ul style="font-size:0.75rem; line-height:1.4;">
+            <li>Unified 3-table relational schema (Flows, Dimensions, Evidence)</li>
+            <li>Dynamic dimension resolver logic for multi-tier pivot querying</li>
+            <li>Interactive D3.js/SVG Sankey visual exploration engine</li>
+            <li>Ingestion Staging Sandbox and Review dashboard with visual diffs</li>
+            <li>Legacy hash-based HTML scrapers (for low-funded LGU portals)</li>
+            <li>Partner DBM webhook API gates with signature key validation</li>
+            <li>AI Watchdog anomaly detection triggers (pricing and velocity checks)</li>
+            <li>Evidence Vault with local SHA-256 cryptographic hashing</li>
+          </ul>
+        </div>
+        <div class="boundary-block out-scope">
+          <h4>Out of Scope</h4>
+          <ul style="font-size:0.75rem; line-height:1.4;">
+            <li>Automated PDF OCR scanned text recognition pipelines</li>
+            <li>Real-time bank clearing hooks or automated disbursement holds</li>
+            <li>Consensus blockchain ledgers and public transaction networks</li>
+          </ul>
+        </div>
+      </div>
+      
+      <div class="boundaries-panel glass-panel col">
+        <h3 style="font-family:var(--heading); font-size:1.4rem; color:var(--primary-gold); margin-bottom:10px;">Execution Roadmap</h3>
+        <div class="roadmap-panel">
+          <div class="roadmap-step">
+            <div class="roadmap-num">1</div>
+            <div class="roadmap-details">
+              <h5>Ingestion and API Gates (Weeks 1-4)</h5>
+              <p>Setup database schemas, synonym mapping, legacy scrapers, partner webhooks, and the staging review sandbox panel.</p>
+            </div>
+          </div>
+          <div class="roadmap-step">
+            <div class="roadmap-num">2</div>
+            <div class="roadmap-details">
+              <h5>Resolver and Viz (Weeks 5-8)</h5>
+              <p>Build dynamic SQL dimension translation engine and integrate responsive client-side Sankey explorer visualization.</p>
+            </div>
+          </div>
+          <div class="roadmap-step">
+            <div class="roadmap-num">3</div>
+            <div class="roadmap-details">
+              <h5>Watchdogs and Evidence (Weeks 9-12)</h5>
+              <p>Implement AI anomaly detection rules, evidence hashing upload pipelines, and the AI COA dossier compiler.</p>
+            </div>
+          </div>
+        </div>
+        <div style="margin-top:15px; font-family:var(--mono); font-size:0.72rem; background:rgba(212,175,55,0.05); border: 1px dashed rgba(212,175,55,0.2); padding:10px; border-radius:6px; color:var(--primary-gold); line-height:1.35;">
+          <strong>Difficulty Rating: High (Capability Confirmed)</strong><br>
+          <span style="color:var(--text-muted);">Key Challenges:</span> Dynamic SQL join optimization, AI anomaly classification accuracy, and file integrity validation under heavy transactional load.
+        </div>
+      </div>
+    </div>
+
+    <div class="chrome-footer">
+      <div class="chrome-footer-left"><span>05 / Execution Scope</span></div>
+      <div class="chrome-footer-right">FlowPH: Transparency Architecture</div>
+    </div>
+  </section>
+
+</div>
+
+<!-- Deck controls and dots indicators -->
+<div class="deck-controls">
+  <button class="nav-arrow-btn" onclick="prevSlide()"><i data-lucide="chevron-left" style="width:18px; height:18px;"></i></button>
+  <div class="flex gap-10" id="dots-container"></div>
+  <button class="nav-arrow-btn" onclick="nextSlide()"><i data-lucide="chevron-right" style="width:18px; height:18px;"></i></button>
+  <button class="fullscreen-btn" onclick="toggleFullscreen()"><i data-lucide="maximize-2" style="width:16px; height:16px;"></i></button>
+  <span style="font-family:var(--mono); font-size:0.75rem; color:var(--accent-teal); margin-left:15px;" id="timer-display">00:00</span>
+</div>
+
+<script>
+// Initialize Lucide icons
+lucide.createIcons();
+
+// =========================================================================
+// PRESENTATION NAV DECK LOGIC
+// =========================================================================
+let currentSlide = 0;
+const totalSlides = 6;
+const deck = document.getElementById('deck');
+const dotsContainer = document.getElementById('dots-container');
+
+// Create dot indicators
+for (let i = 0; i < totalSlides; i++) {
+  const dot = document.createElement('div');
+  dot.className = `dot-indicator ${i === 0 ? 'active' : ''}`;
+  dot.addEventListener('click', () => {
+    currentSlide = i;
+    updateSlide();
+  });
+  dotsContainer.appendChild(dot);
+}
+
+function updateSlide() {
+  deck.style.transform = `translateX(-${currentSlide * 100}vw)`;
+  
+  // Update active dots
+  const dots = dotsContainer.children;
+  for (let i = 0; i < dots.length; i++) {
+    dots[i].className = `dot-indicator ${i === currentSlide ? 'active' : ''}`;
+  }
+}
+
+function nextSlide() {
+  if (currentSlide < totalSlides - 1) {
+    currentSlide++;
+    updateSlide();
+  }
+}
+
+function prevSlide() {
+  if (currentSlide > 0) {
+    currentSlide--;
+    updateSlide();
+  }
+}
+
+// Keyboard controls
+window.addEventListener('keydown', (e) => {
+  if (e.target.tagName === 'TEXTAREA' || e.target.tagName === 'INPUT') return;
+  
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') {
+    e.preventDefault();
+    nextSlide();
+  } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+    e.preventDefault();
+    prevSlide();
+  }
+});
+
+// Presentation Timer
+let secondsElapsed = 0;
+setInterval(() => {
+  secondsElapsed++;
+  const mins = Math.floor(secondsElapsed / 60).toString().padStart(2, '0');
+  const secs = (secondsElapsed % 60).toString().padStart(2, '0');
+  document.getElementById('timer-display').innerText = `${mins}:${secs}`;
+}, 1000);
+
+function toggleFullscreen() {
+  if (!document.fullscreenElement) {
+    document.documentElement.requestFullscreen().catch(err => {
+      console.log(`Error attempting to enable fullscreen: ${err.message}`);
+    });
+  } else {
+    document.exitFullscreen();
+  }
+}
+
+// =========================================================================
+// BACKGROUND PARTICLE ENGINE (Drifting vectors left-to-right)
+// =========================================================================
+const canvas = document.getElementById('bg-canvas');
+const ctx = canvas.getContext('2d');
+let particles = [];
+const particleCount = 50;
+
+function resizeCanvas() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas();
+
+class Particle {
+  constructor() {
+    this.reset(true);
+  }
+  
+  reset(initRandom = false) {
+    this.x = initRandom ? Math.random() * canvas.width : -10;
+    this.y = Math.random() * canvas.height;
+    this.size = Math.random() * 2 + 1;
+    this.speedX = Math.random() * 0.6 + 0.2; // Move rightward
+    this.speedY = (Math.random() - 0.5) * 0.1;
+    this.color = Math.random() > 0.5 ? 'rgba(20, 184, 166, 0.25)' : 'rgba(212, 175, 55, 0.25)';
+  }
+  
+  update() {
+    this.x += this.speedX;
+    this.y += this.speedY;
+    
+    // Reset if out of bounds (wrapped around left-to-right)
+    if (this.x > canvas.width + 10) {
+      this.reset(false);
+    }
+  }
+  
+  draw() {
+    ctx.fillStyle = this.color;
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+    ctx.fill();
+  }
+}
+
+// Initialize particles
+for (let i = 0; i < particleCount; i++) {
+  particles.push(new Particle());
+}
+
+function drawConnections() {
+  for (let a = 0; a < particles.length; a++) {
+    for (let b = a + 1; b < particles.length; b++) {
+      let dx = particles[a].x - particles[b].x;
+      let dy = particles[a].y - particles[b].y;
+      let distance = Math.sqrt(dx * dx + dy * dy);
+      
+      if (distance < 150) {
+        let alpha = (1 - (distance / 150)) * 0.08;
+        ctx.strokeStyle = `rgba(20, 184, 166, ${alpha})`;
+        ctx.lineWidth = 0.5;
+        ctx.beginPath();
+        ctx.moveTo(particles[a].x, particles[a].y);
+        ctx.lineTo(particles[b].x, particles[b].y);
+        ctx.stroke();
+      }
+    }
+  }
+}
+
+function animateBackground() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  
+  particles.forEach(p => {
+    p.update();
+    p.draw();
+  });
+  
+  drawConnections();
+  requestAnimationFrame(animateBackground);
+}
+animateBackground();
+
+// =========================================================================
+// PLAYGROUND INTERACTIVE SIMULATORS LOGIC
+// =========================================================================
+
+// Terminal logger utility
+function writeLog(message, type = 'info') {
+  const terminal = document.getElementById('terminal-logs');
+  const now = new Date();
+  const timeStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}.${(now.getMilliseconds()/10).toFixed(0).padStart(2, '0')}`;
+  
+  let color = '#10b981'; // Green for info
+  if (type === 'warn') color = '#fbbf24'; // Yellow for warnings
+  if (type === 'danger') color = '#f87171'; // Red for errors
+  if (type === 'sql') color = '#38bdf8'; // Blue for sql statements
+  
+  terminal.innerHTML = `<span style="color:var(--text-muted)">[${timeStr}]</span> <span style="color:${color}">${message}</span>`;
+  terminal.scrollTop = terminal.scrollHeight;
+}
+
+// 1. DIMENSION PIVOT EXPLORER
+const dimensionData = {
+  sector: {
+    mid1: { text: "Social Serv.", val: "₱60M" },
+    mid2: { text: "Infrastructure", val: "₱40M" },
+    end1: { text: "Health Projects", val: "₱60M" },
+    end2: { text: "Road Projects", val: "₱40M" },
+    led0Vendor: "Health Projects Group",
+    led1Vendor: "Road Projects Group"
+  },
+  agency: {
+    mid1: { text: "DOH (Health)", val: "₱60M" },
+    mid2: { text: "DPWH (Works)", val: "₱40M" },
+    end1: { text: "Vaccination", val: "₱40M" },
+    end2: { text: "Road Widening", val: "₱30M" },
+    led0Vendor: "DOH Vaccination",
+    led1Vendor: "DPWH Road Widening"
+  },
+  vendor: {
+    mid1: { text: "Vaccine Fund", val: "₱40M" },
+    mid2: { text: "Road Contract", val: "₱30M" },
+    end1: { text: "PharmaCorp", val: "₱40M" },
+    end2: { text: "ABC Construction", val: "₱30M" },
+    led0Vendor: "PharmaCorp",
+    led1Vendor: "ABC Construction"
+  }
+};
+
+let currentDimension = 'sector';
+
+function switchDimension(dim) {
+  currentDimension = dim;
+  
+  // Update buttons
+  document.getElementById('btn-sector').className = 'control-btn' + (dim === 'sector' ? ' active' : '');
+  document.getElementById('btn-agency').className = 'control-btn' + (dim === 'agency' ? ' active' : '');
+  document.getElementById('btn-vendor').className = 'control-btn' + (dim === 'vendor' ? ' active' : '');
+  
+  // Update node texts
+  const data = dimensionData[dim];
+  document.getElementById('node-mid-1-text').textContent = data.mid1.text;
+  document.getElementById('node-mid-1-val').textContent = data.mid1.val;
+  document.getElementById('node-mid-2-text').textContent = data.mid2.text;
+  document.getElementById('node-mid-2-val').textContent = data.mid2.val;
+  
+  document.getElementById('node-end-1-text').textContent = data.end1.text;
+  document.getElementById('node-end-1-val').textContent = data.end1.val;
+  document.getElementById('node-end-2-text').textContent = data.end2.text;
+  document.getElementById('node-end-2-val').textContent = data.end2.val;
+
+  // Update ledger vendor names to match
+  document.getElementById('led-vendor-0').textContent = data.led0Vendor;
+  document.getElementById('led-vendor-1').textContent = data.led1Vendor;
+  
+  // Update detail card if selected
+  updateDetailsCard();
+  
+  // Logs
+  writeLog(`DIMENSION RESOLVER: Pivot recalculated focus to '${dim.toUpperCase()}'.`, 'info');
+  writeLog(`SQL Query generated: SELECT sum(amount), d.dimension_value FROM flows JOIN flow_dimensions d GROUP BY d.dimension_value HAVING type = '${dim}'`, 'sql');
+}
+
+let activeNode = 'root';
+function selectNode(nodeId) {
+  activeNode = nodeId;
+  // Clear highlighting
+  const nodes = document.querySelectorAll('.flow-node');
+  nodes.forEach(n => n.classList.remove('highlighted'));
+  
+  // Highlight chosen node
+  const chosen = document.querySelector(`#node-${nodeId} rect`);
+  chosen.classList.add('highlighted');
+  
+  // Logs
+  const nodeText = document.querySelector(`#node-${nodeId} .flow-node-text`).textContent;
+  const nodeVal = document.querySelector(`#node-${nodeId} .flow-node-subtext`).textContent;
+  writeLog(`RESOLVER ACTION: Drilled into Node '${nodeText}' (${nodeVal}). Filter conditions updated.`, 'info');
+}
+
+// 2. GOVERNANCE AND VERIFICATION LEDGER and STAGING SANDBOX
+const flowsState = [
+  {
+    id: "FLOW-001",
+    vendor: "PharmaCorp",
+    amount: "₱60,000,000",
+    hasReceipt: true,
+    hasCoaException: false,
+    hash: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    id: "FLOW-002",
+    vendor: "ABC Construction",
+    amount: "₱40,000,000",
+    hasReceipt: true,
+    hasCoaException: false,
+    hash: "6472fa12bcde09852fcd8810245a49fb27ae41e4649b934ca495991b785e2b8b"
+  }
+];
+
+let activeLedgerIdx = 0;
+let pendingUpdate = null;
+
+function switchVaultTab(tab) {
+  const btnLedger = document.getElementById('tab-btn-ledger');
+  const btnStaging = document.getElementById('tab-btn-staging');
+  const contentLedger = document.getElementById('tab-content-ledger');
+  const contentStaging = document.getElementById('tab-content-staging');
+  
+  if (tab === 'ledger') {
+    btnLedger.classList.add('active');
+    btnStaging.classList.remove('active');
+    contentLedger.style.display = 'flex';
+    contentStaging.style.display = 'none';
+  } else {
+    btnLedger.classList.remove('active');
+    btnStaging.classList.add('active');
+    contentLedger.style.display = 'none';
+    contentStaging.style.display = 'flex';
+    document.getElementById('staging-alert-dot').style.display = 'none';
+  }
+  lucide.createIcons();
+}
+
+function triggerScraperSim(type) {
+  const statusBadge = document.getElementById('staging-status-badge');
+  const container = document.getElementById('staging-diff-container');
+  const actionsBar = document.getElementById('staging-actions-bar');
+  
+  if (type === 'lgu') {
+    pendingUpdate = {
+      id: "FLOW-003",
+      vendor: "Apex Tech Solutions",
+      amount: "₱5,000,000",
+      hasReceipt: false,
+      hasCoaException: true,
+      hash: "3a91e5e098aef223de1b9fcf8810245a49fb27ae41e4649b934ca495991b8a5b",
+      details: {
+        type: "scraper",
+        source: "Mlang Municipality Portal (Legacy HTML Scraper)",
+        anomalies: "AI WATCHDOG ALERT: Shell corporate pattern detected (registered 2 days ago). 300% Unit Price Markup on laptop items (₱180k vs ₱45k average)."
+      }
+    };
+    writeLog("SCRAPER ADAPTER: Pull completed from LGU site. Content hash mismatch detected. Writing staging update...", "warn");
+  } else if (type === 'api') {
+    pendingUpdate = {
+      id: "FLOW-004",
+      vendor: "Vanguard Steel Corp",
+      amount: "₱31,000,000",
+      hasReceipt: true,
+      hasCoaException: false,
+      hash: "8f72c1bcde09a852fcd8810245a49fb27ae41e4649b934ca495991b785e2b8b9",
+      details: {
+        type: "api",
+        source: "DBM Webhook Gateway (Secure Partner API Key)",
+        anomalies: "Scan complete. Webhook digital signature matches DBM public key. No anomalies detected."
+      }
+    };
+    writeLog("INGESTION GATE: API Webhook received transaction token from DBM. Authenticated successfully.", "info");
+  }
+  
+  statusBadge.textContent = "STAGED DEVIATION";
+  statusBadge.className = "status-indicator partial";
+  document.getElementById('staging-alert-dot').style.display = 'block';
+  
+  container.innerHTML = `
+    <div style="display:flex; flex-direction:column; gap:6px;">
+      <div style="border-bottom:1px solid rgba(255,255,255,0.06); padding-bottom:4px; font-weight:600; color:var(--primary-gold); font-size:0.75rem;">
+        Staging Queue (Diff Report)
+      </div>
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:6px; margin-bottom: 4px;">
+        <div>
+          <span style="color:var(--text-muted); display:block; font-size:0.58rem; font-family:var(--mono);">INLET TYPE:</span>
+          <strong style="font-size:0.65rem;">${pendingUpdate.details.type.toUpperCase()} Adapter</strong>
+        </div>
+        <div>
+          <span style="color:var(--text-muted); display:block; font-size:0.58rem; font-family:var(--mono);">SOURCE:</span>
+          <span style="color:var(--accent-teal); font-size:0.62rem; word-break:break-all;">${pendingUpdate.details.source}</span>
+        </div>
+      </div>
+      
+      <div style="padding:6px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.05); border-radius:4px;">
+        <table style="width:100%; border-collapse:collapse; font-size:0.65rem;">
+          <tr>
+            <td style="color:var(--text-muted); padding:2px 0;">Staged Flow ID</td>
+            <td style="text-align:right; font-weight:600; color:var(--primary-gold); font-family:var(--mono);">${pendingUpdate.id}</td>
+          </tr>
+          <tr>
+            <td style="color:var(--text-muted); padding:2px 0;">Contractor</td>
+            <td style="text-align:right; font-weight:600;">${pendingUpdate.vendor}</td>
+          </tr>
+          <tr>
+            <td style="color:var(--text-muted); padding:2px 0;">Disbursement</td>
+            <td style="text-align:right; font-weight:600; color:var(--accent-teal);">${pendingUpdate.amount}</td>
+          </tr>
+        </table>
+      </div>
+      
+      <div style="font-size:0.6rem; color:var(--warning-amber); line-height:1.2; font-family:var(--mono); border:1px dashed rgba(245,158,11,0.2); padding: 4px; border-radius:3px; margin-top:2px;">
+        <i data-lucide="alert-circle" style="width:10px; height:10px; vertical-align:middle;"></i> Ready to resolve schemas and audit upon database commit.
+      </div>
+    </div>
+  `;
+  
+  actionsBar.style.display = 'flex';
+  lucide.createIcons();
+}
+
+function discardStaging() {
+  pendingUpdate = null;
+  const statusBadge = document.getElementById('staging-status-badge');
+  const container = document.getElementById('staging-diff-container');
+  const actionsBar = document.getElementById('staging-actions-bar');
+  
+  statusBadge.textContent = "Idle";
+  statusBadge.className = "status-indicator unverified";
+  document.getElementById('staging-alert-dot').style.display = 'none';
+  
+  container.innerHTML = `
+    <div style="text-align:center; color:var(--text-muted); padding:20px 0;">
+      <i data-lucide="inbox" style="width:28px; height:28px; margin-bottom:8px; opacity:0.3; display:block; margin-left:auto; margin-right:auto;"></i>
+      Sandbox empty.<br>Run LGU scraper or API webhook push to ingest pending financial data.
+    </div>
+  `;
+  actionsBar.style.display = 'none';
+  writeLog("INGESTION GATE: Staging sandbox cleared. Pending updates discarded.", "info");
+  lucide.createIcons();
+}
+
+function commitStagingDiff() {
+  if (!pendingUpdate) return;
+  
+  // Prevent duplicate additions
+  if (flowsState.some(f => f.id === pendingUpdate.id)) {
+    writeLog("INGESTION ERROR: Transaction already committed.", "danger");
+    discardStaging();
+    return;
+  }
+  
+  const toCommit = pendingUpdate;
+  flowsState.push(toCommit);
+  const newIdx = flowsState.length - 1;
+  
+  // Extend dimensionData mappings
+  if (toCommit.id === 'FLOW-003') {
+    dimensionData.sector.led2Vendor = "Apex Tech Solutions";
+    dimensionData.agency.led2Vendor = "DepEd Laptops";
+    dimensionData.vendor.led2Vendor = "Apex Tech Solutions";
+    writeLog("RESOLVER: Dimension synonym resolver auto-mapped 'Apex Tech' -> Sector: Social Serv, Agency: DepEd.", "sql");
+  } else if (toCommit.id === 'FLOW-004') {
+    // We already have index 2 for FLOW-003, so FLOW-004 is index 3
+    dimensionData.sector.led3Vendor = "Vanguard Steel Corp";
+    dimensionData.agency.led3Vendor = "DPWH Steel Supply";
+    dimensionData.vendor.led3Vendor = "Vanguard Steel Corp";
+    writeLog("RESOLVER: Dimension synonym resolver auto-mapped 'Vanguard Steel' -> Sector: Infra, Agency: DPWH.", "sql");
+  }
+  
+  writeLog(`DATABASE COMMIT: Staged transaction ${toCommit.id} merged into live ledger successfully.`, "info");
+  writeLog(`AI WATCHDOG: Running exception rules and registry speed heuristic scans...`, "info");
+  
+  setTimeout(() => {
+    if (toCommit.id === 'FLOW-003') {
+      writeLog(`AI WATCHDOG ALERT: Risk Flag Raised! Shell company registered 2 days ago + 300% Laptop markup!`, "danger");
+    } else {
+      writeLog(`AI WATCHDOG: Integrity verify PASSED. Webhook signature validated against public key.`, "info");
+    }
+    
+    // Render and select
+    activeLedgerIdx = newIdx;
+    renderLedger();
+    selectLedgerRow(newIdx);
+    
+    // Switch view back to ledger
+    switchVaultTab('ledger');
+    
+    // Visual trigger in SVG flow diagram
+    if (toCommit.id === 'FLOW-003') {
+      document.getElementById('path-4').className = 'flow-path flagged';
+      document.querySelector('#node-end-2 rect').classList.add('highlighted');
+    } else if (toCommit.id === 'FLOW-004') {
+      document.getElementById('path-3').className = 'flow-path active';
+      document.querySelector('#node-end-1 rect').classList.add('highlighted');
+    }
+  }, 650);
+  
+  // Clear staging state
+  discardStaging();
+}
+
+function renderLedger() {
+  const tbody = document.getElementById('ledger-rows-body');
+  tbody.innerHTML = '';
+  
+  flowsState.forEach((flow, idx) => {
+    let badgeText = "VERIFIED";
+    let badgeClass = "status-indicator verified";
+    if (flow.hasCoaException) {
+      badgeText = "FLAGGED";
+      badgeClass = "status-indicator flagged";
+    } else if (!flow.hasReceipt) {
+      badgeText = "PARTIAL";
+      badgeClass = "status-indicator partial";
+    }
+    
+    const tr = document.createElement('tr');
+    tr.id = `row-${idx}`;
+    if (idx === activeLedgerIdx) tr.className = 'active';
+    tr.onclick = () => selectLedgerRow(idx);
+    
+    const dimData = dimensionData[currentDimension];
+    let displayName = flow.vendor;
+    if (idx === 0) displayName = dimData.led0Vendor;
+    else if (idx === 1) displayName = dimData.led1Vendor;
+    else if (idx === 2) displayName = dimData.led2Vendor || flow.vendor;
+    else if (idx === 3) displayName = dimData.led3Vendor || flow.vendor;
+    
+    tr.innerHTML = `
+      <td>${flow.id}</td>
+      <td id="led-vendor-${idx}">${displayName}</td>
+      <td>${flow.amount}</td>
+      <td><span class="${badgeClass}" id="badge-${idx}">${badgeText}</span></td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function selectLedgerRow(idx) {
+  activeLedgerIdx = idx;
+  
+  // Highlight active row in DOM
+  const rows = document.querySelectorAll('#ledger-rows-body tr');
+  rows.forEach((row, i) => {
+    if (i === idx) {
+      row.classList.add('active');
+    } else {
+      row.classList.remove('active');
+    }
+  });
+  
+  updateDetailsCard();
+  writeLog(`LEDGER QUERY: Fetched verification metadata for Flow ID: ${flowsState[idx].id}`, 'info');
+}
+
+function updateDetailsCard() {
+  const flow = flowsState[activeLedgerIdx];
+  if (!flow) return;
+  
+  const dimData = dimensionData[currentDimension];
+  let vendorName = flow.vendor;
+  
+  if (activeLedgerIdx === 0) {
+    vendorName = dimData.led0Vendor;
+  } else if (activeLedgerIdx === 1) {
+    vendorName = dimData.led1Vendor;
+  } else if (activeLedgerIdx === 2) {
+    vendorName = dimData.led2Vendor || flow.vendor;
+  } else if (activeLedgerIdx === 3) {
+    vendorName = dimData.led3Vendor || flow.vendor;
+  }
+  
+  document.getElementById('card-flow-id').textContent = flow.id;
+  document.getElementById('card-vendor').textContent = vendorName;
+  document.getElementById('card-hash').textContent = flow.hash.substring(0, 8) + '...' + flow.hash.substring(56, 64);
+  
+  // Update Buttons active statuses
+  const btnToggleReceipt = document.getElementById('btn-toggle-receipt');
+  const btnToggleCoa = document.getElementById('btn-toggle-coa');
+  
+  if (flow.hasReceipt) {
+    btnToggleReceipt.className = "vault-action-btn active-upload";
+    btnToggleReceipt.innerHTML = `<i data-lucide="check" style="width:12px; height:12px;"></i> Receipt Loaded`;
+    document.getElementById('card-receipt-state').innerHTML = `<i data-lucide="check" style="width:12px; height:12px; vertical-align:middle;"></i> Uploaded`;
+    document.getElementById('card-receipt-state').style.color = "var(--success-green)";
+  } else {
+    btnToggleReceipt.className = "vault-action-btn";
+    btnToggleReceipt.innerHTML = `<i data-lucide="upload" style="width:12px; height:12px;"></i> Upload Receipt`;
+    document.getElementById('card-receipt-state').innerHTML = `<i data-lucide="x" style="width:12px; height:12px; vertical-align:middle;"></i> Missing`;
+    document.getElementById('card-receipt-state').style.color = "var(--text-muted)";
+  }
+  
+  if (flow.hasCoaException) {
+    btnToggleCoa.className = "vault-action-btn active-flag";
+    btnToggleCoa.innerHTML = `<i data-lucide="alert-triangle" style="width:12px; height:12px;"></i> Audit Exception Flagged`;
+    document.getElementById('card-coa-state').textContent = "FLAGGED: Unliquidated advance discrepancy!";
+    document.getElementById('card-coa-state').style.color = "var(--danger-crimson)";
+  } else {
+    btnToggleCoa.className = "vault-action-btn";
+    btnToggleCoa.innerHTML = `<i data-lucide="flag" style="width:12px; height:12px;"></i> Flag COA Exception`;
+    document.getElementById('card-coa-state').textContent = "None Detected (Clear)";
+    document.getElementById('card-coa-state').style.color = "var(--success-green)";
+  }
+  
+  // Set AI diagnostics panel text
+  const diagnosticsPanel = document.getElementById('watchdog-anomalies-list');
+  if (flow.id === 'FLOW-001') {
+    diagnosticsPanel.textContent = "Scan complete. No standard pricing anomalies detected. Relational linkages verified.";
+  } else if (flow.id === 'FLOW-002') {
+    diagnosticsPanel.textContent = "Scan complete. Structural variance within nominal limit. Receipts match contractor registration dates.";
+  } else if (flow.id === 'FLOW-003') {
+    diagnosticsPanel.textContent = "AI WATCHDOG ALERT: Shell corporate pattern detected (registered 2 days ago). 300% Unit Price Markup on laptop items (₱180k vs ₱45k average).";
+  } else if (flow.id === 'FLOW-004') {
+    diagnosticsPanel.textContent = "Scan complete. API Origin verified via DBM webhook signature key hash.";
+  } else {
+    diagnosticsPanel.textContent = "Scan pending... Running heuristic rules.";
+  }
+  
+  // Recompute visual state indicator badge
+  let badgeText = "VERIFIED";
+  let badgeClass = "status-indicator verified";
+  let pathClass = "flow-path active";
+  
+  if (flow.hasCoaException) {
+    badgeText = "FLAGGED";
+    badgeClass = "status-indicator flagged";
+    pathClass = "flow-path flagged";
+  } else if (!flow.hasReceipt) {
+    badgeText = "PARTIAL";
+    badgeClass = "status-indicator partial";
+  }
+  
+  const badgeElement = document.getElementById(`badge-${activeLedgerIdx}`);
+  if (badgeElement) {
+    badgeElement.textContent = badgeText;
+    badgeElement.className = badgeClass;
+  }
+  
+  // Link visualization paths to flag states
+  const pathId = activeLedgerIdx === 0 ? 'path-3' : 'path-4';
+  const pathElement = document.getElementById(pathId);
+  if (pathElement) {
+    pathElement.className = pathClass;
+  }
+  
+  lucide.createIcons();
+}
+
+function toggleReceiptState() {
+  const flow = flowsState[activeLedgerIdx];
+  flow.hasReceipt = !flow.hasReceipt;
+  
+  if (flow.hasReceipt) {
+    writeLog(`VAULT ACTION: Receipt uploaded by civil watchdog. SHA-256 validated successfully.`, 'info');
+  } else {
+    writeLog(`VAULT ACTION: Receipt deleted. Verification checklist incomplete.`, 'warn');
+  }
+  
+  renderLedger();
+  updateDetailsCard();
+}
+
+function toggleCoaState() {
+  const flow = flowsState[activeLedgerIdx];
+  flow.hasCoaException = !flow.hasCoaException;
+  
+  if (flow.hasCoaException) {
+    writeLog(`GOVERNANCE ALERT: COA Audit Exception registered! Transaction marked FLAGGED.`, 'danger');
+  } else {
+    writeLog(`GOVERNANCE ACTION: Audit Exception cleared by COA officer verification.`, 'info');
+  }
+  
+  renderLedger();
+  updateDetailsCard();
+}
+
+function compileCoadossier() {
+  const flow = flowsState[activeLedgerIdx];
+  if (!flow) return;
+  
+  const dimData = dimensionData[currentDimension];
+  let vendorName = flow.vendor;
+  if (activeLedgerIdx === 0) vendorName = dimData.led0Vendor;
+  else if (activeLedgerIdx === 1) vendorName = dimData.led1Vendor;
+  else if (activeLedgerIdx === 2) vendorName = dimData.led2Vendor || flow.vendor;
+  else if (activeLedgerIdx === 3) vendorName = dimData.led3Vendor || flow.vendor;
+  
+  const anomaliesText = document.getElementById('watchdog-anomalies-list').textContent;
+  
+  const dossier = `========================================================
+FLOWPH AI WATCHDOG COA-READY AUDIT DOSSIER
+Generated: ${new Date().toISOString()}
+========================================================
+[TRANSACTION REFERENCE]
+Flow ID: ${flow.id}
+Destination Supplier: ${vendorName}
+Disbursement Amount: ${flow.amount}
+Transaction Hash: ${flow.hash}
+
+[INTEGRITY and PROOF MATRIX]
+Receipt State: ${flow.hasReceipt ? 'VALIDATED (SHA-256 MATCH)' : 'MISSING'}
+COA Exception Flag: ${flow.hasCoaException ? 'RAISED (UNRESOLVED)' : 'NONE'}
+
+[AI WATCHDOG RISK ASSESSMENT]
+Risk Heuristics: ${flow.id === 'FLOW-003' ? 'CRITICAL RISK - HIGH MARKUP and SHELL REGISTRY SPEED' : 'VERIFIED / LOW RISK'}
+Details: ${anomaliesText.trim()}
+
+[CITIZEN WATCHDOG ACTION]
+Community Auditing Status: ${flow.hasReceipt ? 'Citizen-provided verification attached.' : 'Citizen verifiers flagged this transaction.'}
+Status: COA-ready file compiled. Transmitting to local watchdog channels...
+========================================================`;
+
+  alert(`COA-Ready Audit Dossier compiled successfully!\n\n${dossier.substring(0, 420)}...\n\n(See browser console for full audit log)`);
+  console.log(dossier);
+  writeLog(`WATCHDOG ACTION: Exported COA-Ready Dossier for ${flow.id} to local watchdog network.`, "info");
+}
+
+// Initial switch to render properly
+switchDimension('sector');
+selectLedgerRow(0);
+
+/* === Gallery Navigation Patch === */
+(function() {
+  const galleryUrl = '../../index.html';
+  const btn = document.createElement('div');
+  btn.innerHTML = '&#8592; Gallery';
+  Object.assign(btn.style, {
+    position: 'fixed', top: '16px', left: '16px', zIndex: '9999',
+    background: 'rgba(0,0,0,0.7)', color: '#fff', padding: '6px 14px',
+    borderRadius: '8px', fontSize: '13px', fontFamily: 'system-ui, sans-serif',
+    cursor: 'pointer', opacity: '0', transition: 'opacity 0.3s ease',
+    backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.15)',
+    userSelect: 'none', lineHeight: '1.4'
+  });
+  btn.addEventListener('click', function() { window.location.href = galleryUrl; });
+  document.body.appendChild(btn);
+  document.addEventListener('mousemove', function(e) {
+    btn.style.opacity = e.clientX < 160 && e.clientY < 60 ? '1' : '0';
+  });
+  document.addEventListener('mouseleave', function() { btn.style.opacity = '0'; });
+  btn.addEventListener('mouseenter', function() { btn.style.opacity = '1'; });
+
+  const originalNextSlide = nextSlide;
+  nextSlide = function() {
+    if (currentSlide >= totalSlides - 1) {
+      window.location.href = galleryUrl;
+    } else {
+      originalNextSlide();
+    }
+  };
+})();
+
+</script>
+</body>
+</html>

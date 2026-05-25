@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StudentHub — Revised Capstone Direction</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --ink: #0e0e0d;
+    --ink-muted: #5a5954;
+    --ink-faint: #a8a59f;
+    --paper: #f7f5f0;
+    --paper-warm: #ede9e0;
+    --paper-card: #ffffff;
+    --accent: #c84b2f;
+    --accent-light: #fce9e4;
+    --accent-dark: #8c2f18;
+    --blue: #1e4fa3;
+    --blue-light: #e4ebf9;
+    --blue-dark: #0c3a7a;
+    --green: #1a6644;
+    --green-light: #e2f1ea;
+    --green-dark: #0d4028;
+    --purple: #3c3489;
+    --purple-light: #eeedfe;
+    --amber: #854f0b;
+    --amber-light: #faeeda;
+    --rose: #72243e;
+    --rose-light: #fbeaf0;
+    --border: rgba(14,14,13,0.1);
+    --border-strong: rgba(14,14,13,0.2);
+    --serif: 'DM Serif Display', Georgia, serif;
+    --sans: 'Instrument Sans', system-ui, sans-serif;
+    --mono: 'DM Mono', monospace;
+    --radius: 6px;
+    --radius-lg: 12px;
+  }
+
+  html { font-size: 16px; scroll-behavior: smooth; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 15px;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .page { max-width: 760px; margin: 0 auto; padding: 60px 32px 100px; }
+
+  /* HEADER */
+  .header { border-bottom: 1.5px solid var(--ink); padding-bottom: 28px; margin-bottom: 52px; }
+  .header-eyebrow { font-family: var(--mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-muted); margin-bottom: 16px; }
+  .header-eyebrow span { color: var(--accent); }
+  .header-title { font-family: var(--serif); font-size: clamp(32px, 5vw, 48px); line-height: 1.1; color: var(--ink); margin-bottom: 20px; }
+  .header-title em { font-style: italic; }
+  .header-sub { font-size: 14px; color: var(--ink-muted); line-height: 1.75; max-width: 600px; border-left: 3px solid var(--accent); padding-left: 16px; }
+
+  /* SECTION STRUCTURE */
+  .section { margin-bottom: 56px; }
+  .section-header { display: flex; align-items: baseline; gap: 16px; margin-bottom: 24px; }
+  .section-num { font-family: var(--mono); font-size: 11px; color: var(--ink-faint); }
+  .section-title { font-family: var(--serif); font-size: 22px; color: var(--ink); }
+
+  /* DIRECTION INTRO */
+  .dir-intro {
+    padding: 18px 22px;
+    border-radius: var(--radius-lg);
+    margin-bottom: 24px;
+    font-size: 14px;
+    color: var(--ink-muted);
+    line-height: 1.75;
+  }
+  .dir-intro strong { color: var(--ink); font-weight: 500; }
+  .dir-intro.intro-a { background: var(--blue-light); border-left: 3px solid var(--blue); }
+  .dir-intro.intro-b { background: var(--green-light); border-left: 3px solid var(--green); }
+
+  /* TITLE CARDS */
+  .title-card {
+    background: var(--paper-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 20px 22px;
+    margin-bottom: 12px;
+    transition: border-color 0.2s;
+  }
+  .title-card:hover { border-color: var(--border-strong); }
+  .title-card.recommended-blue { border: 2px solid var(--blue); }
+  .title-card.recommended-green { border: 2px solid var(--green); }
+
+  .tc-meta { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; margin-bottom: 10px; }
+  .tc-badge { font-family: var(--mono); font-size: 10px; font-weight: 500; letter-spacing: 0.05em; padding: 3px 9px; border-radius: 4px; }
+  .badge-rec-blue { background: var(--blue-light); color: var(--blue-dark); }
+  .badge-rec-green { background: var(--green-light); color: var(--green-dark); }
+  .badge-alt { background: var(--paper-warm); color: var(--ink-muted); }
+  .badge-domain { background: var(--purple-light); color: var(--purple); }
+  .badge-domain-green { background: var(--green-light); color: var(--green-dark); }
+  .badge-domain-amber { background: var(--amber-light); color: var(--amber); }
+  .badge-domain-rose { background: var(--rose-light); color: var(--rose); }
+
+  .tc-text { font-size: 14px; font-weight: 500; color: var(--ink); line-height: 1.6; margin-bottom: 10px; }
+  .tc-note { font-size: 13px; color: var(--ink-muted); line-height: 1.65; margin-bottom: 10px; }
+  .tc-note em { color: var(--ink); font-style: normal; font-weight: 500; }
+  .tc-kws { display: flex; flex-wrap: wrap; gap: 5px; }
+  .kw { font-family: var(--mono); font-size: 10px; padding: 2px 7px; border-radius: 4px; }
+  .kw-w { background: #e6f1fb; color: #0c447c; }
+  .kw-m { background: #e1f5ee; color: #085041; }
+  .kw-ml { background: #eeedfe; color: #3c3489; }
+  .kw-iot { background: #faeeda; color: #854f0b; }
+  .kw-map { background: #faece7; color: #712b13; }
+  .kw-dcn { background: var(--paper-warm); color: var(--ink-muted); }
+  .kw-suc { background: #e1f5ee; color: #085041; }
+
+  /* PROBLEM CARDS */
+  .prob-grid { display: flex; flex-direction: column; gap: 0; border: 1px solid var(--border-strong); border-radius: var(--radius-lg); overflow: hidden; }
+  .prob-item { padding: 20px 22px; border-bottom: 1px solid var(--border); background: var(--paper-card); }
+  .prob-item:last-child { border-bottom: none; }
+  .prob-item:hover { background: var(--paper-warm); transition: background 0.15s; }
+
+  .prob-head { display: flex; gap: 10px; align-items: center; margin-bottom: 8px; flex-wrap: wrap; }
+  .prob-domain { font-family: var(--mono); font-size: 10px; font-weight: 500; letter-spacing: 0.07em; text-transform: uppercase; padding: 3px 8px; border-radius: 4px; flex-shrink: 0; }
+  .pd-student { background: #e6f1fb; color: #0c447c; }
+  .pd-org { background: #eeedfe; color: #3c3489; }
+  .pd-inno { background: #e1f5ee; color: #085041; }
+  .pd-cross { background: #fbeaf0; color: #72243e; }
+  .pd-hw { background: #faeeda; color: #854f0b; }
+  .pd-inst { background: #f1efe8; color: #444441; }
+
+  .prob-title { font-size: 14px; font-weight: 500; color: var(--ink); line-height: 1.5; }
+  .prob-body { font-size: 13px; color: var(--ink-muted); line-height: 1.7; margin-bottom: 10px; }
+  .prob-solve { display: inline-block; font-size: 12px; color: var(--green-dark); background: var(--green-light); border-radius: var(--radius); padding: 5px 10px; line-height: 1.55; }
+
+  /* CHAPTER ANCHORS */
+  .chap-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 580px) { .chap-cols { grid-template-columns: 1fr; } }
+  .chap-card { background: var(--paper-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 22px 24px; }
+  .chap-card.side-a { border-top: 3px solid var(--blue); }
+  .chap-card.side-b { border-top: 3px solid var(--green); }
+  .chap-dir-label { font-family: var(--mono); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 4px; }
+  .side-a .chap-dir-label { color: var(--blue); }
+  .side-b .chap-dir-label { color: var(--green); }
+  .chap-num { font-family: var(--mono); font-size: 10px; color: var(--ink-faint); letter-spacing: 0.07em; text-transform: uppercase; margin-bottom: 4px; }
+  .chap-title { font-family: var(--serif); font-size: 18px; color: var(--ink); margin-bottom: 14px; }
+  .chap-list { display: flex; flex-direction: column; gap: 10px; }
+  .chap-item { font-size: 13px; color: var(--ink-muted); line-height: 1.65; padding-left: 14px; border-left: 2px solid var(--border); }
+  .chap-item em { color: var(--ink); font-style: normal; font-weight: 500; }
+  .side-a .chap-item { border-left-color: rgba(30,79,163,0.3); }
+  .side-b .chap-item { border-left-color: rgba(26,102,68,0.3); }
+
+  /* FOOTNOTE */
+  .footnote { margin-top: 48px; display: flex; gap: 12px; align-items: center; font-family: var(--mono); font-size: 11px; color: var(--ink-faint); }
+  .footnote-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--ink-faint); flex-shrink: 0; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="header-eyebrow">BSIT Capstone · ISPSC Tagudin · <span>Revised Direction</span></div>
+    <h1 class="header-title">StudentHub<br><em>Two Directions, One System</em></h1>
+    <p class="header-sub">After reviewing the panel feedback and legal constraints, the capstone direction has been refined into two distinct framings — each with its own title, scope, and defense posture. The system underneath is the same. The story we tell changes.</p>
+  </header>
+
+  <!-- DIRECTION A -->
+  <section class="section">
+    <div class="section-header">
+      <span class="section-num">01</span>
+      <h2 class="section-title">Direction A — Innovation &amp; Smart Campus</h2>
+    </div>
+    <div class="dir-intro intro-a">
+      Focus: the system as a <strong>technical platform</strong> — edge compute, IoT payment nodes, local PaaS. Domain is innovation and smart campus. CAS IGP is a possible post-deployment adoption, not a core scope constraint.
+    </div>
+
+    <!-- A-1 Recommended -->
+    <div class="title-card recommended-blue">
+      <div class="tc-meta">
+        <span class="tc-badge badge-rec-blue">A-1 · Recommended</span>
+        <span class="tc-badge badge-domain">Innovation · Smart Campus</span>
+      </div>
+      <div class="tc-text">StudentHub: Design and Implementation of a Self-Sustaining Campus Edge Infrastructure with IoT-Integrated Tiered Network Access, Local Application Hosting, and ML-Driven Resource Analytics</div>
+      <div class="tc-note"><em>"Self-sustaining"</em> captures the PisoWiFi revenue loop without saying "vending." Clean, comprehensive, no IGP framing baked in. Covers the full technical scope.</div>
+      <div class="tc-kws">
+        <span class="kw kw-w">Web</span>
+        <span class="kw kw-m">Mobile</span>
+        <span class="kw kw-ml">ML</span>
+        <span class="kw kw-iot">IoT</span>
+        <span class="kw kw-map">Mapping</span>
+        <span class="kw kw-dcn">DCN · Infra</span>
+      </div>
+    </div>
+
+    <!-- A-2 -->
+    <div class="title-card">
+      <div class="tc-meta">
+        <span class="tc-badge badge-alt">A-2</span>
+        <span class="tc-badge badge-domain">Innovation · Platform</span>
+      </div>
+      <div class="tc-text">StudentHub: A Converged Campus Platform Infrastructure for IoT-Based Internet Access, Open Application Hosting, and Unified Micro-Payment Processing with Predictive Network Management</div>
+      <div class="tc-note"><em>"Converged"</em> signals the merging of network, hosting, and payment. <em>"Open"</em> signals the free-tier and developer-accessible API angle.</div>
+      <div class="tc-kws">
+        <span class="kw kw-w">Web</span>
+        <span class="kw kw-m">Mobile</span>
+        <span class="kw kw-ml">ML</span>
+        <span class="kw kw-iot">IoT</span>
+        <span class="kw kw-map">Mapping</span>
+        <span class="kw kw-dcn">DCN</span>
+      </div>
+    </div>
+
+    <!-- A-3 -->
+    <div class="title-card">
+      <div class="tc-meta">
+        <span class="tc-badge badge-alt">A-3</span>
+        <span class="tc-badge badge-domain-amber">Smart Device · DCN</span>
+      </div>
+      <div class="tc-text">StudentHub: An Autonomous IoT-Enabled Edge Node for Campus Connectivity, Student Application Deployment, and Micro-Payment Processing with Spatial Infrastructure Monitoring</div>
+      <div class="tc-note">Most DCN-forward title. <em>"Autonomous node"</em> positions it as a smart device. Ideal if the grading weights IoT and infrastructure heavily.</div>
+      <div class="tc-kws">
+        <span class="kw kw-w">Web</span>
+        <span class="kw kw-m">Mobile</span>
+        <span class="kw kw-iot">IoT</span>
+        <span class="kw kw-map">Mapping</span>
+        <span class="kw kw-dcn">DCN · Autonomous</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- DIRECTION B -->
+  <section class="section">
+    <div class="section-header">
+      <span class="section-num">02</span>
+      <h2 class="section-title">Direction B — SUC Gap &amp; Replicability</h2>
+    </div>
+    <div class="dir-intro intro-b">
+      Focus: the system as a <strong>research contribution</strong> — a documented, replicable answer to a specific gap in Philippine SUC digital infrastructure. Positions this as something beyond capstone: applicable to BSIT Systems Projects, graduate studies, or CHED-level replication. CAS IGP is one possible adoption pathway among many.
+    </div>
+
+    <!-- B-1 Recommended -->
+    <div class="title-card recommended-green">
+      <div class="tc-meta">
+        <span class="tc-badge badge-rec-green">B-1 · Recommended</span>
+        <span class="tc-badge badge-domain-green">SUC Model · Education</span>
+      </div>
+      <div class="tc-text">StudentHub: A Replicable Edge Infrastructure Model for Philippine State Universities Addressing Digital Access, Student Application Hosting, and IoT-Based Micro-Payment Gaps</div>
+      <div class="tc-note"><em>"Replicable model"</em> is the academic power phrase. Directly names the audience (Philippine SUCs) and the three gaps. Best for a panel that asks <em>"what is the contribution of this study?"</em></div>
+      <div class="tc-kws">
+        <span class="kw kw-w">Web</span>
+        <span class="kw kw-m">Mobile</span>
+        <span class="kw kw-ml">ML</span>
+        <span class="kw kw-iot">IoT</span>
+        <span class="kw kw-map">Mapping</span>
+        <span class="kw kw-suc">SUC · Replicable</span>
+      </div>
+    </div>
+
+    <!-- B-2 -->
+    <div class="title-card">
+      <div class="tc-meta">
+        <span class="tc-badge badge-alt">B-2</span>
+        <span class="tc-badge badge-domain-rose">Education · Digital Equity</span>
+      </div>
+      <div class="tc-text">StudentHub: Addressing Campus Digital Infrastructure Gaps in Philippine SUCs Through a Self-Sustaining Edge Network with IoT Payment Integration, Local Cloud Hosting, and ML Resource Management</div>
+      <div class="tc-note">Problem-first framing — starts with <em>"Addressing,"</em> which signals a needs-driven study. Strong for Chapter 1 statement of the problem alignment. Reads like a thesis title.</div>
+      <div class="tc-kws">
+        <span class="kw kw-w">Web</span>
+        <span class="kw kw-m">Mobile</span>
+        <span class="kw kw-ml">ML</span>
+        <span class="kw kw-iot">IoT</span>
+        <span class="kw kw-dcn">SUC · Gap Study</span>
+      </div>
+    </div>
+
+    <!-- B-3 -->
+    <div class="title-card">
+      <div class="tc-meta">
+        <span class="tc-badge badge-alt">B-3</span>
+        <span class="tc-badge badge-domain">Government · SUC · Scalable</span>
+      </div>
+      <div class="tc-text">StudentHub: Design of a Scalable Campus Edge Platform for State Universities Integrating IoT Network Access Nodes, Local PaaS Deployment, and a Unified Micro-Payment API</div>
+      <div class="tc-note"><em>"Scalable"</em> signals the modular hardware entry point. <em>"PaaS"</em> and <em>"Unified API"</em> are developer-facing terms that resonate with a technical panel.</div>
+      <div class="tc-kws">
+        <span class="kw kw-w">Web</span>
+        <span class="kw kw-m">Mobile</span>
+        <span class="kw kw-iot">IoT</span>
+        <span class="kw kw-map">Mapping</span>
+        <span class="kw kw-suc">SUC · Scalable</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROBLEMS -->
+  <section class="section">
+    <div class="section-header">
+      <span class="section-num">03</span>
+      <h2 class="section-title">Revised Problems &amp; Solutions</h2>
+    </div>
+    <div class="prob-grid">
+
+      <div class="prob-item">
+        <div class="prob-head">
+          <span class="prob-domain pd-student">Student · IT Learner</span>
+        </div>
+        <div class="prob-title">No accessible, zero-cost hosting environment for student projects</div>
+        <div class="prob-body">Cloud hosting requires credit cards most students don't have. Free tiers are internet-dependent, unreliable during defense, and impose limits that make real-world testing difficult. Students demo on localhost — limiting exposure to deployment, CI/CD, and live system behavior.</div>
+        <div class="prob-solve">Coolify-managed local PaaS — deploy apps, databases, and APIs on-campus with zero external dependency and zero cost</div>
+      </div>
+
+      <div class="prob-item">
+        <div class="prob-head">
+          <span class="prob-domain pd-student">Student · Consumer</span>
+        </div>
+        <div class="prob-title">Internet access is slow, centrally bottlenecked, and costly per load</div>
+        <div class="prob-body">DICT freeWi-Fi and institutional ISPs are shared across the entire campus — bandwidth per student is thin and unreliable. Mobile data is an out-of-pocket cost. Students pay to access a quiz, submit a form, or attend a class — basic academic participation carries a price tag.</div>
+        <div class="prob-solve">Tiered PisoWiFi access node — dedicated ISP line, affordable per-session pricing, self-sustaining via its own revenue</div>
+      </div>
+
+      <div class="prob-item">
+        <div class="prob-head">
+          <span class="prob-domain pd-org">Org · Treasurer</span>
+        </div>
+        <div class="prob-title">Campus fund collection is cash-only with no digital alternative</div>
+        <div class="prob-body">Student org dues, event fees, fines, and abuloy are collected via physical envelopes with no audit trail. E-wallets require BSP compliance — not viable for informal campus use. Paper receipts are lost, ledgers are disputed, treasurers are accused.</div>
+        <div class="prob-solve">Payment API — a technical layer for developers to build collection apps against; adoption by org or SUC is a governance decision, not a system constraint</div>
+      </div>
+
+      <div class="prob-item">
+        <div class="prob-head">
+          <span class="prob-domain pd-inno">Innovation · Developer</span>
+        </div>
+        <div class="prob-title">Campus problems that IT students can solve have no deployment home</div>
+        <div class="prob-body">Queue management, canteen ordering, event registration, document tracking, voting, org dashboards — none get built and sustained because there is nowhere to host them, no payment layer to connect them to, and no audience if external internet goes down. The bottleneck is not talent. It is infrastructure.</div>
+        <div class="prob-solve">Coolify PaaS + open Payment API — a developer ecosystem for campus-specific apps across all courses and departments</div>
+      </div>
+
+      <div class="prob-item">
+        <div class="prob-head">
+          <span class="prob-domain pd-cross">Cross-Department · Multi-Course</span>
+        </div>
+        <div class="prob-title">IT systems are siloed within the IT department</div>
+        <div class="prob-body">Technology in SUCs is typically confined to BSIT capstones — other courses have no access to a deployment environment. A BSED student's research data, an Agriculture student's environmental monitoring, a BSHM student's event management workflow, or a BSBA student's inventory tracker could all benefit from local hosting and connected IoT sensors.</div>
+        <div class="prob-solve">An open local platform reachable by any department — IT builds the infrastructure, all courses can deploy on top of it</div>
+      </div>
+
+      <div class="prob-item">
+        <div class="prob-head">
+          <span class="prob-domain pd-hw">Hardware · Entry Barrier</span>
+        </div>
+        <div class="prob-title">Edge infrastructure is perceived as expensive and inaccessible to students</div>
+        <div class="prob-body">A functional StudentHub node can start with a single mid-range mini PC running Proxmox — scalable from a &#8369;8,000 entry point. The architecture is intentionally modular: start with one node, one coin acceptor, one ISP connection. Scale as revenue and demand grow.</div>
+        <div class="prob-solve">Modular, scalable hardware architecture — low entry cost, expands as campus adoption grows, self-funded through IGP revenue</div>
+      </div>
+
+      <div class="prob-item">
+        <div class="prob-head">
+          <span class="prob-domain pd-inst">Institution · CHED · Legal</span>
+        </div>
+        <div class="prob-title">Government procurement rules prevent institutional adoption of student-built infrastructure</div>
+        <div class="prob-body">RA 9184 makes it difficult to absorb student-built hardware into official inventory without bidding and COA compliance. This is a policy and governance gap — not a system constraint. It belongs in recommendations, not in scope.</div>
+        <div class="prob-solve">Addressed in research recommendations — adoption pathways, SUC policy frameworks, and IGP formalization as post-deployment steps</div>
+      </div>
+
+      <div class="prob-item">
+        <div class="prob-head">
+          <span class="prob-domain pd-inst">Institution · Sustainability</span>
+        </div>
+        <div class="prob-title">Student-built systems rarely survive beyond their creators</div>
+        <div class="prob-body">No handoff culture, no documentation standard, no incentive for the next batch to maintain what they didn't build. StudentHub needs to be designed from the start as a handoff-ready, batch-transferable system — with open-source components, documented policies, and a deployment guide a new team can follow without the original developers.</div>
+        <div class="prob-solve">Addressed in future work — open architecture, deployment documentation, and SUC replication guide as research outputs</div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- CHAPTER 1 ANCHORS -->
+  <section class="section">
+    <div class="section-header">
+      <span class="section-num">04</span>
+      <h2 class="section-title">Chapter 1 Anchors</h2>
+    </div>
+    <p style="font-size:13px; color:var(--ink-muted); margin-bottom:20px; line-height:1.65;">Side-by-side comparison of how each direction frames the Chapter 1 introduction — background, problem, significance, scope, and limitations.</p>
+    <div class="chap-cols">
+      <div class="chap-card side-a">
+        <div class="chap-dir-label">Direction A — platform / innovation</div>
+        <div class="chap-num">Chapter 1</div>
+        <div class="chap-title">Introduction</div>
+        <div class="chap-list">
+          <div class="chap-item"><em>Background:</em> The gap between campus problems IT students can solve and the infrastructure needed to deploy solutions — no hosting, no payment layer, no local network independence</div>
+          <div class="chap-item"><em>Problem:</em> The target prospect campus (e.g., ISPSC Tagudin) lacks a self-sustaining local digital infrastructure for student app deployment, affordable internet access, and campus-level micro-payment processing</div>
+          <div class="chap-item"><em>Significance:</em> Enables a campus developer ecosystem; fosters cross-department tech utilization; demonstrates a self-funding infrastructure model</div>
+          <div class="chap-item"><em>Scope:</em> Physical boundary of target prospect campus (e.g., ISPSC Tagudin); local network only; CAS IGP adoption is out of scope — treated as a post-deployment recommendation</div>
+          <div class="chap-item"><em>Limitations:</em> System operates within local network — external internet access for hosted apps is not covered; formal institutional adoption is not within the study period</div>
+        </div>
+      </div>
+      <div class="chap-card side-b">
+        <div class="chap-dir-label">Direction B — SUC gap study</div>
+        <div class="chap-num">Chapter 1</div>
+        <div class="chap-title">Introduction</div>
+        <div class="chap-list">
+          <div class="chap-item"><em>Background:</em> Philippine SUCs are underserved by digital infrastructure — underutilized servers, no student hosting environment, cash-only org finance, internet bottlenecks — and no replicable model exists to address this</div>
+          <div class="chap-item"><em>Problem:</em> There is no documented, deployable reference model for a student-operated, self-sustaining campus edge infrastructure in Philippine state universities</div>
+          <div class="chap-item"><em>Significance:</em> This study produces not just a working system but a replicable model — applicable to other SUCs, BSIT systems projects, and future research</div>
+          <div class="chap-item"><em>Scope:</em> Target prospect campus (e.g., ISPSC Tagudin) as deployment site and case study; generalizability to other Philippine SUCs is addressed in conclusions and recommendations</div>
+          <div class="chap-item"><em>Limitations:</em> Deployment is limited to one campus site; institutional policy adoption is outside the research scope and addressed as a recommendation</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTNOTE -->
+  <div class="footnote">
+    <div class="footnote-dot"></div>
+    StudentHub · Revised Capstone Direction · ISPSC Tagudin
+    <div class="footnote-dot"></div>
+    Two directions · Same system · Different story
+  </div>
+
+</div>
+</body>
+</html>

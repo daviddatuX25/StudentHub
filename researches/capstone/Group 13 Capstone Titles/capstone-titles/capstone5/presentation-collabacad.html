@@ -1,0 +1,2056 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CollabAcad — Institutional Forum & Real-Time Event Management</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest"></script>
+
+<style>
+/* =========================================================================
+THEMING & VARIABLES (Academic Indigo & Social Coral with Glassmorphism)
+========================================================================= */
+:root {
+  --bg-dark: #0a0c16;
+  --bg-darker: #05060b;
+  --bg-panel: rgba(10, 12, 22, 0.7);
+  --primary-indigo: #6366f1;
+  --primary-indigo-rgb: 99, 102, 241;
+  --accent-coral: #fb7185;
+  --accent-coral-rgb: 251, 113, 133;
+  --accent-blue: #3b82f6;
+  --accent-blue-rgb: 59, 130, 246;
+  --accent-mint: #10b981;
+  --accent-mint-rgb: 16, 185, 129;
+  --success-green: #10b981;
+  --warning-amber: #f59e0b;
+  --danger-crimson: #f43f5e;
+  --text-light: #f3f4f6;
+  --text-muted: #9ca3af;
+  --mono: 'Fira Code', monospace;
+  --sans: 'Plus Jakarta Sans', sans-serif;
+  --heading: 'Playfair Display', serif;
+  --border-style: 1px solid rgba(99, 102, 241, 0.2);
+  --border-focus: 1px solid rgba(251, 113, 133, 0.5);
+  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--bg-darker);
+  color: var(--text-light);
+  font-family: var(--sans);
+  overflow: hidden;
+  height: 100vh;
+  width: 100vw;
+  user-select: none;
+}
+
+/* =========================================================================
+BACKGROUND CANVAS & MATRIX GRID
+========================================================================= */
+#bg-canvas {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  background-color: var(--bg-darker);
+}
+
+.matrix-grid {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-image: 
+    linear-gradient(rgba(99, 102, 241, 0.015) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(99, 102, 241, 0.015) 1px, transparent 1px);
+  background-size: 40px 40px;
+  background-position: center;
+  mask-image: radial-gradient(circle at 50% 50%, black, transparent 90%);
+  pointer-events: none;
+}
+
+/* =========================================================================
+SLIDE DECK FRAMEWORK (6 Slides)
+========================================================================= */
+#deck {
+  display: flex;
+  position: absolute;
+  inset: 0;
+  width: 600vw; /* 6 slides */
+  height: 100vh;
+  transition: transform 0.8s cubic-bezier(0.77, 0, 0.175, 1);
+}
+
+.slide {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  padding: 40px 60px;
+  overflow: hidden;
+}
+
+/* CHROME LAYOUTS (Header / Footer / Cards) */
+.chrome-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  color: var(--primary-indigo);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+  border-bottom: var(--border-style);
+  padding-bottom: 15px;
+}
+
+.chrome-header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.chrome-header-left .logo-icon {
+  width: 20px;
+  height: 20px;
+  border: 1px solid var(--accent-coral);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.6rem;
+  font-weight: 700;
+  color: var(--accent-coral);
+}
+
+.chrome-footer {
+  position: absolute;
+  bottom: 25px;
+  left: 60px;
+  right: 60px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  border-top: 1px solid rgba(99, 102, 241, 0.08);
+  padding-top: 15px;
+}
+
+.frame-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+  z-index: 1;
+  padding-bottom: 40px;
+}
+
+.kicker {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  color: var(--accent-coral);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.slide-title {
+  font-family: var(--heading);
+  font-size: 2.5rem;
+  font-weight: 600;
+  line-height: 1.1;
+  margin-bottom: 20px;
+  background: linear-gradient(135deg, #ffffff 40%, rgba(var(--accent-coral-rgb), 0.9) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: -0.01em;
+}
+
+/* STRUCTURAL GLASS CARD STYLING */
+.glass-card {
+  background: var(--bg-panel);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: var(--border-style);
+  border-radius: 12px;
+  padding: 22px;
+  box-shadow: 0 10px 35px rgba(0, 0, 0, 0.6);
+  transition: var(--transition);
+  position: relative;
+}
+
+.glass-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, var(--primary-indigo), transparent);
+  opacity: 0.5;
+  border-radius: 12px 12px 0 0;
+}
+
+.glass-card:hover {
+  border-color: rgba(var(--accent-coral-rgb), 0.35);
+  box-shadow: 0 12px 40px rgba(99, 102, 241, 0.08);
+}
+
+/* =========================================================================
+SLIDE 1 — TITLE SPECIFIC
+========================================================================= */
+.slide1-layout {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 40px;
+  align-items: center;
+}
+
+.title-massive {
+  font-family: var(--heading);
+  font-size: 4.5rem;
+  font-weight: 700;
+  line-height: 0.95;
+  letter-spacing: -0.02em;
+  margin-bottom: 15px;
+  background: linear-gradient(135deg, #ffffff 50%, var(--accent-coral) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.subtitle-academic {
+  font-family: var(--heading);
+  font-size: 1.4rem;
+  font-style: italic;
+  line-height: 1.4;
+  color: var(--text-muted);
+  margin-bottom: 25px;
+}
+
+.title-metadata {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border-left: 2px solid var(--accent-coral);
+  padding-left: 15px;
+  font-family: var(--sans);
+  font-size: 0.85rem;
+}
+
+.logo-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+.logo-crest {
+  width: 250px;
+  height: 250px;
+  border: 1px solid rgba(var(--primary-indigo-rgb), 0.3);
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  background: radial-gradient(circle, rgba(var(--primary-indigo-rgb), 0.05) 0%, transparent 70%);
+}
+
+.logo-crest-inner {
+  width: 180px;
+  height: 180px;
+  border: 1px dashed rgba(var(--accent-coral-rgb), 0.4);
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+.logo-crest-text {
+  font-family: var(--heading);
+  font-size: 3.5rem;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 2px;
+}
+
+.logo-crest-sub {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  color: var(--accent-coral);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  margin-top: -5px;
+}
+
+/* =========================================================================
+SLIDE 2 — PROBLEM VS RESOLUTION
+========================================================================= */
+.problem-resolution-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.1fr;
+  gap: 30px;
+}
+
+.problem-column {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.resolution-column {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.problem-card {
+  background: rgba(244, 63, 94, 0.04);
+  border: 1px solid rgba(244, 63, 94, 0.15);
+  border-radius: 10px;
+  padding: 18px;
+  transition: var(--transition);
+}
+
+.problem-card:hover {
+  background: rgba(244, 63, 94, 0.06);
+  border-color: rgba(244, 63, 94, 0.3);
+}
+
+.problem-card-title {
+  font-family: var(--heading);
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--danger-crimson);
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.problem-card-desc {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+.resolution-card {
+  background: rgba(99, 102, 241, 0.04);
+  border: 1px solid rgba(99, 102, 241, 0.15);
+  border-radius: 10px;
+  padding: 18px;
+  transition: var(--transition);
+}
+
+.resolution-card:hover {
+  background: rgba(99, 102, 241, 0.06);
+  border-color: rgba(99, 102, 241, 0.35);
+}
+
+.resolution-card-title {
+  font-family: var(--heading);
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--accent-coral);
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.resolution-card-desc {
+  font-size: 0.85rem;
+  color: var(--text-light);
+  line-height: 1.4;
+}
+
+/* =========================================================================
+SLIDE 3 — ARCHITECTURE
+========================================================================= */
+.architecture-layout {
+  display: grid;
+  grid-template-columns: 0.7fr 1.3fr;
+  gap: 30px;
+  align-items: center;
+}
+
+.arch-info {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.arch-info-block {
+  border-left: 2px solid var(--primary-indigo);
+  padding-left: 15px;
+}
+
+.arch-info-title {
+  font-family: var(--mono);
+  font-size: 0.85rem;
+  color: var(--accent-coral);
+  margin-bottom: 4px;
+}
+
+.arch-info-desc {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+.arch-diagram-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 30px;
+  height: 380px;
+  position: relative;
+}
+
+/* SVG Flow Diagram styling */
+.svg-diagram {
+  width: 100%;
+  height: 100%;
+}
+
+.svg-node {
+  fill: var(--bg-dark);
+  stroke: var(--primary-indigo);
+  stroke-width: 1.5;
+  transition: var(--transition);
+}
+
+.svg-node:hover {
+  stroke: var(--accent-coral);
+  filter: drop-shadow(0 0 8px rgba(251, 113, 133, 0.4));
+}
+
+.svg-node-accent {
+  stroke: var(--accent-coral);
+}
+
+.svg-text {
+  fill: var(--text-light);
+  font-family: var(--mono);
+  font-size: 10px;
+  text-anchor: middle;
+  dominant-baseline: middle;
+}
+
+.svg-text-title {
+  font-family: var(--sans);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.svg-line {
+  stroke: rgba(99, 102, 241, 0.3);
+  stroke-width: 1.5;
+  stroke-dasharray: 4 4;
+  animation: dash 10s linear infinite;
+}
+
+@keyframes dash {
+  to {
+    stroke-dashoffset: -100;
+  }
+}
+
+.svg-pulse {
+  fill: var(--accent-coral);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { r: 3px; opacity: 1; }
+  100% { r: 10px; opacity: 0; }
+}
+
+/* =========================================================================
+SLIDE 4 — TECH STACK & COMPONENT MAP
+========================================================================= */
+.stack-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.stack-card {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.stack-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(99, 102, 241, 0.1);
+  padding-bottom: 8px;
+}
+
+.stack-card-title {
+  font-family: var(--heading);
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+.stack-card-icon {
+  color: var(--accent-coral);
+}
+
+.stack-badge {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  background: rgba(99, 102, 241, 0.12);
+  color: var(--primary-indigo);
+  padding: 3px 8px;
+  border-radius: 4px;
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  align-self: flex-start;
+}
+
+.stack-desc {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  line-height: 1.45;
+}
+
+.compliance-row {
+  margin-top: 25px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 15px;
+}
+
+.compliance-item {
+  background: rgba(251, 113, 133, 0.03);
+  border: 1px dashed rgba(251, 113, 133, 0.15);
+  border-radius: 8px;
+  padding: 12px;
+  text-align: center;
+}
+
+.compliance-title {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  color: var(--accent-coral);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.compliance-desc {
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+/* =========================================================================
+SLIDE 5 — PLAYGROUND & MECHANICS
+========================================================================= */
+.playground-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+  height: 450px;
+}
+
+.playground-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 16px 20px;
+}
+
+.playground-title {
+  font-family: var(--heading);
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 1px solid rgba(99, 102, 241, 0.15);
+  padding-bottom: 6px;
+}
+
+.simulator-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow-y: hidden;
+  padding-right: 5px;
+}
+
+/* Voting slider component */
+.vote-slider-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.slider-label-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.slider-label-row span strong {
+  color: var(--text-light);
+}
+
+.sim-slider {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(99, 102, 241, 0.15);
+  outline: none;
+}
+
+.sim-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--accent-coral);
+  cursor: pointer;
+  box-shadow: 0 0 6px rgba(251, 113, 133, 0.8);
+  transition: var(--transition);
+}
+
+.sim-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+}
+
+/* Output comparison bars */
+.compare-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 10px;
+  background: rgba(251, 113, 133, 0.02);
+  border: 1px solid rgba(99, 102, 241, 0.1);
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.compare-title {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.compare-bar-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.compare-bar-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.compare-bar-bg {
+  width: 100%;
+  height: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 6px;
+  overflow: hidden;
+  position: relative;
+}
+
+.compare-bar-fill {
+  height: 100%;
+  border-radius: 6px;
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.fill-red {
+  background: linear-gradient(90deg, var(--danger-crimson), #ef4444);
+}
+
+.fill-indigo {
+  background: linear-gradient(90deg, var(--primary-indigo), var(--accent-coral));
+}
+
+.quorum-badge {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  padding: 2px 6px;
+  border-radius: 4px;
+  display: inline-block;
+  align-self: flex-start;
+}
+
+.badge-ok {
+  background: rgba(16, 185, 129, 0.15);
+  color: var(--accent-mint);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.badge-low {
+  background: rgba(245, 158, 11, 0.15);
+  color: var(--warning-amber);
+  border: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+/* Anonymity Moderation panel styling */
+.anon-input-area {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.anon-textbox {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(99, 102, 241, 0.25);
+  border-radius: 8px;
+  padding: 12px;
+  color: var(--text-light);
+  font-family: var(--sans);
+  font-size: 0.85rem;
+  resize: none;
+  height: 90px;
+  outline: none;
+  transition: var(--transition);
+}
+
+.anon-textbox:focus {
+  border-color: var(--accent-coral);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.anon-quick-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.anon-tag {
+  font-size: 0.7rem;
+  font-family: var(--sans);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 3px 8px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.anon-tag:hover {
+  background: rgba(251, 113, 133, 0.1);
+  border-color: rgba(251, 113, 133, 0.3);
+  color: var(--accent-coral);
+}
+
+.moderation-status-box {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.status-badge-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.status-badge {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.status-clean {
+  background: rgba(16, 185, 129, 0.12);
+  color: var(--accent-mint);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.status-flagged {
+  background: rgba(244, 63, 94, 0.12);
+  color: var(--danger-crimson);
+  border: 1px solid rgba(244, 63, 94, 0.2);
+}
+
+.sim-logs-title {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.sim-logs-container {
+  background: #040509;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 6px;
+  padding: 8px;
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  height: 90px;
+  overflow-y: auto;
+  color: var(--text-muted);
+}
+
+.log-entry {
+  margin-bottom: 4px;
+  line-height: 1.35;
+}
+
+.log-sec { color: var(--accent-mint); }
+.log-warn { color: var(--warning-amber); }
+.log-err { color: var(--danger-crimson); }
+.log-info { color: var(--accent-blue); }
+
+/* =========================================================================
+SLIDE 6 — SCOPE, ROADMAP & DIFFICULTY
+========================================================================= */
+.slide6-layout {
+  display: grid;
+  grid-template-columns: 0.95fr 1.05fr;
+  gap: 30px;
+}
+
+.scope-column {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.roadmap-column {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.scope-card {
+  padding: 18px;
+}
+
+.scope-card-title {
+  font-family: var(--heading);
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.scope-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.scope-list-item {
+  font-size: 0.8rem;
+  line-height: 1.4;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  color: var(--text-muted);
+}
+
+.scope-list-item i {
+  margin-top: 3px;
+  flex-shrink: 0;
+}
+
+.scope-list-item strong {
+  color: var(--text-light);
+}
+
+.roadmap-card {
+  padding: 20px;
+}
+
+.timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  position: relative;
+  padding-left: 15px;
+}
+
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 3px;
+  top: 6px;
+  bottom: 6px;
+  width: 1px;
+  background: rgba(99, 102, 241, 0.2);
+}
+
+.timeline-step {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.timeline-dot {
+  position: absolute;
+  left: -15px;
+  top: 4px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent-coral);
+  border: 1px solid var(--bg-darker);
+  box-shadow: 0 0 6px var(--accent-coral);
+}
+
+.timeline-step-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.timeline-step-title {
+  font-family: var(--heading);
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+.timeline-step-weeks {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  color: var(--accent-coral);
+}
+
+.timeline-step-desc {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+.diff-section {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 10px 15px;
+  margin-top: 10px;
+}
+
+.diff-label-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.diff-label {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.diff-val {
+  font-family: var(--heading);
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--accent-coral);
+}
+
+.diff-bars {
+  display: flex;
+  gap: 3px;
+}
+
+.diff-bar {
+  width: 15px;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 1px;
+}
+
+.diff-bar.fill {
+  background: var(--accent-coral);
+}
+
+/* =========================================================================
+CONTROLS & TIMERS
+========================================================================= */
+.dots-nav {
+  display: flex;
+  gap: 8px;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.dot.active {
+  background: var(--accent-coral);
+  box-shadow: 0 0 6px var(--accent-coral);
+  transform: scale(1.2);
+}
+
+.control-btn {
+  background: rgba(99, 102, 241, 0.1);
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  color: var(--text-light);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.control-btn:hover {
+  background: rgba(251, 113, 133, 0.15);
+  border-color: var(--accent-coral);
+  color: var(--accent-coral);
+}
+
+.control-group {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.timer-box {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.timer-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent-mint);
+  animation: blink 1.5s infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+</style>
+</head>
+<body>
+
+<!-- Interactive Particle Physics Social Node Network Background Canvas -->
+<canvas id="bg-canvas"></canvas>
+<div class="matrix-grid"></div>
+
+<!-- Slide Deck Container -->
+<div id="deck">
+
+  <!-- ==========================================
+       SLIDE 1 — TITLE (Anchor)
+       ========================================== -->
+  <section class="slide" id="slide-0">
+    <div class="chrome-header">
+      <div class="chrome-header-left">
+        <div class="logo-icon">CA</div>
+        <span>CollabAcad · Title Defense</span>
+      </div>
+      <div>Session: Capstone 5</div>
+    </div>
+    
+    <div class="frame-content">
+      <div class="slide1-layout">
+        <div class="title-details">
+          <div class="kicker">
+            <i data-lucide="hash" style="width:12px;height:12px;"></i> Title 5 · real-time web platforms
+          </div>
+          <h1 class="title-massive">CollabAcad</h1>
+          <p class="subtitle-academic">An Institutional Forum and Real-Time Event Management System with Segmented Weighted Voting and Anonymous Feedback Channels</p>
+          
+          <div class="title-metadata">
+            <div><strong>Research Scope:</strong> Real-Time Event Broadcasts &amp; Democratic Representation</div>
+            <div><strong>Deployment Target:</strong> Institution-Hosted On-Premise VM</div>
+            <div><strong>Security Focus:</strong> Managed Anonymity and Audit-Logged Access Controls</div>
+          </div>
+        </div>
+        
+        <div class="logo-container">
+          <div class="logo-crest">
+            <div class="logo-crest-inner">
+              <div class="logo-crest-text">CA</div>
+              <div class="logo-crest-sub">CollabAcad</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="chrome-footer">
+      <div>Thesis Board Presentation · ISPSC 2026</div>
+      <div class="dots-nav" id="dots-0"></div>
+      <div>Slide 01 / 06</div>
+    </div>
+  </section>
+
+  <!-- ==========================================
+       SLIDE 2 — THE SCENE & PROBLEM (Hook)
+       ========================================== -->
+  <section class="slide" id="slide-1">
+    <div class="chrome-header">
+      <div class="chrome-header-left">
+        <div class="logo-icon">CA</div>
+        <span>CollabAcad · Context &amp; Hook</span>
+      </div>
+      <div>Section 2 — Problem Space</div>
+    </div>
+    
+    <div class="frame-content">
+      <div class="kicker">
+        <i data-lucide="alert-circle" style="width:12px;height:12px;"></i> Structural Failures in Campus Communication
+      </div>
+      <h2 class="slide-title">The Mess vs. The CollabAcad Resolution</h2>
+      
+      <div class="problem-resolution-grid">
+        <div class="problem-column">
+          <div class="problem-card">
+            <div class="problem-card-title">
+              <i data-lucide="x-circle" style="width:16px;height:16px;"></i> Boundary Collapse
+            </div>
+            <p class="problem-card-desc">Official announcements, files, and queries are scattered across personal social media accounts (Messenger GCs). Teachers and student leaders face continuous notifications and role-identity distress outside work hours.</p>
+          </div>
+          <div class="problem-card">
+            <div class="problem-card-title">
+              <i data-lucide="percent" style="width:16px;height:16px;"></i> Representative Inequity
+            </div>
+            <p class="problem-card-desc">Student voting on fees, policies, and elections uses raw headcounts. Large colleges (like CAS with 1,200 students) arithmetically swamp small colleges (like CTE with 300 students), silencing minority voices.</p>
+          </div>
+          <div class="problem-card">
+            <div class="problem-card-title">
+              <i data-lucide="message-square" style="width:16px;height:16px;"></i> Discourse Suppression
+            </div>
+            <p class="problem-card-desc">Students stay silent about critical issues (e.g. facility problems, administrative complaints) due to fear of peer judgment, academic retaliation, or public identification.</p>
+          </div>
+        </div>
+        
+        <div class="resolution-column">
+          <div class="resolution-card">
+            <div class="resolution-card-title">
+              <i data-lucide="check-circle" style="width:16px;height:16px;"></i> Role-Segmented Workspace
+            </div>
+            <p class="resolution-card-desc">A structured institutional portal separating personal profiles from campus functions. Segmented folders for faculty instructions, student government announcements, and course discussion forums.</p>
+          </div>
+          <div class="resolution-card">
+            <div class="resolution-card-title">
+              <i data-lucide="scale" style="width:16px;height:16px;"></i> Segmented Weighted Voting
+            </div>
+            <p class="resolution-card-desc">An algorithm that normalizes votes by department population. Turnout weight is aggregated equally across colleges, ensuring CTE carries proportional voice against CAS.</p>
+          </div>
+          <div class="resolution-card">
+            <div class="resolution-card-title">
+              <i data-lucide="shield" style="width:16px;height:16px;"></i> Managed Anonymity Channels
+            </div>
+            <p class="resolution-card-desc">Controlled anonymous threads protected by pre-publication keyword screens. True identities are encrypted and sealed in a separate superadmin schema, maintaining accountability.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="chrome-footer">
+      <div>Thesis Board Presentation · ISPSC 2026</div>
+      <div class="dots-nav" id="dots-1"></div>
+      <div>Slide 02 / 06</div>
+    </div>
+  </section>
+
+  <!-- ==========================================
+       SLIDE 3 — ARCHITECTURE (Shape)
+       ========================================== -->
+  <section class="slide" id="slide-2">
+    <div class="chrome-header">
+      <div class="chrome-header-left">
+        <div class="logo-icon">CA</div>
+        <span>CollabAcad · Architecture</span>
+      </div>
+      <div>Section 3 — Platform Architecture</div>
+    </div>
+    
+    <div class="frame-content">
+      <div class="kicker">
+        <i data-lucide="git-branch" style="width:12px;height:12px;"></i> Three-Tier Memory &amp; Real-Time Data Pipeline
+      </div>
+      
+      <div class="architecture-layout">
+        <div class="arch-info">
+          <div class="arch-info-block">
+            <h4 class="arch-info-title">WebSocket Event Stream</h4>
+            <p class="arch-info-desc">Clients establish namespace-specific WebSocket connections (/events, /voting) via Socket.IO, achieving event broadcasts under 100ms.</p>
+          </div>
+          <div class="arch-info-block">
+            <h4 class="arch-info-title">L1/L2 Redis Caching</h4>
+            <p class="arch-info-desc">L1 holds active vote tallies in-memory; L2 caches session metadata. Cache coherence is governed by atomic Redis write-locks (MESI protocol).</p>
+          </div>
+          <div class="arch-info-block">
+            <h4 class="arch-info-title">L3 Durable Postgres Store</h4>
+            <p class="arch-info-desc">Durable data goes to PostgreSQL. Real-time voting tallies use a write-through strategy to guarantee both responsiveness and transaction durability.</p>
+          </div>
+        </div>
+        
+        <div class="glass-card arch-diagram-card">
+          <!-- SVG System Architecture diagram -->
+          <svg class="svg-diagram" viewBox="0 0 450 260">
+            <defs>
+              <marker id="arrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="rgba(99, 102, 241, 0.6)"/>
+              </marker>
+              <marker id="arrow-coral" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#fb7185"/>
+              </marker>
+            </defs>
+            
+            <!-- Nodes -->
+            <rect class="svg-node" x="20" y="90" width="100" height="60" rx="6"/>
+            <text class="svg-text svg-text-title" x="70" y="115">Client SPA</text>
+            <text class="svg-text" x="70" y="135" fill="var(--text-muted)">React / Next.js</text>
+            
+            <rect class="svg-node svg-node-accent" x="180" y="90" width="110" height="60" rx="6"/>
+            <text class="svg-text svg-text-title" x="235" y="115">Server Node</text>
+            <text class="svg-text" x="235" y="135" fill="var(--text-muted)">Express + Socket.IO</text>
+            
+            <rect class="svg-node" x="330" y="30" width="100" height="50" rx="6"/>
+            <text class="svg-text svg-text-title" x="380" y="50">Redis L1/L2</text>
+            <text class="svg-text" x="380" y="65" fill="var(--text-muted)">Hot Cache &amp; PubSub</text>
+            
+            <rect class="svg-node" x="330" y="160" width="100" height="50" rx="6"/>
+            <text class="svg-text svg-text-title" x="380" y="180">PostgreSQL L3</text>
+            <text class="svg-text" x="380" y="195" fill="var(--text-muted)">Durable DB + RLS</text>
+            
+            <!-- Connector Paths -->
+            <path d="M 120 110 L 180 110" class="svg-line" stroke="var(--primary-indigo)" marker-end="url(#arrow)"/>
+            <path d="M 180 130 L 120 130" class="svg-line" stroke="#fb7185" marker-end="url(#arrow-coral)"/>
+            
+            <path d="M 290 105 L 330 65" class="svg-line" stroke="var(--primary-indigo)" marker-end="url(#arrow)"/>
+            <path d="M 290 135 L 330 175" class="svg-line" stroke="var(--primary-indigo)" marker-end="url(#arrow)"/>
+            
+            <path d="M 380 80 L 380 160" class="svg-line" stroke="var(--primary-indigo)" marker-end="url(#arrow)"/>
+            
+            <!-- Live Event Blips -->
+            <circle class="svg-pulse" cx="150" cy="130" r="4"/>
+            <circle class="svg-pulse" cx="310" cy="85" r="4"/>
+            <circle cx="70" cy="90" r="3" fill="var(--accent-coral)"/>
+            <circle cx="235" cy="90" r="3" fill="var(--accent-coral)"/>
+            <circle cx="380" cy="30" r="3" fill="var(--accent-coral)"/>
+            <circle cx="380" cy="160" r="3" fill="var(--accent-coral)"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <div class="chrome-footer">
+      <div>Thesis Board Presentation · ISPSC 2026</div>
+      <div class="dots-nav" id="dots-2"></div>
+      <div>Slide 03 / 06</div>
+    </div>
+  </section>
+
+  <!-- ==========================================
+       SLIDE 4 — TECH STACK & COMPONENT MAP (Housekeeping)
+       ========================================== -->
+  <section class="slide" id="slide-3">
+    <div class="chrome-header">
+      <div class="chrome-header-left">
+        <div class="logo-icon">CA</div>
+        <span>CollabAcad · Tech Stack</span>
+      </div>
+      <div>Section 4 — Technical Framework</div>
+    </div>
+    
+    <div class="frame-content">
+      <div class="kicker">
+        <i data-lucide="layers" style="width:12px;height:12px;"></i> Platform Tech Choices &amp; BSIT Compliance
+      </div>
+      <h2 class="slide-title">Technology Stack &amp; Compliance Map</h2>
+      
+      <div class="stack-grid">
+        <div class="glass-card stack-card">
+          <div class="stack-card-header">
+            <span class="stack-card-title">Frontend SPA</span>
+            <i class="stack-card-icon" data-lucide="layout"></i>
+          </div>
+          <span class="stack-badge">Next.js 14 / React 18</span>
+          <p class="stack-desc">Renders dashboards and voting widgets. Fast, client-side route transitions and server-side static generation of campus pages.</p>
+        </div>
+        
+        <div class="glass-card stack-card">
+          <div class="stack-card-header">
+            <span class="stack-card-title">Real-Time Core</span>
+            <i class="stack-card-icon" data-lucide="zap"></i>
+          </div>
+          <span class="stack-badge">Socket.IO / Express</span>
+          <p class="stack-desc">Manages live channel connections, event ticker push, and sub-100ms voting tallies. Encapsulated in namespace routers.</p>
+        </div>
+        
+        <div class="glass-card stack-card">
+          <div class="stack-card-header">
+            <span class="stack-card-title">Durable &amp; Cache</span>
+            <i class="stack-card-icon" data-lucide="database"></i>
+          </div>
+          <span class="stack-badge">PostgreSQL &amp; Redis</span>
+          <p class="stack-desc">Postgres secures voter records and post tables. Redis handles Pub/Sub message propagation and in-memory vote counters.</p>
+        </div>
+      </div>
+      
+      <div class="compliance-row">
+        <div class="compliance-item">
+          <div class="compliance-title">Web Component</div>
+          <div class="compliance-desc">Next.js Portal</div>
+        </div>
+        <div class="compliance-item">
+          <div class="compliance-title">Real-Time Event</div>
+          <div class="compliance-desc">Socket.IO Namespaces</div>
+        </div>
+        <div class="compliance-item">
+          <div class="compliance-title">Database Layer</div>
+          <div class="compliance-desc">PostgreSQL + Redis L1</div>
+        </div>
+        <div class="compliance-item">
+          <div class="compliance-title">Security &amp; Moderation</div>
+          <div class="compliance-desc">Regex Pre-Screen + RLS</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="chrome-footer">
+      <div>Thesis Board Presentation · ISPSC 2026</div>
+      <div class="dots-nav" id="dots-3"></div>
+      <div>Slide 04 / 06</div>
+    </div>
+  </section>
+
+  <!-- ==========================================
+       SLIDE 5 — PLAYGROUND (Rigor)
+       ========================================== -->
+  <section class="slide" id="slide-4">
+    <div class="chrome-header">
+      <div class="chrome-header-left">
+        <div class="logo-icon">CA</div>
+        <span>CollabAcad · Mechanics Playground</span>
+      </div>
+      <div>Section 5 — Interactive Demonstration</div>
+    </div>
+    
+    <div class="frame-content">
+      <div class="kicker">
+        <i data-lucide="play-circle" style="width:12px;height:12px;"></i> Live Research Playground (Algorithm &amp; Moderation)
+      </div>
+      
+      <div class="playground-layout">
+        <!-- VOTING SIMULATOR -->
+        <div class="glass-card playground-panel">
+          <h3 class="playground-title">
+            <i data-lucide="scale" style="width:16px;height:16px;color:var(--accent-coral);"></i>
+            Voting Weight Simulator
+          </h3>
+          <div class="simulator-body">
+            <!-- CAS Department -->
+            <div class="vote-slider-group">
+              <div class="slider-label-row">
+                <span>CAS YES Votes (Pop: 1,200)</span>
+                <span><strong id="cas-votes-display">600</strong> / 1200</span>
+              </div>
+              <input type="range" class="sim-slider" id="cas-votes-slider" min="0" max="1200" value="600" step="10">
+              <div class="slider-label-row" style="margin-top:2px;">
+                <span>YES Vote Rate: <span id="cas-rate-display">50%</span></span>
+                <span class="quorum-badge badge-ok" id="cas-q-badge">Quorum Met</span>
+              </div>
+            </div>
+            
+            <!-- CTE Department -->
+            <div class="vote-slider-group">
+              <div class="slider-label-row">
+                <span>CTE YES Votes (Pop: 300)</span>
+                <span><strong id="cte-votes-display">240</strong> / 300</span>
+              </div>
+              <input type="range" class="sim-slider" id="cte-votes-slider" min="0" max="300" value="240" step="5">
+              <div class="slider-label-row" style="margin-top:2px;">
+                <span>YES Vote Rate: <span id="cte-rate-display">80%</span></span>
+                <span class="quorum-badge badge-ok" id="cte-q-badge">Quorum Met</span>
+              </div>
+            </div>
+            
+            <!-- Comparison graphs -->
+            <div class="compare-container">
+              <div class="compare-bar-group">
+                <div class="compare-bar-label">
+                  <span>Raw Headcount YES Rate (Overall Vote)</span>
+                  <span id="raw-pct-display">56.0% (Overall Yes)</span>
+                </div>
+                <div class="compare-bar-bg">
+                  <div class="compare-bar-fill fill-red" id="raw-bar-fill" style="width: 56.0%;"></div>
+                </div>
+              </div>
+              
+              <div class="compare-bar-group" style="margin-top:6px;">
+                <div class="compare-bar-label">
+                  <span>Equity-Normalized Weighted Score</span>
+                  <span id="weighted-pct-display">65.0% (Balanced)</span>
+                </div>
+                <div class="compare-bar-bg">
+                  <div class="compare-bar-fill fill-indigo" id="weighted-bar-fill" style="width: 65%;"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- DEMOCRATIC OUTCOME COMPARISON -->
+            <div class="outcome-box" style="margin-top: 12px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; border-top: 1px dashed rgba(99,102,241,0.2); padding-top: 12px;">
+              <div style="text-align: center;">
+                <div style="font-family: var(--mono); font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Headcount Outcome</div>
+                <div id="raw-winner-badge" style="margin-top: 4px; font-weight: 700; font-size: 0.85rem; padding: 4px 8px; border-radius: 4px; display: inline-block;">PASSED</div>
+                <div id="raw-winner-detail" style="font-size: 0.62rem; color: var(--text-muted); margin-top: 2px; line-height: 1.25;">CAS majority dictates result</div>
+              </div>
+              <div style="text-align: center;">
+                <div style="font-family: var(--mono); font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Weighted Outcome</div>
+                <div id="weighted-winner-badge" style="margin-top: 4px; font-weight: 700; font-size: 0.85rem; padding: 4px 8px; border-radius: 4px; display: inline-block;">PASSED</div>
+                <div id="weighted-winner-detail" style="font-size: 0.62rem; color: var(--text-muted); margin-top: 2px; line-height: 1.25;">Equitable consensus across depts</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- MODERATION & ANONYMITY -->
+        <div class="glass-card playground-panel">
+          <h3 class="playground-title">
+            <i data-lucide="shield" style="width:16px;height:16px;color:var(--accent-coral);"></i>
+            Managed Anonymity &amp; Filter
+          </h3>
+          <div class="simulator-body" style="gap:10px;">
+            <div class="anon-input-area">
+              <textarea class="anon-textbox" id="anon-input" placeholder="Type an anonymous feedback post here... (e.g. Type normal text, or use toxic words like 'cheat' or 'leak' to see the moderation trigger)"></textarea>
+              <div class="anon-quick-tags">
+                <span class="anon-tag" onclick="insertSample('We need a better cooling system in Room 204.')">Clean Sample</span>
+                <span class="anon-tag" onclick="insertSample('Someone is planning to leak the upcoming midterm exam paper!')">Toxicity Trigger</span>
+                <span class="anon-tag" onclick="insertSample('The instructor in IT is a total fraud and stupid.')">Harassment Trigger</span>
+              </div>
+            </div>
+            
+            <div class="moderation-status-box">
+              <div class="status-badge-row">
+                <span style="font-size:0.75rem;font-weight:500;">Filter Pipeline Status:</span>
+                <span class="status-badge status-clean" id="moderation-badge">Approved</span>
+              </div>
+              
+              <div class="sim-logs-title">
+                <i data-lucide="terminal" style="width:10px;height:10px;"></i> Live Processing Logs:
+              </div>
+              <div class="sim-logs-container" id="moderation-logs">
+                <div class="log-entry log-sec">[Filter Engine] Screen initialized. Standing by.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="chrome-footer">
+      <div>Thesis Board Presentation · ISPSC 2026</div>
+      <div class="dots-nav" id="dots-4"></div>
+      <div>Slide 05 / 06</div>
+    </div>
+  </section>
+
+  <!-- ==========================================
+       SLIDE 6 — SCOPE, ROADMAP & DIFFICULTY (Execution)
+       ========================================== -->
+  <section class="slide" id="slide-5">
+    <div class="chrome-header">
+      <div class="chrome-header-left">
+        <div class="logo-icon">CA</div>
+        <span>CollabAcad · Execution Plan</span>
+      </div>
+      <div>Section 6 — Execution Parameters</div>
+    </div>
+    
+    <div class="frame-content">
+      <div class="kicker">
+        <i data-lucide="calendar" style="width:12px;height:12px;"></i> Scope Boundaries, 12-Week Roadmap &amp; Risks
+      </div>
+      <h2 class="slide-title">Project Scope, Roadmap, and Risks</h2>
+      
+      <div class="slide6-layout">
+        <div class="glass-card scope-card">
+          <h3 class="scope-card-title">
+            <i data-lucide="maximize" style="width:16px;height:16px;color:var(--accent-coral);"></i> Scope Boundaries
+          </h3>
+          <ul class="scope-list">
+            <li class="scope-list-item">
+              <i data-lucide="check" style="width:14px;height:14px;color:var(--accent-mint);"></i>
+              <span><strong>In-Scope Auth:</strong> Role-based access for Admin, Faculty, Officers, and Students.</span>
+            </li>
+            <li class="scope-list-item">
+              <i data-lucide="check" style="width:14px;height:14px;color:var(--accent-mint);"></i>
+              <span><strong>In-Scope Core:</strong> Socket.IO live ticker stream, department voting weighting, and moderated anonymous channels.</span>
+            </li>
+            <li class="scope-list-item">
+              <i data-lucide="check" style="width:14px;height:14px;color:var(--accent-mint);"></i>
+              <span><strong>In-Scope Admin:</strong> Moderation review queues, Postgres RLS tables, and voter registry controls.</span>
+            </li>
+            <li class="scope-list-item">
+              <i data-lucide="minus" style="width:14px;height:14px;color:var(--danger-crimson);"></i>
+              <span><strong>Out-of-Scope GCs:</strong> Direct integration into Facebook Messenger or third-party consumer systems (retains on-prem control).</span>
+            </li>
+            <li class="scope-list-item">
+              <i data-lucide="minus" style="width:14px;height:14px;color:var(--danger-crimson);"></i>
+              <span><strong>Out-of-Scope Apps:</strong> Native iOS/Android apps; restricted to fully-responsive Web SPA layout to limit threat surface.</span>
+            </li>
+          </ul>
+        </div>
+        
+        <div class="glass-card roadmap-card">
+          <h3 class="scope-card-title">
+            <i data-lucide="milestone" style="width:16px;height:16px;color:var(--accent-coral);"></i> Development Phases
+          </h3>
+          <div class="timeline">
+            <div class="timeline-step">
+              <div class="timeline-dot"></div>
+              <div class="timeline-step-header">
+                <span class="timeline-step-title">Phase 1: Foundation &amp; WebSockets</span>
+                <span class="timeline-step-weeks">W1 - W4</span>
+              </div>
+              <p class="timeline-step-desc">Establish Next.js interface, Node Express backend, Socket.IO namespaces, and RBAC authentication guards.</p>
+            </div>
+            <div class="timeline-step">
+              <div class="timeline-dot"></div>
+              <div class="timeline-step-header">
+                <span class="timeline-step-title">Phase 2: App &amp; Normalized Voting</span>
+                <span class="timeline-step-weeks">W5 - W8</span>
+              </div>
+              <p class="timeline-step-desc">Implement voting modules, department weight normalization, Redis cache-locks, and live announcement ticker feeds.</p>
+            </div>
+            <div class="timeline-step">
+              <div class="timeline-dot"></div>
+              <div class="timeline-step-header">
+                <span class="timeline-step-title">Phase 3: Moderation, Audit &amp; k6 Load Tests</span>
+                <span class="timeline-step-weeks">W9 - W12</span>
+              </div>
+              <p class="timeline-step-desc">Integrate content pre-screening pipeline, de-anonymization RLS schemas, k6 load testing, and SUS evaluations.</p>
+            </div>
+          </div>
+          
+          <div class="diff-section">
+            <div class="diff-label-group">
+              <span class="diff-label">System Complexity</span>
+              <span class="diff-val">Moderate-High</span>
+            </div>
+            <div class="diff-bars">
+              <div class="diff-bar fill"></div>
+              <div class="diff-bar fill"></div>
+              <div class="diff-bar fill"></div>
+              <div class="diff-bar fill"></div>
+              <div class="diff-bar"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="chrome-footer">
+      <div>Thesis Board Presentation · ISPSC 2026</div>
+      <div class="dots-nav" id="dots-5"></div>
+      <div>Slide 06 / 06</div>
+    </div>
+  </section>
+
+</div>
+
+<!-- Presentation Control Buttons (Floating UI) -->
+<div style="position: absolute; bottom: 25px; right: 60px; z-index: 1000; display: flex; gap: 15px; align-items: center;">
+  <div class="timer-box">
+    <div class="timer-dot"></div>
+    <span style="font-family:var(--mono); font-size:0.75rem; color:var(--text-light);" id="timer-display">00:00</span>
+  </div>
+  <div class="control-group">
+    <button class="control-btn" onclick="prevSlide()" title="Previous slide (Left Arrow / Up)"><i data-lucide="arrow-left" style="width:16px;height:16px;"></i></button>
+    <button class="control-btn" onclick="nextSlide()" title="Next slide (Right Arrow / Down / Space)"><i data-lucide="arrow-right" style="width:16px;height:16px;"></i></button>
+  </div>
+</div>
+
+<script>
+// =========================================================================
+// SLIDE DECK TRANSITION LOGIC
+// =========================================================================
+let currentSlide = 0;
+const totalSlides = 6;
+const deck = document.getElementById('deck');
+
+function updateSlide() {
+  deck.style.transform = `translateX(-${currentSlide * 100}vw)`;
+  
+  // Update Dot navigations
+  for (let s = 0; s < totalSlides; s++) {
+    const dotsContainer = document.getElementById(`dots-${s}`);
+    if (dotsContainer) {
+      dotsContainer.innerHTML = '';
+      for (let i = 0; i < totalSlides; i++) {
+        const dot = document.createElement('div');
+        dot.className = `dot ${i === currentSlide ? 'active' : ''}`;
+        dot.addEventListener('click', () => {
+          currentSlide = i;
+          updateSlide();
+        });
+        dotsContainer.appendChild(dot);
+      }
+    }
+  }
+}
+
+function nextSlide() {
+  if (currentSlide < totalSlides - 1) {
+    currentSlide++;
+    updateSlide();
+  }
+}
+
+function prevSlide() {
+  if (currentSlide > 0) {
+    currentSlide--;
+    updateSlide();
+  }
+}
+
+// Keyboard controls
+window.addEventListener('keydown', (e) => {
+  if (e.target.tagName === 'TEXTAREA' || e.target.tagName === 'INPUT') return;
+  
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') {
+    e.preventDefault();
+    nextSlide();
+  } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+    e.preventDefault();
+    prevSlide();
+  }
+});
+
+// Mouse wheel navigation
+let lastWheelTime = 0;
+window.addEventListener('wheel', (e) => {
+  const now = Date.now();
+  if (now - lastWheelTime < 1000) return; // Debounce
+  
+  if (e.deltaY > 30) {
+    nextSlide();
+    lastWheelTime = now;
+  } else if (e.deltaY < -30) {
+    prevSlide();
+    lastWheelTime = now;
+  }
+});
+
+// Presentation Timer
+let secondsElapsed = 0;
+setInterval(() => {
+  secondsElapsed++;
+  const mins = Math.floor(secondsElapsed / 60).toString().padStart(2, '0');
+  const secs = (secondsElapsed % 60).toString().padStart(2, '0');
+  document.getElementById('timer-display').innerText = `${mins}:${secs}`;
+}, 1000);
+
+// Initialize Dot indicators
+updateSlide();
+
+// =========================================================================
+// INTERACTIVE PARTICLES NODE BACKGROUND
+// =========================================================================
+const canvas = document.getElementById('bg-canvas');
+const ctx = canvas.getContext('2d');
+
+let particles = [];
+const particleCount = 65;
+let mouse = { x: null, y: null, radius: 150 };
+
+function resizeCanvas() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas();
+
+class Particle {
+  constructor() {
+    this.x = Math.random() * canvas.width;
+    this.y = Math.random() * canvas.height;
+    this.size = Math.random() * 2 + 1;
+    this.speedX = (Math.random() - 0.5) * 0.4;
+    this.speedY = (Math.random() - 0.5) * 0.4;
+  }
+  
+  update() {
+    this.x += this.speedX;
+    this.y += this.speedY;
+    
+    // Boundary collision
+    if (this.x < 0 || this.x > canvas.width) this.speedX *= -1;
+    if (this.y < 0 || this.y > canvas.height) this.speedY *= -1;
+    
+    // Mouse interaction (repel slightly or pull)
+    if (mouse.x && mouse.y) {
+      let dx = mouse.x - this.x;
+      let dy = mouse.y - this.y;
+      let distance = Math.sqrt(dx * dx + dy * dy);
+      if (distance < mouse.radius) {
+        let force = (mouse.radius - distance) / mouse.radius;
+        this.x -= dx * force * 0.02;
+        this.y -= dy * force * 0.02;
+      }
+    }
+  }
+  
+  draw() {
+    ctx.fillStyle = 'rgba(99, 102, 241, 0.4)';
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+    ctx.fill();
+  }
+}
+
+function initParticles() {
+  particles = [];
+  for (let i = 0; i < particleCount; i++) {
+    particles.push(new Particle());
+  }
+}
+initParticles();
+
+window.addEventListener('mousemove', (e) => {
+  mouse.x = e.x;
+  mouse.y = e.y;
+});
+
+window.addEventListener('mouseleave', () => {
+  mouse.x = null;
+  mouse.y = null;
+});
+
+function drawConnections() {
+  for (let a = 0; a < particles.length; a++) {
+    for (let b = a; b < particles.length; b++) {
+      let dx = particles[a].x - particles[b].x;
+      let dy = particles[a].y - particles[b].y;
+      let distance = Math.sqrt(dx * dx + dy * dy);
+      
+      if (distance < 120) {
+        let alpha = (1 - (distance / 120)) * 0.15;
+        // Check slide theme colors to accent connections
+        ctx.strokeStyle = `rgba(99, 102, 241, ${alpha})`;
+        ctx.lineWidth = 0.8;
+        ctx.beginPath();
+        ctx.moveTo(particles[a].x, particles[a].y);
+        ctx.lineTo(particles[b].x, particles[b].y);
+        ctx.stroke();
+      }
+    }
+  }
+}
+
+function animateBackground() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  
+  // Radial gradient background
+  let grad = ctx.createRadialGradient(canvas.width/2, canvas.height/2, 10, canvas.width/2, canvas.height/2, Math.max(canvas.width, canvas.height));
+  grad.addColorStop(0, '#0c0f1d');
+  grad.addColorStop(1, '#05060b');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  
+  for (let i = 0; i < particles.length; i++) {
+    particles[i].update();
+    particles[i].draw();
+  }
+  
+  drawConnections();
+  requestAnimationFrame(animateBackground);
+}
+animateBackground();
+
+// =========================================================================
+// INTERACTIVE MECHANICS: SLIDE 5 LOGIC
+// =========================================================================
+
+// 1. VOTING ALGORITHM SIMULATOR
+const casSlider = document.getElementById('cas-votes-slider');
+const cteSlider = document.getElementById('cte-votes-slider');
+
+const casDisplay = document.getElementById('cas-votes-display');
+const cteDisplay = document.getElementById('cte-votes-display');
+
+const casRateDisplay = document.getElementById('cas-rate-display');
+const cteRateDisplay = document.getElementById('cte-rate-display');
+
+const casQuorum = document.getElementById('cas-q-badge');
+const cteQuorum = document.getElementById('cte-q-badge');
+
+const rawPctText = document.getElementById('raw-pct-display');
+const rawFillBar = document.getElementById('raw-bar-fill');
+
+const weightedPctText = document.getElementById('weighted-pct-display');
+const weightedFillBar = document.getElementById('weighted-bar-fill');
+
+function recalculateVoting() {
+  const vCas = parseInt(casSlider.value);
+  const vCte = parseInt(cteSlider.value);
+  
+  const pCas = 1200;
+  const pCte = 300;
+  
+  // Update slider counts
+  casDisplay.innerText = vCas.toLocaleString();
+  cteDisplay.innerText = vCte.toLocaleString();
+  
+  // Calculate participation rates
+  const rCas = (vCas / pCas) * 100;
+  const rCte = (vCte / pCte) * 100;
+  
+  casRateDisplay.innerText = `${rCas.toFixed(1)}%`;
+  cteRateDisplay.innerText = `${rCte.toFixed(1)}%`;
+  
+  // Quorum flags (minimum 30%)
+  if (rCas >= 30) {
+    casQuorum.innerText = "Quorum Met";
+    casQuorum.className = "quorum-badge badge-ok";
+  } else {
+    casQuorum.innerText = "Low Quorum";
+    casQuorum.className = "quorum-badge badge-low";
+  }
+  
+  if (rCte >= 30) {
+    cteQuorum.innerText = "Quorum Met";
+    cteQuorum.className = "quorum-badge badge-ok";
+  } else {
+    cteQuorum.innerText = "Low Quorum";
+    cteQuorum.className = "quorum-badge badge-low";
+  }
+  
+  // 1. Raw Headcount YES Rate
+  const totalYes = vCas + vCte;
+  const rawPct = (totalYes / (pCas + pCte)) * 100;
+  
+  rawPctText.innerText = `${rawPct.toFixed(1)}% (Overall Yes)`;
+  rawFillBar.style.width = `${rawPct}%`;
+  
+  // 2. Segmented Weighted Voting (W = sum(W_d)/|D|)
+  const wCas = rCas; // Participation score CAS (Yes votes over population)
+  const wCte = rCte; // Participation score CTE
+  const wInst = (wCas + wCte) / 2; // Arithmetic mean of weights
+  
+  weightedPctText.innerText = `${wInst.toFixed(1)}% (Institutional Score)`;
+  weightedFillBar.style.width = `${wInst}%`;
+  
+  // 3. Dynamic Outcomes & Detail Descriptions
+  const rawBadge = document.getElementById('raw-winner-badge');
+  const rawDetail = document.getElementById('raw-winner-detail');
+  const weightedBadge = document.getElementById('weighted-winner-badge');
+  const weightedDetail = document.getElementById('weighted-winner-detail');
+  
+  // Headcount Outcome
+  if (rawPct >= 50) {
+    rawBadge.innerText = "PASSED";
+    rawBadge.style.background = "rgba(16, 185, 129, 0.15)";
+    rawBadge.style.color = "var(--accent-mint)";
+    rawBadge.style.border = "1px solid rgba(16, 185, 129, 0.25)";
+    
+    if (rCas >= 50 && rCte < 50) {
+      rawDetail.innerText = "CAS (80% pop) overrides CTE's rejection.";
+    } else if (rCas >= 50 && rCte >= 50) {
+      rawDetail.innerText = "Mutual majority approval.";
+    } else {
+      rawDetail.innerText = "Approved by total headcount.";
+    }
+  } else {
+    rawBadge.innerText = "FAILED";
+    rawBadge.style.background = "rgba(244, 63, 94, 0.15)";
+    rawBadge.style.color = "var(--danger-crimson)";
+    rawBadge.style.border = "1px solid rgba(244, 63, 94, 0.25)";
+    
+    if (rCas < 50 && rCte >= 50) {
+      rawDetail.innerText = "CAS rejection drowns out CTE's support.";
+    } else {
+      rawDetail.innerText = "Rejected by headcount majority.";
+    }
+  }
+  
+  // Weighted Outcome
+  if (wInst >= 50) {
+    weightedBadge.innerText = "PASSED";
+    weightedBadge.style.background = "rgba(16, 185, 129, 0.15)";
+    weightedBadge.style.color = "var(--accent-mint)";
+    weightedBadge.style.border = "1px solid rgba(16, 185, 129, 0.25)";
+    
+    if (rawPct < 50) {
+      weightedDetail.innerText = "Equity logic overrides CAS scale, passing vote.";
+    } else {
+      weightedDetail.innerText = "Equitable consensus across colleges.";
+    }
+  } else {
+    weightedBadge.innerText = "FAILED";
+    weightedBadge.style.background = "rgba(244, 63, 94, 0.15)";
+    weightedBadge.style.color = "var(--danger-crimson)";
+    weightedBadge.style.border = "1px solid rgba(244, 63, 94, 0.25)";
+    
+    if (rawPct >= 50) {
+      weightedDetail.innerText = "Equity logic blocks CAS dominance, vetoing vote.";
+    } else {
+      weightedDetail.innerText = "Failed to reach department average.";
+    }
+  }
+}
+
+casSlider.addEventListener('input', recalculateVoting);
+cteSlider.addEventListener('input', recalculateVoting);
+recalculateVoting(); // Run initially
+
+// 2. MODERATION & ANONYMITY SIMULATOR
+const anonInput = document.getElementById('anon-input');
+const modBadge = document.getElementById('moderation-badge');
+const modLogs = document.getElementById('moderation-logs');
+
+const toxicKeywords = ['cheat', 'leak', 'stupid', 'idiot', 'scam', 'corrupt', 'fraud', 'fail', 'fudge'];
+
+function addLog(text, logClass = '') {
+  const div = document.createElement('div');
+  div.className = `log-entry ${logClass}`;
+  
+  const now = new Date();
+  const timeStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}.${(now.getMilliseconds()/10).toFixed(0).padStart(2, '0')}`;
+  
+  div.innerHTML = `<span style="color:var(--text-muted)">[${timeStr}]</span> ${text}`;
+  modLogs.appendChild(div);
+  modLogs.scrollTop = modLogs.scrollHeight;
+}
+
+function checkModeration() {
+  const text = anonInput.value.trim().toLowerCase();
+  
+  if (text.length === 0) {
+    modBadge.innerText = "Standing By";
+    modBadge.className = "status-badge";
+    return;
+  }
+  
+  // Match check
+  let matched = [];
+  toxicKeywords.forEach(kw => {
+    if (text.includes(kw)) {
+      matched.push(kw);
+    }
+  });
+  
+  if (matched.length > 0) {
+    modBadge.innerText = "Flagged & Held";
+    modBadge.className = "status-badge status-flagged";
+    
+    // Add logs if not already logged recently
+    addLog(`[Filter Engine] Warning: Flagged keyword(s) matched: "${matched.join(', ')}".`, 'log-err');
+    addLog(`[Queue Manager] Diverted anonymous post to Redis list "anon:review:queue".`, 'log-warn');
+    addLog(`[DB Agent] Identity saved to secure PostgreSQL schema. Public placeholder created.`, 'log-info');
+  } else {
+    modBadge.innerText = "Approved";
+    modBadge.className = "status-badge status-clean";
+    
+    addLog(`[Filter Engine] Content screen clean. No flags triggered.`, 'log-sec');
+    addLog(`[Socket Engine] Broadcasting payload to room "/forums/general".`, 'log-info');
+    addLog(`[Socket Engine] Event broadcast completed. Latency: 8ms.`, 'log-sec');
+  }
+}
+
+let filterDebounce;
+anonInput.addEventListener('input', () => {
+  clearTimeout(filterDebounce);
+  filterDebounce = setTimeout(checkModeration, 400); // 400ms debounce
+});
+
+function insertSample(text) {
+  anonInput.value = text;
+  checkModeration();
+}
+
+// Initial icon setup
+window.addEventListener('DOMContentLoaded', () => {
+  lucide.createIcons();
+});
+
+/* === Gallery Navigation Patch === */
+(function() {
+  const galleryUrl = '../../index.html';
+  const btn = document.createElement('div');
+  btn.innerHTML = '&#8592; Gallery';
+  Object.assign(btn.style, {
+    position: 'fixed', top: '16px', left: '16px', zIndex: '9999',
+    background: 'rgba(0,0,0,0.7)', color: '#fff', padding: '6px 14px',
+    borderRadius: '8px', fontSize: '13px', fontFamily: 'system-ui, sans-serif',
+    cursor: 'pointer', opacity: '0', transition: 'opacity 0.3s ease',
+    backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.15)',
+    userSelect: 'none', lineHeight: '1.4'
+  });
+  btn.addEventListener('click', function() { window.location.href = galleryUrl; });
+  document.body.appendChild(btn);
+  document.addEventListener('mousemove', function(e) {
+    btn.style.opacity = e.clientX < 160 && e.clientY < 60 ? '1' : '0';
+  });
+  document.addEventListener('mouseleave', function() { btn.style.opacity = '0'; });
+  btn.addEventListener('mouseenter', function() { btn.style.opacity = '1'; });
+
+  const originalNextSlide = nextSlide;
+  nextSlide = function() {
+    if (currentSlide >= totalSlides - 1) {
+      window.location.href = galleryUrl;
+    } else {
+      originalNextSlide();
+    }
+  };
+})();
+
+</script>
+</body>
+</html>

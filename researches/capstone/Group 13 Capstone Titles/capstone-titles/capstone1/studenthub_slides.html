@@ -1,0 +1,2152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StudentHub — Campus Edge &amp; Micro-Economy Hub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Source+Serif+4:ital,wght@0,400;0,600;0,700;1,400&family=DM+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ===========================================
+   VIEWPORT FITTING: MANDATORY BASE STYLES
+   =========================================== */
+html, body {
+    height: 100%;
+    overflow-x: hidden;
+}
+html {
+    scroll-snap-type: y mandatory;
+    scroll-behavior: smooth;
+}
+.slide {
+    width: 100vw;
+    height: 100vh;
+    height: 100dvh;
+    overflow: hidden;
+    scroll-snap-align: start;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+.slide-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    max-height: 100%;
+    overflow: hidden;
+    padding: var(--slide-padding);
+}
+
+/* ===========================================
+   CSS CUSTOM PROPERTIES (THEME)
+   Paper & Ink adapted for StudentHub
+   =========================================== */
+:root {
+    --ink: #1a1612;
+    --ink-muted: #5c554a;
+    --ink-faint: #9e958a;
+    --paper: #f8f5ef;
+    --paper-warm: #f0ebe1;
+    --paper-card: #ffffff;
+    --accent: #c84b2f;
+    --accent-light: #fce9e4;
+    --accent-dark: #8c2f18;
+    --blue: #1e4fa3;
+    --blue-light: #e4ebf9;
+    --green: #1a6644;
+    --green-light: #e2f1ea;
+    --border: rgba(26,22,18,0.12);
+    --border-strong: rgba(26,22,18,0.25);
+
+    --serif: 'Cormorant Garamond', Georgia, serif;
+    --serif-src: 'Source Serif 4', Georgia, serif;
+    --sans: 'Instrument Sans', system-ui, sans-serif;
+    --mono: 'DM Mono', monospace;
+
+    --title-size: clamp(2rem, 5.5vw, 4.5rem);
+    --h2-size: clamp(1.25rem, 3.5vw, 2.5rem);
+    --h3-size: clamp(1rem, 2.5vw, 1.75rem);
+    --body-size: clamp(0.75rem, 1.5vw, 1.125rem);
+    --small-size: clamp(0.65rem, 1vw, 0.875rem);
+    --slide-padding: clamp(1.5rem, 4vw, 4rem);
+    --content-gap: clamp(0.5rem, 2vw, 2rem);
+    --element-gap: clamp(0.25rem, 1vw, 1rem);
+
+    --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+    --duration-normal: 0.6s;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: var(--body-size);
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* ===========================================
+   NAVIGATION
+   =========================================== */
+.progress-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 3px;
+    background: var(--accent);
+    z-index: 9999;
+    transition: width 0.3s ease;
+}
+.nav-dots {
+    position: fixed;
+    right: clamp(12px, 2vw, 24px);
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    z-index: 9998;
+}
+.nav-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--ink-faint);
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+.nav-dot.active {
+    background: var(--accent);
+    transform: scale(1.5);
+}
+.nav-dot:hover {
+    background: var(--ink-muted);
+}
+
+/* Slide number */
+.slide-num {
+    position: absolute;
+    top: clamp(1rem, 3vw, 2rem);
+    left: clamp(1rem, 3vw, 2.5rem);
+    font-family: var(--mono);
+    font-size: clamp(0.6rem, 0.8vw, 0.75rem);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    z-index: 10;
+}
+
+/* ===========================================
+   ANIMATIONS
+   =========================================== */
+.reveal {
+    opacity: 0;
+    transform: translateY(25px);
+    transition: opacity var(--duration-normal) var(--ease-out-expo),
+                transform var(--duration-normal) var(--ease-out-expo);
+}
+.slide.visible .reveal {
+    opacity: 1;
+    transform: translateY(0);
+}
+.reveal:nth-child(1) { transition-delay: 0.05s; }
+.reveal:nth-child(2) { transition-delay: 0.15s; }
+.reveal:nth-child(3) { transition-delay: 0.25s; }
+.reveal:nth-child(4) { transition-delay: 0.35s; }
+.reveal:nth-child(5) { transition-delay: 0.45s; }
+.reveal:nth-child(6) { transition-delay: 0.55s; }
+.reveal:nth-child(7) { transition-delay: 0.65s; }
+
+.reveal-line {
+    opacity: 0;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: opacity 0.4s ease, transform 0.6s var(--ease-out-expo);
+}
+.slide.visible .reveal-line {
+    opacity: 1;
+    transform: scaleX(1);
+}
+
+/* Horizontal rule accent */
+.rule-accent {
+    border: none;
+    height: 2px;
+    background: var(--accent);
+    width: clamp(60px, 10vw, 120px);
+    margin: 0;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.7s var(--ease-out-expo);
+}
+.slide.visible .rule-accent {
+    transform: scaleX(1);
+}
+
+/* ===========================================
+   SLIDE 1 — TITLE
+   =========================================== */
+.slide-title {
+    background: var(--ink);
+    color: var(--paper);
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+.slide-title .slide-content {
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    max-width: min(90vw, 800px);
+}
+.title-eyebrow {
+    font-family: var(--mono);
+    font-size: clamp(0.55rem, 0.9vw, 0.75rem);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin-bottom: clamp(1rem, 2vw, 2rem);
+}
+.title-main {
+    font-family: var(--serif);
+    font-size: clamp(2.2rem, 6vw, 5rem);
+    line-height: 1.08;
+    font-weight: 600;
+    margin-bottom: clamp(0.5rem, 1.5vw, 1.5rem);
+}
+.title-main em {
+    font-style: italic;
+    color: var(--accent);
+}
+.title-hook {
+    font-family: var(--serif);
+    font-size: clamp(1rem, 1.8vw, 1.5rem);
+    font-style: italic;
+    color: var(--ink-faint);
+    max-width: 580px;
+    line-height: 1.6;
+    margin-bottom: clamp(1.5rem, 3vw, 2.5rem);
+}
+.title-meta {
+    font-family: var(--mono);
+    font-size: clamp(0.5rem, 0.7vw, 0.65rem);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+}
+
+/* ===========================================
+   SLIDE 2 — THE SCENE
+   =========================================== */
+.slide-scene {
+    background: var(--paper);
+}
+.scene-content {
+    max-width: min(90vw, 720px);
+    margin: 0 auto;
+}
+.scene-label {
+    font-family: var(--mono);
+    font-size: clamp(0.55rem, 0.8vw, 0.7rem);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: clamp(0.5rem, 1vw, 1rem);
+}
+.scene-quote {
+    font-family: var(--serif);
+    font-size: clamp(1.3rem, 2.8vw, 2.2rem);
+    line-height: 1.35;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: clamp(1rem, 2vw, 1.5rem);
+}
+.scene-quote em {
+    font-style: italic;
+    color: var(--accent);
+}
+.scene-body {
+    font-size: clamp(0.8rem, 1.2vw, 0.95rem);
+    color: var(--ink-muted);
+    line-height: 1.75;
+}
+
+/* ===========================================
+   SLIDE 3 — THE PROBLEM
+   =========================================== */
+.slide-problem {
+    background: var(--ink);
+    color: var(--paper);
+}
+.slide-dark {
+    background: #0b0f19;
+    color: #ffffff;
+}
+.slide-dark .slide-num {
+    color: rgba(255, 255, 255, 0.4);
+}
+.problem-header {
+    margin-bottom: clamp(1rem, 2vw, 1.5rem);
+}
+.problem-label {
+    font-family: var(--mono);
+    font-size: clamp(0.55rem, 0.8vw, 0.7rem);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: clamp(0.3rem, 0.5vw, 0.5rem);
+}
+.problem-title {
+    font-family: var(--serif);
+    font-size: var(--h2-size);
+    line-height: 1.15;
+    font-weight: 600;
+}
+.pain-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    border: 1px solid rgba(248,245,239,0.15);
+    border-radius: 10px;
+    overflow: hidden;
+}
+.pain-item {
+    padding: clamp(10px, 1.5vw, 16px) clamp(12px, 2vw, 20px);
+    border-bottom: 1px solid rgba(248,245,239,0.08);
+    display: grid;
+    grid-template-columns: 8px 1fr;
+    gap: clamp(10px, 1.5vw, 16px);
+    align-items: start;
+}
+.pain-item:last-child { border-bottom: none; }
+.pain-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--accent);
+    margin-top: clamp(5px, 0.5vw, 7px);
+    flex-shrink: 0;
+}
+.pain-main {
+    font-size: clamp(0.75rem, 1.2vw, 0.88rem);
+    font-weight: 500;
+    color: var(--paper);
+    line-height: 1.4;
+    margin-bottom: 2px;
+}
+.pain-sub {
+    font-size: clamp(0.65rem, 1vw, 0.78rem);
+    color: rgba(248,245,239,0.55);
+    line-height: 1.6;
+}
+
+/* ===========================================
+   SLIDE 4 — PROPOSED SYSTEM (Architecture)
+   =========================================== */
+.slide-system {
+    background: var(--paper);
+}
+.system-header {
+    margin-bottom: clamp(1rem, 2vw, 1.5rem);
+}
+.system-label {
+    font-family: var(--mono);
+    font-size: clamp(0.55rem, 0.8vw, 0.7rem);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: clamp(0.3rem, 0.5vw, 0.5rem);
+}
+.system-title {
+    font-family: var(--serif);
+    font-size: var(--h2-size);
+    line-height: 1.15;
+    font-weight: 600;
+}
+.system-statement {
+    font-size: clamp(0.82rem, 1.3vw, 1rem);
+    color: var(--ink-muted);
+    line-height: 1.7;
+    padding: clamp(12px, 1.5vw, 18px) clamp(14px, 2vw, 20px);
+    background: var(--paper-warm);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    margin-bottom: clamp(1rem, 2vw, 1.5rem);
+}
+.arch-cols {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: clamp(10px, 1.5vw, 16px);
+    margin-bottom: clamp(0.5rem, 1vw, 1rem);
+}
+@media (max-width: 600px) { .arch-cols { grid-template-columns: 1fr; } }
+.arch-card {
+    border-radius: 10px;
+    padding: clamp(14px, 2vw, 22px) clamp(14px, 2vw, 20px);
+}
+.arch-card.side-a {
+    background: var(--blue-light);
+    border: 1px solid rgba(30,79,163,0.2);
+}
+.arch-card.side-b {
+    background: var(--green-light);
+    border: 1px solid rgba(26,102,68,0.2);
+}
+.arch-card-label {
+    font-family: var(--mono);
+    font-size: clamp(0.55rem, 0.7vw, 0.65rem);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+}
+.side-a .arch-card-label { color: var(--blue); }
+.side-b .arch-card-label { color: var(--green); }
+.arch-card-name {
+    font-family: var(--serif);
+    font-size: clamp(0.95rem, 1.5vw, 1.15rem);
+    font-weight: 600;
+    margin-bottom: 6px;
+}
+.side-a .arch-card-name { color: var(--blue); }
+.side-b .arch-card-name { color: var(--green); }
+.arch-card-desc {
+    font-size: clamp(0.65rem, 1vw, 0.8rem);
+    color: var(--ink-muted);
+    line-height: 1.65;
+}
+.arch-connector {
+    text-align: center;
+    font-family: var(--mono);
+    font-size: clamp(0.55rem, 0.8vw, 0.7rem);
+    color: var(--ink-faint);
+    padding: clamp(6px, 1vw, 12px) 0;
+}
+
+/* ===========================================
+   DEPLOYMENT ANIMATION (SIDE-BY-SIDE VIZ)
+   =========================================== */
+.system-layout {
+    display: grid;
+    grid-template-columns: 1.15fr 0.85fr;
+    gap: clamp(15px, 2vw, 30px);
+    align-items: center;
+    width: 100%;
+}
+@media (max-width: 900px) {
+    .system-layout {
+        grid-template-columns: 1fr;
+    }
+    .system-right {
+        display: none;
+    }
+}
+.system-right {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.deployment-container {
+    background: #0b0f19; /* Sleek dark slate background */
+    border: 1px solid rgba(163, 230, 53, 0.2);
+    border-radius: 12px;
+    padding: clamp(15px, 2vw, 24px);
+    display: flex;
+    align-items: center;
+    gap: clamp(10px, 1.5vw, 20px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    width: 100%;
+    max-width: 380px;
+    height: 280px;
+    box-sizing: border-box;
+}
+.source-pills {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    flex: 1;
+}
+.viz-pill {
+    padding: 10px 14px;
+    border-radius: 6px;
+    font-family: var(--mono);
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-align: center;
+    color: #ffffff;
+    box-sizing: border-box;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+/* Base pill backgrounds */
+.viz-pill.pill-web {
+    animation: webPillGlow 8s infinite ease-in-out;
+}
+.viz-pill.pill-api {
+    animation: apiPillGlow 8s infinite ease-in-out;
+}
+.viz-pill.pill-db {
+    animation: dbPillGlow 8s infinite ease-in-out;
+}
+.viz-pill.pill-canteen {
+    animation: canteenPillGlow 8s infinite ease-in-out;
+}
+
+.viz-arrow {
+    font-size: 24px;
+    color: rgba(163, 230, 53, 0.4);
+    user-select: none;
+    animation: arrowPulse 2s infinite ease-in-out;
+}
+
+.server-rack {
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    background: rgba(0, 0, 0, 0.3);
+    padding: 12px 10px;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    flex: 1.2;
+    height: 100%;
+    justify-content: center;
+    box-sizing: border-box;
+}
+.rack-slot {
+    border: 1.5px dashed rgba(255, 255, 255, 0.15);
+    border-radius: 6px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    background: rgba(255, 255, 255, 0.01);
+}
+.embedded-pill {
+    position: absolute;
+    top: -1px;
+    left: -1px;
+    right: -1px;
+    bottom: -1px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--mono);
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #ffffff;
+    opacity: 0;
+    transform: scale(0.9);
+}
+
+.rack-slot-empty {
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: rgba(255, 255, 255, 0.25);
+}
+
+/* Embedded animation states */
+.embedded-pill.pill-web-dest {
+    background: #00ff66;
+    border: 1px solid #00ff66;
+    color: #0b0f19;
+    box-shadow: 0 0 15px rgba(0, 255, 102, 0.6);
+    animation: webDeploy 8s infinite ease-in-out;
+}
+.embedded-pill.pill-api-dest {
+    background: #adff2f;
+    border: 1px solid #adff2f;
+    color: #0b0f19;
+    box-shadow: 0 0 15px rgba(173, 255, 47, 0.6);
+    animation: apiDeploy 8s infinite ease-in-out;
+}
+.embedded-pill.pill-db-dest {
+    background: #e5ff80;
+    border: 1px solid #e5ff80;
+    color: #0b0f19;
+    box-shadow: 0 0 15px rgba(229, 255, 128, 0.6);
+    animation: dbDeploy 8s infinite ease-in-out;
+}
+.embedded-pill.pill-canteen-dest {
+    background: #00ddff;
+    border: 1px solid #00ddff;
+    color: #0b0f19;
+    box-shadow: 0 0 15px rgba(0, 221, 255, 0.6);
+    animation: canteenDeploy 8s infinite ease-in-out;
+}
+
+/* Keyframes for Glow and Movement Simulation */
+
+/* 1. Web Portal Anim */
+@keyframes webPillGlow {
+    0%, 100% {
+        background: rgba(255, 255, 255, 0.04);
+        border-color: rgba(255, 255, 255, 0.1);
+        color: #ffffff;
+        box-shadow: none;
+    }
+    10%, 45% {
+        background: #00ff66;
+        border-color: #00ff66;
+        color: #0b0f19;
+        box-shadow: 0 0 15px rgba(0, 255, 102, 0.4);
+    }
+    50% {
+        background: rgba(255, 255, 255, 0.04);
+        border-color: rgba(255, 255, 255, 0.1);
+        color: #ffffff;
+        box-shadow: none;
+    }
+}
+@keyframes webDeploy {
+    0%, 15% {
+        opacity: 0;
+        transform: scale(0.8) translateX(-50px);
+    }
+    22%, 90% {
+        opacity: 1;
+        transform: scale(1) translateX(0);
+    }
+    95%, 100% {
+        opacity: 0;
+    }
+}
+
+/* 2. Student API Anim */
+@keyframes apiPillGlow {
+    0%, 25% {
+        background: rgba(255, 255, 255, 0.04);
+        border-color: rgba(255, 255, 255, 0.1);
+        color: #ffffff;
+        box-shadow: none;
+    }
+    35%, 60% {
+        background: #adff2f;
+        border-color: #adff2f;
+        color: #0b0f19;
+        box-shadow: 0 0 15px rgba(173, 255, 47, 0.4);
+    }
+    65%, 100% {
+        background: rgba(255, 255, 255, 0.04);
+        border-color: rgba(255, 255, 255, 0.1);
+        color: #ffffff;
+        box-shadow: none;
+    }
+}
+@keyframes apiDeploy {
+    0%, 40% {
+        opacity: 0;
+        transform: scale(0.8) translateX(-50px);
+    }
+    47%, 90% {
+        opacity: 1;
+        transform: scale(1) translateX(0);
+    }
+    95%, 100% {
+        opacity: 0;
+    }
+}
+
+/* 3. DB Project Anim */
+@keyframes dbPillGlow {
+    0%, 50% {
+        background: rgba(255, 255, 255, 0.04);
+        border-color: rgba(255, 255, 255, 0.1);
+        color: #ffffff;
+        box-shadow: none;
+    }
+    60%, 80% {
+        background: #e5ff80;
+        border-color: #e5ff80;
+        color: #0b0f19;
+        box-shadow: 0 0 15px rgba(229, 255, 128, 0.4);
+    }
+    85%, 100% {
+        background: rgba(255, 255, 255, 0.04);
+        border-color: rgba(255, 255, 255, 0.1);
+        color: #ffffff;
+        box-shadow: none;
+    }
+}
+@keyframes dbDeploy {
+    0%, 65% {
+        opacity: 0;
+        transform: scale(0.8) translateX(-50px);
+    }
+    72%, 90% {
+        opacity: 1;
+        transform: scale(1) translateX(0);
+    }
+    95%, 100% {
+        opacity: 0;
+    }
+}
+
+/* 4. Cashless Canteen Anim */
+@keyframes canteenPillGlow {
+    0%, 70% {
+        background: rgba(255, 255, 255, 0.04);
+        border-color: rgba(255, 255, 255, 0.1);
+        color: #ffffff;
+        box-shadow: none;
+    }
+    75%, 90% {
+        background: #00ddff;
+        border-color: #00ddff;
+        color: #0b0f19;
+        box-shadow: 0 0 15px rgba(0, 221, 255, 0.4);
+    }
+    95%, 100% {
+        background: rgba(255, 255, 255, 0.04);
+        border-color: rgba(255, 255, 255, 0.1);
+        color: #ffffff;
+        box-shadow: none;
+    }
+}
+@keyframes canteenDeploy {
+    0%, 75% {
+        opacity: 0;
+        transform: scale(0.8) translateX(-50px);
+    }
+    82%, 92% {
+        opacity: 1;
+        transform: scale(1) translateX(0);
+    }
+    97%, 100% {
+        opacity: 0;
+    }
+}
+
+/* Arrow Pulsing */
+@keyframes arrowPulse {
+    0%, 100% {
+        transform: scale(1) translateX(0);
+        color: rgba(163, 230, 53, 0.3);
+    }
+    50% {
+        transform: scale(1.1) translateX(5px);
+        color: rgba(163, 230, 53, 0.8);
+    }
+}
+
+/* ===========================================
+   PISOWIFI / NETWORK VIZ
+   =========================================== */
+.network-viz-container {
+    width: 900px;
+    height: 320px;
+    position: relative;
+    background: #0b0f19;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
+    padding: 20px 40px;
+    box-sizing: border-box;
+    margin: 20px auto;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    overflow: hidden;
+}
+.network-node {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1.5px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 16px;
+    text-align: center;
+    font-family: var(--mono);
+    color: #ffffff;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+.network-node.node-active {
+    border-color: var(--accent);
+    box-shadow: 0 0 20px rgba(163, 230, 53, 0.2);
+}
+.node-title {
+    font-size: 0.9rem;
+    font-weight: 700;
+    margin-bottom: 6px;
+    color: #ffffff;
+}
+.node-subtitle {
+    font-size: 0.65rem;
+    color: rgba(255, 255, 255, 0.5);
+    line-height: 1.35;
+}
+.network-lines {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1;
+}
+.network-path {
+    stroke: rgba(255, 255, 255, 0.06);
+    stroke-width: 2;
+    fill: none;
+}
+.network-path.path-local {
+    stroke-dasharray: 6 4;
+    animation: dashLocal 30s linear infinite;
+}
+.network-path.path-wan {
+    stroke-dasharray: 6 4;
+    animation: dashWAN 30s linear infinite;
+}
+.pulse-dot.pulse-local {
+    offset-path: path("M 150 160 L 450 160 L 750 80");
+    animation: movePulseLocal 3s infinite linear;
+}
+.pulse-dot.pulse-wan {
+    offset-path: path("M 150 160 L 450 160 L 750 240");
+    animation: movePulseWAN 4s infinite linear;
+}
+
+@keyframes dashLocal {
+    to { stroke-dashoffset: -200; }
+}
+@keyframes dashWAN {
+    to { stroke-dashoffset: -200; }
+}
+@keyframes movePulseLocal {
+    0% {
+        offset-distance: 0%;
+        background: var(--accent);
+        box-shadow: 0 0 12px var(--accent);
+        opacity: 0;
+    }
+    10% { opacity: 1; }
+    50% { background: #00ff66; box-shadow: 0 0 16px #00ff66; }
+    90% { opacity: 1; }
+    100% {
+        offset-distance: 100%;
+        background: #00ff66;
+        box-shadow: 0 0 12px #00ff66;
+        opacity: 0;
+    }
+}
+@keyframes movePulseWAN {
+    0% {
+        offset-distance: 0%;
+        background: var(--accent);
+        box-shadow: 0 0 12px var(--accent);
+        opacity: 0;
+    }
+    10% { opacity: 1; }
+    50% { background: #00ddff; box-shadow: 0 0 16px #00ddff; }
+    90% { opacity: 1; }
+    100% {
+        offset-distance: 100%;
+        background: #00ddff;
+        box-shadow: 0 0 12px #00ddff;
+        opacity: 0;
+    }
+}
+
+/* ===========================================
+   PAYMENT & CLOSED-LOOP VIZ
+   =========================================== */
+.payment-viz-container {
+    width: 900px;
+    height: 360px;
+    position: relative;
+    background: #0b0f19;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
+    padding: 20px 40px;
+    box-sizing: border-box;
+    margin: 20px auto;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    overflow: hidden;
+}
+.payment-card {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1.5px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 14px;
+    text-align: center;
+    font-family: var(--mono);
+    color: #ffffff;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+    z-index: 2;
+}
+.payment-card.card-wallet {
+    border-color: var(--accent);
+    background: rgba(163, 230, 53, 0.03);
+    box-shadow: 0 0 20px rgba(163, 230, 53, 0.1);
+}
+.payment-card.card-blocked {
+    border-color: #ef4444;
+    background: rgba(239, 68, 68, 0.03);
+    box-shadow: 0 0 15px rgba(239, 68, 68, 0.05);
+}
+.payment-card.card-compliant {
+    border-color: #10b981;
+    background: rgba(16, 185, 129, 0.03);
+    box-shadow: 0 0 15px rgba(16, 185, 129, 0.05);
+}
+.payment-badge {
+    display: inline-block;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.55rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+    letter-spacing: 0.05em;
+}
+.badge-in { background: rgba(163, 230, 53, 0.15); color: var(--accent); }
+.badge-wallet { background: rgba(255, 255, 255, 0.1); color: #ffffff; }
+.badge-blocked { background: rgba(239, 68, 68, 0.15); color: #ef4444; }
+.badge-compliant { background: rgba(16, 185, 129, 0.15); color: #10b981; }
+
+.pulse-dot {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    z-index: 10;
+    pointer-events: none;
+}
+.payment-path-in1 {
+    offset-path: path("M 150 100 L 450 160");
+    animation: moveCoin 4s infinite linear;
+}
+.payment-path-in2 {
+    offset-path: path("M 150 220 L 450 160");
+    animation: moveCoin 4s infinite linear 2s;
+}
+.payment-path-out-blocked {
+    offset-path: path("M 450 160 L 750 100");
+    animation: moveOutBlocked 4s infinite linear;
+}
+.payment-path-out-ok {
+    offset-path: path("M 450 160 L 750 220");
+    animation: moveOutOk 4s infinite linear 2s;
+}
+
+@keyframes moveCoin {
+    0% {
+        offset-distance: 0%;
+        transform: scale(0.6);
+        background: var(--accent);
+        box-shadow: 0 0 8px var(--accent);
+        opacity: 0;
+    }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% {
+        offset-distance: 100%;
+        transform: scale(1);
+        background: #10b981;
+        box-shadow: 0 0 12px #10b981;
+        opacity: 0;
+    }
+}
+@keyframes moveOutBlocked {
+    0% {
+        offset-distance: 0%;
+        background: #ef4444;
+        box-shadow: 0 0 8px #ef4444;
+        opacity: 0;
+    }
+    10% { opacity: 1; }
+    50% {
+        background: #ef4444;
+        box-shadow: 0 0 12px #ef4444;
+        transform: scale(1.3);
+    }
+    60%, 100% {
+        offset-distance: 60%;
+        opacity: 0;
+    }
+}
+@keyframes moveOutOk {
+    0% {
+        offset-distance: 0%;
+        background: #10b981;
+        box-shadow: 0 0 8px #10b981;
+        opacity: 0;
+    }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% {
+        offset-distance: 100%;
+        background: #10b981;
+        box-shadow: 0 0 12px #10b981;
+        opacity: 0;
+    }
+}
+
+/* Responsive scaling for diagram slides */
+@media (max-width: 960px) {
+    .network-viz-container, .payment-viz-container, .deployment-container {
+        transform: scale(0.85);
+        transform-origin: center center;
+    }
+}
+@media (max-width: 800px) {
+    .network-viz-container, .payment-viz-container, .deployment-container {
+        transform: scale(0.7);
+        transform-origin: center center;
+    }
+}
+@media (max-width: 650px) {
+    .network-viz-container, .payment-viz-container, .deployment-container {
+        transform: scale(0.55);
+        transform-origin: center center;
+    }
+}
+@media (max-width: 500px) {
+    .network-viz-container, .payment-viz-container, .deployment-container {
+        transform: scale(0.4);
+        transform-origin: center center;
+    }
+}
+
+/* ===========================================
+   SLIDE 5 — COMPONENT MAP
+   =========================================== */
+.slide-components {
+    background: var(--paper-warm);
+}
+.comp-header {
+    margin-bottom: clamp(1rem, 2vw, 1.5rem);
+}
+.comp-label {
+    font-family: var(--mono);
+    font-size: clamp(0.55rem, 0.8vw, 0.7rem);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: clamp(0.3rem, 0.5vw, 0.5rem);
+}
+.comp-title {
+    font-family: var(--serif);
+    font-size: var(--h2-size);
+    line-height: 1.15;
+    font-weight: 600;
+}
+.comp-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--paper-card);
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid var(--border-strong);
+}
+.comp-table th {
+    font-family: var(--mono);
+    font-size: clamp(0.55rem, 0.75vw, 0.7rem);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    text-align: left;
+    padding: clamp(8px, 1vw, 12px) clamp(10px, 1.5vw, 16px);
+    background: var(--ink);
+    color: var(--paper);
+    font-weight: 500;
+}
+.comp-table td {
+    padding: clamp(7px, 1vw, 11px) clamp(10px, 1.5vw, 16px);
+    border-bottom: 1px solid var(--border);
+    font-size: clamp(0.65rem, 1vw, 0.82rem);
+    vertical-align: top;
+}
+.comp-table tr:last-child td { border-bottom: none; }
+.comp-table td:first-child {
+    font-weight: 600;
+    color: var(--ink);
+}
+.comp-table td:nth-child(2) {
+    color: var(--accent-dark);
+    font-weight: 500;
+}
+.comp-table td:last-child {
+    color: var(--ink-muted);
+}
+.comp-badge {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: clamp(0.5rem, 0.65vw, 0.6rem);
+    letter-spacing: 0.05em;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-weight: 500;
+}
+.badge-web { background: #e6f1fb; color: #0c447c; }
+.badge-mobile { background: #e1f5ee; color: #085041; }
+.badge-ml { background: #eeedfe; color: #3c3489; }
+.badge-iot { background: #faeeda; color: #854f0b; }
+.badge-map { background: #faece7; color: #712b13; }
+
+/* ===========================================
+   SLIDE 6 — NOVELTY
+   =========================================== */
+.slide-novelty {
+    background: var(--paper);
+}
+.novelty-content {
+    max-width: min(85vw, 680px);
+}
+.novelty-label {
+    font-family: var(--mono);
+    font-size: clamp(0.55rem, 0.8vw, 0.7rem);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: clamp(0.5rem, 1vw, 1rem);
+}
+.novelty-title {
+    font-family: var(--serif);
+    font-size: var(--h2-size);
+    line-height: 1.15;
+    font-weight: 600;
+    margin-bottom: clamp(1rem, 2vw, 1.5rem);
+}
+.novelty-cards {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(8px, 1.2vw, 14px);
+}
+.novelty-card {
+    background: var(--paper-card);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    padding: clamp(10px, 1.5vw, 16px) clamp(12px, 2vw, 20px);
+}
+.novelty-card-head {
+    font-size: clamp(0.78rem, 1.1vw, 0.9rem);
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 4px;
+}
+.novelty-card-body {
+    font-size: clamp(0.65rem, 1vw, 0.8rem);
+    color: var(--ink-muted);
+    line-height: 1.65;
+}
+.novelty-card-body em {
+    color: var(--ink);
+    font-style: normal;
+    font-weight: 500;
+}
+
+/* ===========================================
+   SLIDE 7 — SCOPE
+   =========================================== */
+.slide-scope {
+    background: var(--ink);
+    color: var(--paper);
+}
+.scope-content {
+    max-width: min(85vw, 680px);
+}
+.scope-label {
+    font-family: var(--mono);
+    font-size: clamp(0.55rem, 0.8vw, 0.7rem);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: clamp(0.5rem, 1vw, 1rem);
+}
+.scope-title {
+    font-family: var(--serif);
+    font-size: var(--h2-size);
+    line-height: 1.15;
+    font-weight: 600;
+    margin-bottom: clamp(1rem, 2vw, 1.5rem);
+}
+.scope-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: clamp(10px, 1.5vw, 16px);
+}
+@media (max-width: 600px) { .scope-grid { grid-template-columns: 1fr; } }
+.scope-card {
+    padding: clamp(12px, 1.5vw, 18px) clamp(14px, 2vw, 20px);
+    border-radius: 10px;
+}
+.scope-in {
+    background: rgba(26,102,68,0.15);
+    border: 1px solid rgba(26,102,68,0.3);
+}
+.scope-out {
+    background: rgba(200,75,47,0.1);
+    border: 1px solid rgba(200,75,47,0.25);
+}
+.scope-card-label {
+    font-family: var(--mono);
+    font-size: clamp(0.55rem, 0.7vw, 0.65rem);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: clamp(6px, 0.8vw, 10px);
+}
+.scope-in .scope-card-label { color: #5eeaa0; }
+.scope-out .scope-card-label { color: #f09070; }
+.scope-list {
+    list-style: none;
+    padding: 0;
+}
+.scope-list li {
+    font-size: clamp(0.65rem, 1vw, 0.8rem);
+    color: rgba(248,245,239,0.8);
+    line-height: 1.6;
+    padding-left: 14px;
+    position: relative;
+    margin-bottom: clamp(3px, 0.4vw, 5px);
+}
+.scope-in .scope-list li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 9px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #5eeaa0;
+}
+.scope-out .scope-list li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 9px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #f09070;
+}
+
+/* ===========================================
+   SLIDE 8 — DIFFICULTY ACKNOWLEDGMENT & ROADMAP
+   =========================================== */
+.slide-difficulty {
+    background: var(--paper);
+}
+.diff-content {
+    max-width: min(90vw, 780px);
+}
+.diff-label {
+    font-family: var(--mono);
+    font-size: clamp(0.55rem, 0.8vw, 0.7rem);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: clamp(0.3rem, 0.5vw, 0.5rem);
+}
+.diff-title {
+    font-family: var(--serif);
+    font-size: var(--h2-size);
+    line-height: 1.15;
+    font-weight: 600;
+    margin-bottom: clamp(0.8rem, 1.5vw, 1.2rem);
+}
+.diff-subhead {
+    font-family: var(--mono);
+    font-size: clamp(0.55rem, 0.75vw, 0.68rem);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin-bottom: clamp(6px, 0.8vw, 10px);
+}
+.diff-hard-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: clamp(8px, 1vw, 12px);
+    margin-bottom: clamp(0.8rem, 1.5vw, 1.2rem);
+}
+@media (max-width: 600px) { .diff-hard-grid { grid-template-columns: 1fr; } }
+.diff-hard-card {
+    background: var(--paper-warm);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: clamp(10px, 1.2vw, 14px) clamp(10px, 1.2vw, 14px);
+    border-top: 2px solid var(--accent);
+}
+.diff-hard-icon {
+    font-size: clamp(0.9rem, 1.2vw, 1.1rem);
+    margin-bottom: 4px;
+    color: var(--accent);
+}
+.diff-hard-name {
+    font-size: clamp(0.72rem, 1vw, 0.85rem);
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 4px;
+}
+.diff-hard-desc {
+    font-size: clamp(0.58rem, 0.85vw, 0.72rem);
+    color: var(--ink-muted);
+    line-height: 1.6;
+}
+.diff-roadmap {
+    margin-bottom: clamp(0.8rem, 1.5vw, 1.2rem);
+}
+.diff-phases {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(6px, 0.8vw, 10px);
+}
+.diff-phase {
+    display: grid;
+    grid-template-columns: 36px 1fr auto;
+    gap: clamp(8px, 1vw, 14px);
+    align-items: center;
+    padding: clamp(8px, 1vw, 12px) clamp(10px, 1.2vw, 16px);
+    background: var(--paper-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+}
+.diff-phase-num {
+    font-family: var(--serif);
+    font-size: clamp(0.9rem, 1.5vw, 1.2rem);
+    font-weight: 600;
+    color: var(--accent);
+    text-align: center;
+}
+.diff-phase-name {
+    font-size: clamp(0.72rem, 1.1vw, 0.88rem);
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 2px;
+}
+.diff-phase-deliverable {
+    font-size: clamp(0.58rem, 0.85vw, 0.72rem);
+    color: var(--ink-muted);
+    line-height: 1.5;
+}
+.diff-phase-bar {
+    width: clamp(60px, 8vw, 100px);
+    height: 6px;
+    border-radius: 3px;
+    background: var(--border);
+    position: relative;
+    overflow: hidden;
+}
+.diff-phase-bar::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    border-radius: 3px;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.8s var(--ease-out-expo) 0.6s;
+}
+.slide.visible .diff-phase-bar::after {
+    transform: scaleX(1);
+}
+.diff-phase-bar-1::after { width: 100%; background: var(--accent); }
+.diff-phase-bar-2::after { width: 75%; background: var(--blue); }
+.diff-phase-bar-3::after { width: 50%; background: var(--green); }
+.diff-rating {
+    display: flex;
+    align-items: center;
+    gap: clamp(8px, 1vw, 14px);
+    padding: clamp(8px, 1vw, 12px) clamp(12px, 1.5vw, 18px);
+    background: var(--ink);
+    color: var(--paper);
+    border-radius: 8px;
+}
+.diff-rating-label {
+    font-family: var(--mono);
+    font-size: clamp(0.5rem, 0.65vw, 0.6rem);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent);
+    white-space: nowrap;
+}
+.diff-rating-text {
+    font-size: clamp(0.6rem, 0.9vw, 0.75rem);
+    color: rgba(248,245,239,0.85);
+    line-height: 1.55;
+}
+
+/* ===========================================
+   SLIDE — POTENTIAL CLIENTS
+   =========================================== */
+.slide-clients {
+    background: var(--paper-warm);
+}
+.clients-content {
+    max-width: min(85vw, 680px);
+}
+.clients-label {
+    font-family: var(--mono);
+    font-size: clamp(0.55rem, 0.8vw, 0.7rem);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: clamp(0.5rem, 1vw, 1rem);
+}
+.clients-title {
+    font-family: var(--serif);
+    font-size: var(--h2-size);
+    line-height: 1.15;
+    font-weight: 600;
+    margin-bottom: clamp(1rem, 2vw, 1.5rem);
+}
+.client-cards {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(8px, 1.2vw, 14px);
+}
+.client-card {
+    background: var(--paper-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: clamp(14px, 2vw, 22px) clamp(14px, 2vw, 20px);
+    position: relative;
+}
+.client-card.primary-target {
+    border: 2px solid var(--accent);
+    box-shadow: 0 2px 12px rgba(200,75,47,0.08);
+}
+.client-card-badge {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: clamp(0.48rem, 0.6vw, 0.55rem);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-weight: 500;
+    margin-bottom: 6px;
+}
+.badge-primary { background: var(--accent-light); color: var(--accent-dark); }
+.badge-secondary { background: var(--blue-light); color: var(--blue); }
+.client-card-name {
+    font-family: var(--serif);
+    font-size: clamp(0.95rem, 1.4vw, 1.15rem);
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 4px;
+}
+.client-card-org {
+    font-size: clamp(0.65rem, 0.9vw, 0.78rem);
+    color: var(--ink-muted);
+    margin-bottom: 6px;
+}
+.client-card-why {
+    font-size: clamp(0.65rem, 1vw, 0.8rem);
+    color: var(--ink-muted);
+    line-height: 1.65;
+}
+.client-card-why em {
+    color: var(--ink);
+    font-style: normal;
+    font-weight: 500;
+}
+
+/* ===========================================
+   SLIDE 9 — THE TITLE (CLOSING)
+   =========================================== */
+.slide-closing {
+    background: var(--ink);
+    color: var(--paper);
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+.slide-closing .slide-content {
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    max-width: min(90vw, 800px);
+}
+.closing-label {
+    font-family: var(--mono);
+    font-size: clamp(0.55rem, 0.9vw, 0.75rem);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin-bottom: clamp(1.5rem, 3vw, 3rem);
+}
+.closing-title {
+    font-family: var(--serif);
+    font-size: clamp(1.1rem, 2.2vw, 1.7rem);
+    line-height: 1.5;
+    font-weight: 400;
+    color: var(--paper);
+    margin-bottom: clamp(1.5rem, 3vw, 3rem);
+}
+.closing-em {
+    font-style: italic;
+    color: var(--accent);
+    font-weight: 600;
+}
+.closing-meta {
+    font-family: var(--mono);
+    font-size: clamp(0.5rem, 0.7vw, 0.65rem);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+}
+
+/* ===========================================
+   RESPONSIVE BREAKPOINTS
+   =========================================== */
+@media (max-height: 700px) {
+    :root {
+        --slide-padding: clamp(0.75rem, 3vw, 2rem);
+        --content-gap: clamp(0.4rem, 1.5vw, 1rem);
+        --title-size: clamp(1.25rem, 4.5vw, 2.5rem);
+        --h2-size: clamp(1rem, 3vw, 1.75rem);
+    }
+}
+@media (max-height: 600px) {
+    :root {
+        --slide-padding: clamp(0.5rem, 2.5vw, 1.5rem);
+        --content-gap: clamp(0.3rem, 1vw, 0.75rem);
+        --title-size: clamp(1.1rem, 4vw, 2rem);
+        --body-size: clamp(0.7rem, 1.2vw, 0.95rem);
+    }
+    .nav-dots, .slide-num { display: none; }
+    .pain-sub { display: none; }
+}
+@media (max-height: 500px) {
+    :root {
+        --slide-padding: clamp(0.4rem, 2vw, 1rem);
+        --title-size: clamp(1rem, 3.5vw, 1.5rem);
+        --h2-size: clamp(0.9rem, 2.5vw, 1.25rem);
+        --body-size: clamp(0.65rem, 1vw, 0.85rem);
+    }
+}
+@media (max-width: 600px) {
+    :root {
+        --title-size: clamp(1.25rem, 7vw, 2.5rem);
+    }
+}
+
+/* ===========================================
+   REDUCED MOTION
+   =========================================== */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.2s !important;
+    }
+    html { scroll-behavior: auto; }
+}
+
+/* ===========================================
+   DECORATIVE ACCENTS
+   =========================================== */
+.accent-line-corner {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: clamp(80px, 15vw, 200px);
+    height: 2px;
+    background: var(--accent);
+}
+.accent-line-bottom {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 1px;
+    background: var(--border);
+}
+</style>
+</head>
+<body>
+
+<!-- Progress bar -->
+<div class="progress-bar" id="progressBar"></div>
+
+<!-- Navigation dots -->
+<nav class="nav-dots" id="navDots"></nav>
+
+<!-- ===========================================
+     SLIDE 1 — TITLE (Full Academic Title)
+     =========================================== -->
+<section class="slide slide-title">
+    <div class="slide-num reveal">Slide 1 · Title Defense</div>
+    <div class="slide-content">
+        <div class="title-eyebrow reveal">BSIT Capstone Title Defense · ISPSC Tagudin Campus</div>
+        <h1 class="title-main reveal" style="font-size: clamp(2rem, 5vw, 4rem); margin-bottom: clamp(1rem, 2vw, 2.5rem);">StudentHub</h1>
+        <h2 class="closing-title reveal" style="font-size: clamp(1.1rem, 2.2vw, 1.8rem); line-height: 1.5; font-weight: 400; max-width: 850px; margin: 0 auto clamp(1.5rem, 3vw, 3rem) auto; color: var(--paper);">
+            Design and Implementation of a <em class="closing-em" style="font-style: italic; color: var(--accent); font-weight: 600;">Self-Sustaining Campus Edge Infrastructure</em> with IoT-Integrated Tiered Network Access, Local Application Hosting, and ML-Driven Resource Analytics
+        </h2>
+        <div class="reveal" style="width: clamp(60px, 10vw, 120px); height: 2px; background: var(--accent); margin: 0 auto clamp(1rem, 2vw, 2rem) auto;"></div>
+        <p class="title-meta reveal" style="font-family: var(--mono); font-size: clamp(0.5rem, 0.7vw, 0.65rem); letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-faint);">
+            Proposed IGP Integration Concept · 2026
+        </p>
+    </div>
+</section>
+
+<!-- ===========================================
+     SLIDE 2 — THE PROBLEM
+     =========================================== -->
+<section class="slide slide-problem">
+    <div class="slide-num reveal" style="color: rgba(248,245,239,0.4);">Slide 2 · The Problem</div>
+    <div class="slide-content">
+        <div class="problem-header">
+            <div class="problem-label reveal">What actually breaks — and for whom</div>
+            <h2 class="problem-title reveal">Five Real Failures on <em style="color: var(--accent);">Our Campus</em></h2>
+        </div>
+        <div class="pain-grid reveal">
+            <div class="pain-item">
+                <div class="pain-dot"></div>
+                <div>
+                    <div class="pain-main">Costly mobile load for study/research</div>
+                    <div class="pain-sub">Students spend ₱50–100/week on mobile data just to research and access online academic resources on campus.</div>
+                </div>
+            </div>
+            <div class="pain-item">
+                <div class="pain-dot"></div>
+                <div>
+                    <div class="pain-main">No reliable, affordable campus WiFi</div>
+                    <div class="pain-sub">The existing campus ISP lines are restricted and not open to the general student population, forcing reliance on telco SIMs.</div>
+                </div>
+            </div>
+            <div class="pain-item">
+                <div class="pain-dot"></div>
+                <div>
+                    <div class="pain-main">IT projects and solutions get shelved on localhost</div>
+                    <div class="pain-sub">Excellent student-built applications and systems die immediately after defense due to lack of hosting servers, domains, or budgets.</div>
+                </div>
+            </div>
+            <div class="pain-item">
+                <div class="pain-dot"></div>
+                <div>
+                    <div class="pain-main">Auditable trail gap in org collections</div>
+                    <div class="pain-sub">Student organization dues, fines, and collections are strictly cash-only, leading to lost receipts and disputes.</div>
+                </div>
+            </div>
+            <div class="pain-item">
+                <div class="pain-dot"></div>
+                <div>
+                    <div class="pain-main">No host infrastructure for campus apps</div>
+                    <div class="pain-sub">Local innovations like event voting, cashless canteen, and queue systems have no server infrastructure to run on.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===========================================
+     SLIDE 3 — PROPOSED SOLUTION
+     =========================================== -->
+<section class="slide slide-system">
+    <div class="slide-num reveal">Slide 3 · Proposed Solution</div>
+    <div class="slide-content">
+        <div class="system-header">
+            <div class="system-label reveal">Self-sustaining edge infrastructure</div>
+            <h2 class="system-title reveal">Two Services, One Local Server</h2>
+        </div>
+        <div class="system-statement reveal" style="margin-bottom: clamp(1rem, 2vw, 1.8rem); font-size: clamp(0.95rem, 1.5vw, 1.2rem); max-width: 900px; margin-left: auto; margin-right: auto; text-align: center;">
+            StudentHub is a <strong>self-sustaining campus edge infrastructure</strong>. It pairs a PisoWiFi gateway (IGP revenue to fund the ISP line) with a Dokploy app server (local cloud hosting for students) on a single physical machine.
+        </div>
+        
+        <div class="arch-cols reveal" style="margin-bottom: clamp(1rem, 2vw, 2rem); max-width: 900px; margin-left: auto; margin-right: auto;">
+            <div class="arch-card side-a" style="padding: clamp(12px, 2vw, 20px);">
+                <div class="arch-card-label">Side A · IGP Revenue</div>
+                <div class="arch-card-name" style="font-size: clamp(1.1rem, 1.8vw, 1.4rem);">PisoWiFi Gateway</div>
+                <div class="arch-card-desc" style="font-size: clamp(0.75rem, 1.1vw, 0.9rem); line-height: 1.45;">Provides tiered internet access via physical coins/bills or GCash. Generates revenue to self-sustain ISP bills and hardware costs.</div>
+            </div>
+            <div class="arch-card side-b" style="padding: clamp(12px, 2vw, 20px);">
+                <div class="arch-card-label">Side B · Local Cloud</div>
+                <div class="arch-card-name" style="font-size: clamp(1.1rem, 1.8vw, 1.4rem);">Dokploy App Server</div>
+                <div class="arch-card-desc" style="font-size: clamp(0.75rem, 1.1vw, 0.9rem); line-height: 1.45;">Local PaaS ("Vercel alternative") running on Proxmox. IT students deploy web apps and databases locally with zero hosting cost or internet dependency.</div>
+            </div>
+        </div>
+
+        <div class="reveal" style="background: var(--paper-warm); border: 1px solid var(--border); border-radius: 8px; padding: clamp(12px, 1.8vw, 20px); display: flex; align-items: center; justify-content: space-between; gap: 20px; max-width: 900px; margin-left: auto; margin-right: auto; text-align: left;">
+            <div style="flex: 1.2;">
+                <div style="font-family: var(--mono); font-size: clamp(0.6rem, 0.9vw, 0.85rem); letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); font-weight: 600;">Unified Payment API &amp; Closed-Loop Wallet</div>
+                <div style="font-size: clamp(0.7rem, 1vw, 0.88rem); color: var(--ink-muted); line-height: 1.45; margin-top: 4px;">
+                    Integrates physical hardware (coin/bill via ESP32) &amp; digital channels (GCash/Maya via Xendit API). Operates as a <strong>Closed-Loop Utility Wallet</strong> (exemp. from BSP licensing): auto-cash-ins, but manual, documented vouchers for COA audit compliance.
+                </div>
+            </div>
+            <div style="font-size: clamp(0.65rem, 0.9vw, 0.82rem); color: var(--ink-muted); border-left: 2px solid var(--accent); padding-left: 16px; flex: 0.8; line-height: 1.4;">
+                <strong>Compliance &amp; Risk:</strong> BSP Circular 1166 exempt. COA audit compliance via manual disbursements. Tech risk mitigated by utilizing <em>Proxmox</em>, <em>Dokploy</em>, and <em>JuanFi</em>.
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===========================================
+     SLIDE 3a — PISOWIFI NETWORK ARCHITECTURE (VISUAL ONLY)
+     =========================================== -->
+<section class="slide slide-dark">
+    <div class="slide-num reveal">Slide 3a · PisoWiFi Network Architecture</div>
+    <div class="slide-content" style="display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100%;">
+        <div class="reveal" style="font-family: var(--mono); font-size: clamp(0.7rem, 1.2vw, 0.95rem); letter-spacing: 0.15em; text-transform: uppercase; color: var(--accent); margin-bottom: clamp(10px, 1.5vw, 20px); font-weight: 600; text-align: center;">
+            PisoWiFi Network Architecture &amp; VLAN Routing
+        </div>
+        <div class="network-viz-container">
+            <svg class="network-lines" viewBox="0 0 900 320" preserveAspectRatio="none">
+                <path class="network-path path-local" d="M 150 160 L 450 160 L 750 80" />
+                <path class="network-path path-wan" d="M 150 160 L 450 160 L 750 240" />
+            </svg>
+            
+            <div class="pulse-dot pulse-local"></div>
+            <div class="pulse-dot pulse-wan"></div>
+            
+            <div class="network-node node-active" style="position: absolute; left: 40px; top: 110px; width: 220px; height: 100px; box-sizing: border-box;">
+                <div class="node-title" style="margin: 0; font-size: 1.1rem; line-height: 1.2;">Student Device</div>
+            </div>
+            
+            <div class="network-node" style="position: absolute; left: 330px; top: 110px; width: 240px; height: 100px; box-sizing: border-box; border-color: rgba(255,255,255,0.2);">
+                <div class="node-title" style="color: var(--accent); margin: 0; font-size: 1.1rem; line-height: 1.2;">PisoWiFi Gateway</div>
+            </div>
+            
+            <div class="network-node" style="position: absolute; left: 640px; top: 30px; width: 220px; height: 100px; box-sizing: border-box; border-color: #00ff66; box-shadow: 0 0 15px rgba(0, 255, 102, 0.15);">
+                <div class="node-title" style="color: #00ff66; margin: 0; font-size: 1.1rem; line-height: 1.2;">Local Cloud<br>(VLAN 30)</div>
+            </div>
+            
+            <div class="network-node" style="position: absolute; left: 640px; top: 190px; width: 220px; height: 100px; box-sizing: border-box; border-color: #00ddff; box-shadow: 0 0 15px rgba(0, 221, 255, 0.15);">
+                <div class="node-title" style="color: #00ddff; margin: 0; font-size: 1.1rem; line-height: 1.2;">External WAN<br>(VLAN 10)</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===========================================
+     SLIDE 3b — DOKPLOY APP SERVER DEPLOYMENT (VISUAL ONLY)
+     =========================================== -->
+<section class="slide slide-dark">
+    <div class="slide-num reveal">Slide 3b · Dokploy App Server Deployment</div>
+    <div class="slide-content" style="display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100%;">
+        <div class="reveal" style="font-family: var(--mono); font-size: clamp(0.7rem, 1.2vw, 0.95rem); letter-spacing: 0.15em; text-transform: uppercase; color: var(--accent); margin-bottom: clamp(10px, 1.5vw, 20px); font-weight: 600; text-align: center;">
+            Dokploy Local PaaS Deployment Lifecycle
+        </div>
+        <div class="deployment-container" style="max-width: 520px; height: 320px; padding: 25px 30px; gap: 30px; margin: 20px auto; display: flex; align-items: center; justify-content: center;">
+            <div class="source-pills" style="display: flex; flex-direction: column; gap: 12px; flex: 1;">
+                <div class="viz-pill pill-web" style="font-size: 0.8rem; padding: 8px 12px;">Org Attendance</div>
+                <div class="viz-pill pill-api" style="font-size: 0.8rem; padding: 8px 12px;">Abuloy Donation</div>
+                <div class="viz-pill pill-db" style="font-size: 0.8rem; padding: 8px 12px;">Campus Voting</div>
+                <div class="viz-pill pill-canteen" style="font-size: 0.8rem; padding: 8px 12px;">Cashless Canteen</div>
+            </div>
+            <div class="viz-arrow" style="font-size: 32px; color: rgba(163, 230, 53, 0.4); user-select: none;">➔</div>
+            <div class="server-rack" style="gap: 10px; padding: 12px 10px; flex: 1.25; display: flex; flex-direction: column; box-sizing: border-box;">
+                <div class="rack-slot" style="height: 38px;">
+                    <div class="embedded-pill pill-web-dest" style="font-size: 0.8rem;">Org Attendance</div>
+                    <span class="rack-slot-empty" style="font-size: 0.65rem;">Empty Slot</span>
+                </div>
+                <div class="rack-slot" style="height: 38px;">
+                    <div class="embedded-pill pill-api-dest" style="font-size: 0.8rem;">Abuloy Donation</div>
+                    <span class="rack-slot-empty" style="font-size: 0.65rem;">Empty Slot</span>
+                </div>
+                <div class="rack-slot" style="height: 38px;">
+                    <div class="embedded-pill pill-db-dest" style="font-size: 0.8rem;">Campus Voting</div>
+                    <span class="rack-slot-empty" style="font-size: 0.65rem;">Empty Slot</span>
+                </div>
+                <div class="rack-slot" style="height: 38px;">
+                    <div class="embedded-pill pill-canteen-dest" style="font-size: 0.8rem;">Cashless Canteen</div>
+                    <span class="rack-slot-empty" style="font-size: 0.65rem;">Empty Slot</span>
+                </div>
+                <div class="rack-slot" style="height: 38px;">
+                    <span class="rack-slot-empty" style="font-size: 0.65rem;">Empty Slot</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===========================================
+     SLIDE 3c — PAYMENT FLOW & CLOSED-LOOP WALLET (VISUAL ONLY)
+     =========================================== -->
+<section class="slide slide-dark">
+    <div class="slide-num reveal">Slide 3c · Unified Payment Ledger &amp; BSP/COA Compliance Flow</div>
+    <div class="slide-content" style="display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100%;">
+        <div class="reveal" style="font-family: var(--mono); font-size: clamp(0.7rem, 1.2vw, 0.95rem); letter-spacing: 0.15em; text-transform: uppercase; color: var(--accent); margin-bottom: clamp(10px, 1.5vw, 20px); font-weight: 600; text-align: center;">
+            Unified Payment Ledger &amp; BSP/COA Compliance Flow
+        </div>
+        <div class="payment-viz-container">
+            <svg class="network-lines" style="height: 320px;" viewBox="0 0 900 320" preserveAspectRatio="none">
+                <path style="stroke: rgba(255,255,255,0.06); stroke-width: 2; fill: none;" d="M 150 100 L 450 160" />
+                <path style="stroke: rgba(255,255,255,0.06); stroke-width: 2; fill: none;" d="M 150 220 L 450 160" />
+                <path style="stroke: rgba(255,255,255,0.03); stroke-width: 1.5; fill: none; stroke-dasharray: 4 4;" d="M 450 160 L 750 100" />
+                <path style="stroke: rgba(16,185,129,0.15); stroke-width: 2; fill: none;" d="M 450 160 L 750 220" />
+            </svg>
+            
+            <div class="pulse-dot payment-path-in1"></div>
+            <div class="pulse-dot payment-path-in2"></div>
+            <!-- Disabled automated cashout: removed payment-path-out-blocked pulse dot to stop bubbles -->
+            <div class="pulse-dot payment-path-out-ok"></div>
+            
+            <div class="payment-card" style="position: absolute; left: 40px; top: 40px; width: 230px; height: auto; min-height: 110px; padding: 12px 14px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: flex-start; align-items: center; border-color: rgba(163, 230, 53, 0.3);">
+                <span class="payment-badge badge-in">Physical IoT</span>
+                <div style="font-weight: 700; font-size: 1.05rem; color: #ffffff; margin: 2px 0 6px 0;">Coin Vending</div>
+                <div style="font-size: 0.72rem; color: rgba(255, 255, 255, 0.65); line-height: 1.4; text-align: center;">ESP32 coin pulses trigger database credit</div>
+            </div>
+            
+            <div class="payment-card" style="position: absolute; left: 40px; top: 175px; width: 230px; height: auto; min-height: 110px; padding: 12px 14px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: flex-start; align-items: center; border-color: rgba(163, 230, 53, 0.3);">
+                <span class="payment-badge badge-in" style="background: rgba(249, 115, 22, 0.15); color: #f97316; border: 1px solid rgba(249, 115, 22, 0.3);">Digital API</span>
+                <div style="font-weight: 700; font-size: 1.05rem; color: #ffffff; margin: 2px 0 6px 0; display: flex; align-items: center; gap: 6px;">
+                    Xendit Gateway <span style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #f97316; box-shadow: 0 0 8px #f97316;"></span>
+                </div>
+                <div style="font-size: 0.72rem; color: rgba(255, 255, 255, 0.65); line-height: 1.4; text-align: center;">GCash/Maya cash-in automated via API</div>
+            </div>
+            
+            <div class="payment-card card-wallet" style="position: absolute; left: 320px; top: 55px; width: 260px; height: auto; min-height: 200px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: flex-start; align-items: center; padding: 14px 16px;">
+                <span class="payment-badge badge-wallet" style="background: rgba(255, 255, 255, 0.08); color: #ffffff; border: 1px solid rgba(255, 255, 255, 0.2); align-self: center; margin-bottom: 8px;">Central Database Ledger</span>
+                <div style="font-weight: 700; font-size: 1.2rem; color: var(--accent); margin: 0 0 8px 0; letter-spacing: 0.5px;">Laravel Wallet API</div>
+                <div style="font-family: var(--mono); background: rgba(0,0,0,0.45); padding: 8px 14px; border-radius: 8px; border: 1px solid rgba(163,230,53,0.35); margin: 0 0 10px 0; font-weight: bold; color: #ffffff; letter-spacing: 1px; width: 140px; font-size: 1.2rem; text-align: center; box-shadow: inset 0 2px 4px rgba(0,0,0,0.6), 0 0 15px rgba(163, 230, 53, 0.15);" id="live-ledger-val">₱15.00</div>
+                <div style="font-size: 0.72rem; color: rgba(255, 255, 255, 0.7); line-height: 1.4; text-align: center;">Stores ledger transactions locally. Unification layer for physical &amp; digital money.</div>
+            </div>
+            
+            <div class="payment-card card-blocked" style="position: absolute; left: 630px; top: 40px; width: 230px; height: auto; min-height: 110px; padding: 12px 14px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: flex-start; align-items: center; opacity: 0.25; border: 1.5px dashed rgba(255, 255, 255, 0.15); background: rgba(255, 255, 255, 0.02); filter: grayscale(100%); transition: all 0.3s ease;">
+                <span class="payment-badge badge-blocked" style="background: rgba(255, 255, 255, 0.05); color: rgba(255, 255, 255, 0.4); border: 1px solid rgba(255, 255, 255, 0.1);">BSP Regulation Block</span>
+                <div style="font-weight: 700; font-size: 1.05rem; color: rgba(255, 255, 255, 0.4); text-decoration: line-through; margin: 2px 0 6px 0;">Automated Cash-Out</div>
+                <div style="font-size: 0.72rem; color: rgba(255, 255, 255, 0.3); line-height: 1.4; text-align: center;">Direct bank transfers disabled to meet closed-loop utility exemption.</div>
+            </div>
+            
+            <div class="payment-card card-compliant" style="position: absolute; left: 630px; top: 175px; width: 230px; height: auto; min-height: 110px; padding: 12px 14px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: flex-start; align-items: center; border-color: rgba(16, 185, 129, 0.4);">
+                <span class="payment-badge badge-compliant" style="background: rgba(16, 185, 129, 0.12); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.25);">COA/GAM Compliant</span>
+                <div style="font-weight: 700; font-size: 1.05rem; color: #10b981; margin: 2px 0 6px 0;">Disbursement Voucher</div>
+                <div style="font-size: 0.72rem; color: rgba(255, 255, 255, 0.65); line-height: 1.4; text-align: center;">Canteen payouts via manual vouchers with physical administrative sign-off.</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===========================================
+     SLIDE 4 — COMPONENT COVERAGE MAP
+     =========================================== -->
+<section class="slide slide-components">
+    <div class="slide-num reveal">Slide 4 · Component Coverage Map</div>
+    <div class="slide-content">
+        <div class="comp-header">
+            <div class="comp-label reveal">Every required component — accounted for</div>
+            <h2 class="comp-title reveal">Component Coverage Map</h2>
+        </div>
+        <table class="comp-table reveal">
+            <thead>
+                <tr>
+                    <th>Component</th>
+                    <th>Where It Lives</th>
+                    <th>What It Does</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><span class="comp-badge badge-web">Web</span></td>
+                    <td>Laravel Admin Dashboard</td>
+                    <td>Node management, user analytics, Payment API monitoring, revenue dashboards</td>
+                </tr>
+                <tr>
+                    <td><span class="comp-badge badge-mobile">Mobile</span></td>
+                    <td>Flutter / React Native Captive Portal</td>
+                    <td>Session purchase, time tracking, usage history, PisoWiFi onboarding</td>
+                </tr>
+                <tr>
+                    <td><span class="comp-badge badge-ml">ML</span></td>
+                    <td>Python regression model on server</td>
+                    <td>Bandwidth prediction via usage logs — optimizes session pricing and alerts on saturation</td>
+                </tr>
+                <tr>
+                    <td><span class="comp-badge badge-iot">IoT</span></td>
+                    <td>ESP32 + coin/bill acceptors</td>
+                    <td>Pulse counting → Payment API; node health monitoring; spatial mapping data feed</td>
+                </tr>
+                <tr>
+                    <td><span class="comp-badge badge-map">Mapping</span></td>
+                    <td>Leaflet.js on admin dashboard</td>
+                    <td>Spatial visualization of node locations, coverage zones, real-time status per physical node</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<!-- ===========================================
+     SLIDE 5 — NOVELTY
+     =========================================== -->
+<section class="slide slide-novelty">
+    <div class="slide-num reveal">Slide 5 · Research Novelty &amp; Gaps</div>
+    <div class="slide-content">
+        <div class="novelty-content">
+            <div class="novelty-label reveal">What this fills — in literature and practice</div>
+            <h2 class="novelty-title reveal">Why This Is a <em style="color: var(--accent);">Research Contribution</em>, Not Just a Project</h2>
+            <div class="novelty-cards">
+                <div class="novelty-card reveal">
+                    <div class="novelty-card-head">SUC Server Infrastructure Gap</div>
+                    <div class="novelty-card-body">Most CHED institutions have procured servers through government grants — but they sit <em>underutilized due to PAR liability and lack of sysadmin staff</em>. No published model exists for how a student-led body can legitimately operate edge infrastructure within a SUC.</div>
+                </div>
+                <div class="novelty-card reveal">
+                    <div class="novelty-card-head">No Zero-Cost Hosting for IT Students</div>
+                    <div class="novelty-card-body">Philippine SUC students lack access to deployment infrastructure. <em>No study has proposed a campus-local PaaS model</em> (via Dokploy on Proxmox) as an alternative to commercial cloud for BSIT capstone projects.</div>
+                </div>
+                <div class="novelty-card reveal">
+                    <div class="novelty-card-head">No Campus-Embedded Micro-Payment API</div>
+                    <div class="novelty-card-body">Org fund collection still relies on physical cash. <em>No campus-embedded micro-payment API has been documented in Philippine academic literature</em> as a transparent, auditable alternative.</div>
+                </div>
+                <div class="novelty-card reveal">
+                    <div class="novelty-card-head">No Self-Sustaining Funding Model for Student Org Infrastructure</div>
+                    <div class="novelty-card-body">Student orgs that attempt tech projects face a recurring funding wall — hardware depreciates, ISP bills recur, and org budgets reset yearly. <em>No documented model exists where a student org IGP directly funds and sustains its own campus IT infrastructure</em> through built-in revenue (PisoWiFi → server costs), eliminating dependency on institutional budget allocation.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===========================================
+     SLIDE 6 — SCOPE & POTENTIAL CLIENTS
+     =========================================== -->
+<section class="slide slide-scope">
+    <div class="slide-num reveal" style="color: rgba(248,245,239,0.4);">Slide 6 · Scope &amp; Target Clients</div>
+    <div class="slide-content">
+        <div class="scope-content" style="max-width: 100%; margin: 0;">
+            <div class="scope-label reveal">Project Boundary &amp; Adoption Strategy</div>
+            <h2 class="scope-title reveal" style="margin-bottom: clamp(1rem, 2vw, 2rem);">Scope, Limitations &amp; Target Clients</h2>
+            
+            <div style="display: grid; grid-template-columns: 1.1fr 0.9fr; gap: clamp(1rem, 2.5vw, 3rem); align-items: start;" class="reveal">
+                
+                <!-- Left: Scope columns -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div style="background: var(--paper-warm); border: 1px solid var(--border); border-radius: 8px; padding: clamp(10px, 1.5vw, 20px);">
+                        <div style="font-family: var(--mono); font-size: clamp(0.55rem, 0.8vw, 0.75rem); letter-spacing: 0.1em; text-transform: uppercase; color: var(--green); font-weight: 600; margin-bottom: 8px;">In Scope</div>
+                        <ul style="font-size: clamp(0.65rem, 0.9vw, 0.8rem); padding-left: 15px; line-height: 1.5; color: var(--ink-muted);">
+                            <li style="margin-bottom: 5px;">Physical boundaries of target prospect campus (e.g., ISPSC Tagudin)</li>
+                            <li style="margin-bottom: 5px;">PisoWiFi revenue loop funding the ISP line</li>
+                            <li style="margin-bottom: 5px;">Dokploy local PaaS app deployment</li>
+                            <li style="margin-bottom: 5px;">Closed-Loop Wallet: Xendit API digital cash-in, manual COA-compliant voucher cash-out</li>
+                            <li style="margin-bottom: 5px;">ML bandwidth usage prediction</li>
+                            <li style="margin-bottom: 5px;">IoT node health mapping</li>
+                        </ul>
+                    </div>
+                    <div style="background: var(--paper-warm); border: 1px solid var(--border); border-radius: 8px; padding: clamp(10px, 1.5vw, 20px);">
+                        <div style="font-family: var(--mono); font-size: clamp(0.55rem, 0.8vw, 0.75rem); letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); font-weight: 600; margin-bottom: 8px;">Out of Scope</div>
+                        <ul style="font-size: clamp(0.65rem, 0.9vw, 0.8rem); padding-left: 15px; line-height: 1.5; color: var(--ink-muted);">
+                            <li style="margin-bottom: 5px;">Integration with target institution's main network / MIS</li>
+                            <li style="margin-bottom: 5px;">Multi-campus rollout (future recommendations)</li>
+                            <li style="margin-bottom: 5px;">External internet access for hosted apps</li>
+                            <li style="margin-bottom: 5px;">Open-Loop Wallet or BSP EMI licensing (exempt under BSP Circular 1166)</li>
+                            <li style="margin-bottom: 5px;">Automated digital payouts/disbursements (COA regulatory compliance restriction)</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- Right: Clients list -->
+                <div style="display: flex; flex-direction: column; gap: 10px;">
+                    <div style="font-family: var(--mono); font-size: clamp(0.55rem, 0.8vw, 0.75rem); letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 4px; font-weight: 600;">Adoption Clients</div>
+                    
+                    <div style="background: var(--paper-card); border: 2px solid var(--accent); border-radius: 8px; padding: 10px 12px; position: relative;">
+                        <span style="position: absolute; right: 10px; top: 8px; font-family: var(--mono); font-size: 0.55rem; color: var(--accent); background: var(--accent-light); padding: 2px 6px; border-radius: 4px; font-weight: 600; text-transform: uppercase;">Primary</span>
+                        <div style="font-weight: 600; font-size: clamp(0.7rem, 0.95vw, 0.85rem); color: var(--ink);">CAS Provincial Org (CASPO)</div>
+                        <div style="font-size: clamp(0.6rem, 0.85vw, 0.75rem); color: var(--ink-muted); line-height: 1.35; margin-top: 2px;">
+                            Oversees CAS organizations. Mandates the project as an IGP-funded pilot, creating a province-wide template.
+                        </div>
+                    </div>
+                    
+                    <div style="background: var(--paper-card); border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; position: relative;">
+                        <span style="position: absolute; right: 10px; top: 8px; font-family: var(--mono); font-size: 0.55rem; color: var(--accent); background: var(--accent-light); padding: 2px 6px; border-radius: 4px; font-weight: 600; text-transform: uppercase;">Prospect Pilot</span>
+                        <div style="font-weight: 600; font-size: clamp(0.7rem, 0.9vw, 0.8rem); color: var(--ink);">ISPSC Tagudin Campus</div>
+                        <div style="font-size: clamp(0.6rem, 0.8vw, 0.73rem); color: var(--ink-muted); line-height: 1.3; margin-top: 2px;">
+                            Proposed pilot campus. Target for local app hosting and student WiFi without institutional budget allocation.
+                        </div>
+                    </div>
+                    
+                    <div style="background: var(--paper-card); border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px;">
+                        <div style="font-weight: 600; font-size: clamp(0.7rem, 0.9vw, 0.8rem); color: var(--ink);">Private Schools &amp; Colleges</div>
+                        <div style="font-size: clamp(0.6rem, 0.8vw, 0.73rem); color: var(--ink-muted); line-height: 1.3; margin-top: 2px;">
+                            External replication sites facing WiFi sustainability and local project hosting issues.
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===========================================
+     JAVASCRIPT
+     =========================================== -->
+<script>
+class SlidePresentation {
+    constructor() {
+        this.slides = document.querySelectorAll('.slide');
+        this.currentSlide = 0;
+        this.isScrolling = false;
+        this.scrollTimeout = null;
+        this.touchStartY = 0;
+        this.setupIntersectionObserver();
+        this.setupKeyboardNav();
+        this.setupTouchNav();
+        this.setupWheelNav();
+        this.setupProgressBar();
+        this.setupNavDots();
+        this.goToSlide(0);
+    }
+
+    setupIntersectionObserver() {
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    const index = Array.from(this.slides).indexOf(entry.target);
+                    if (index !== -1) {
+                        this.currentSlide = index;
+                        this.updateProgressBar();
+                        this.updateNavDots();
+                    }
+                } else {
+                    entry.target.classList.remove('visible');
+                }
+            });
+        }, { threshold: 0.4 });
+        this.slides.forEach(slide => observer.observe(slide));
+    }
+
+    setupKeyboardNav() {
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowDown' || e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+                e.preventDefault();
+                this.nextSlide();
+            } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft' || e.key === 'PageUp') {
+                e.preventDefault();
+                this.prevSlide();
+            } else if (e.key === 'Home') {
+                e.preventDefault();
+                this.goToSlide(0);
+            } else if (e.key === 'End') {
+                e.preventDefault();
+                this.goToSlide(this.slides.length - 1);
+            }
+        });
+    }
+
+    setupTouchNav() {
+        document.addEventListener('touchstart', (e) => {
+            this.touchStartY = e.touches[0].clientY;
+        }, { passive: true });
+        document.addEventListener('touchend', (e) => {
+            const diff = this.touchStartY - e.changedTouches[0].clientY;
+            if (Math.abs(diff) > 50) {
+                if (diff > 0) this.nextSlide();
+                else this.prevSlide();
+            }
+        }, { passive: true });
+    }
+
+    setupWheelNav() {
+        document.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            if (this.isScrolling) return;
+            this.isScrolling = true;
+            if (e.deltaY > 0) this.nextSlide();
+            else if (e.deltaY < 0) this.prevSlide();
+            clearTimeout(this.scrollTimeout);
+            this.scrollTimeout = setTimeout(() => { this.isScrolling = false; }, 800);
+        }, { passive: false });
+    }
+
+    setupProgressBar() {
+        this.progressBar = document.getElementById('progressBar');
+    }
+
+    setupNavDots() {
+        this.navDotsContainer = document.getElementById('navDots');
+        this.navDotsContainer.innerHTML = '';
+        this.slides.forEach((_, i) => {
+            const dot = document.createElement('button');
+            dot.className = 'nav-dot';
+            dot.setAttribute('aria-label', `Go to slide ${i + 1}`);
+            dot.addEventListener('click', () => this.goToSlide(i));
+            this.navDotsContainer.appendChild(dot);
+        });
+        this.navDots = this.navDotsContainer.querySelectorAll('.nav-dot');
+    }
+
+    updateProgressBar() {
+        const progress = ((this.currentSlide + 1) / this.slides.length) * 100;
+        if (this.progressBar) {
+            this.progressBar.style.width = progress + '%';
+        }
+    }
+
+    updateNavDots() {
+        if (this.navDots) {
+            this.navDots.forEach((dot, i) => {
+                dot.classList.toggle('active', i === this.currentSlide);
+            });
+        }
+    }
+
+    goToSlide(index) {
+        if (index < 0 || index >= this.slides.length) return;
+        this.currentSlide = index;
+        this.slides[index].scrollIntoView({ behavior: 'smooth' });
+        this.updateProgressBar();
+        this.updateNavDots();
+    }
+
+    nextSlide() {
+        if (this.currentSlide < this.slides.length - 1) {
+            this.goToSlide(this.currentSlide + 1);
+        }
+    }
+
+    prevSlide() {
+        if (this.currentSlide > 0) {
+            this.goToSlide(this.currentSlide - 1);
+        }
+    }
+}
+
+// Live database ledger animation
+setInterval(() => {
+    const el = document.getElementById('live-ledger-val');
+    if (!el) return;
+    let val = parseFloat(el.innerText.replace('₱', ''));
+    val += 5.00;
+    if (val > 50.00) {
+        val = 0.00;
+    }
+    el.innerText = '₱' + val.toFixed(2);
+}, 2000);
+
+new SlidePresentation();
+
+/* === Gallery Navigation Patch === */
+(function() {
+  const galleryUrl = '../../index.html';
+  const btn = document.createElement('div');
+  btn.innerHTML = '&#8592; Gallery';
+  Object.assign(btn.style, {
+    position: 'fixed', top: '16px', left: '16px', zIndex: '9999',
+    background: 'rgba(0,0,0,0.7)', color: '#fff', padding: '6px 14px',
+    borderRadius: '8px', fontSize: '13px', fontFamily: 'system-ui, sans-serif',
+    cursor: 'pointer', opacity: '0', transition: 'opacity 0.3s ease',
+    backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.15)',
+    userSelect: 'none', lineHeight: '1.4'
+  });
+  btn.addEventListener('click', function() { window.location.href = galleryUrl; });
+  document.body.appendChild(btn);
+  document.addEventListener('mousemove', function(e) {
+    btn.style.opacity = e.clientX < 160 && e.clientY < 60 ? '1' : '0';
+  });
+  document.addEventListener('mouseleave', function() { btn.style.opacity = '0'; });
+  btn.addEventListener('mouseenter', function() { btn.style.opacity = '1'; });
+
+  const origNext = SlidePresentation.prototype.nextSlide;
+  SlidePresentation.prototype.nextSlide = function() {
+    if (this.currentSlide >= this.slides.length - 1) {
+      window.location.href = galleryUrl;
+    } else {
+      origNext.call(this);
+    }
+  };
+})();
+</script>
+</body>
+</html>

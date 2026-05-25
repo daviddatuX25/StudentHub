@@ -1,0 +1,288 @@
+
+<h2 class="sr-only">StudentHub capstone full direction — titles, research gaps, chapter 1 and 2 anchors</h2>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+.root { padding: 1rem 0 2.5rem; font-family: var(--font-sans); }
+.sec { margin-bottom: 2.5rem; }
+.lbl { font-size: 11px; font-weight: 500; color: var(--color-text-tertiary); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 14px; }
+.sublbl { font-size: 11px; color: var(--color-text-tertiary); margin-bottom: 10px; margin-top: 16px; }
+
+.title-card { border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); background: var(--color-background-primary); padding: 16px 18px; margin-bottom: 10px; }
+.title-card.top { border: 2px solid var(--color-border-info); }
+.tc-meta { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; align-items: center; }
+.tc-badge { font-size: 11px; font-weight: 500; padding: 2px 8px; border-radius: var(--border-radius-md); }
+.b-top { background: var(--color-background-info); color: var(--color-text-info); }
+.b-domain { background: var(--color-background-secondary); color: var(--color-text-secondary); }
+.b-short { background: #eaf3de; color: #27500a; }
+.b-long { background: #faeeda; color: #633806; }
+.tc-text { font-size: 14px; font-weight: 500; color: var(--color-text-primary); line-height: 1.55; margin-bottom: 10px; }
+.tc-kws { display: flex; flex-wrap: wrap; gap: 5px; }
+.kw { font-size: 11px; padding: 2px 7px; border-radius: var(--border-radius-md); }
+.kw-w { background: #e6f1fb; color: #0c447c; }
+.kw-m { background: #e1f5ee; color: #085041; }
+.kw-ml { background: #eeedfe; color: #3c3489; }
+.kw-iot { background: #faeeda; color: #854f0b; }
+.kw-map { background: #faece7; color: #712b13; }
+.kw-dcn { background: var(--color-background-secondary); color: var(--color-text-secondary); }
+
+.gap-list { display: flex; flex-direction: column; gap: 10px; }
+.gap-item { border-radius: var(--border-radius-lg); border: 0.5px solid var(--color-border-tertiary); background: var(--color-background-primary); padding: 14px 16px; }
+.gap-head { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 6px; }
+.gap-icon { font-size: 16px; color: var(--color-text-danger); flex-shrink: 0; padding-top: 1px; }
+.gap-title { font-size: 13px; font-weight: 500; color: var(--color-text-primary); }
+.gap-body { font-size: 12px; color: var(--color-text-secondary); line-height: 1.65; padding-left: 26px; }
+.gap-body em { color: var(--color-text-primary); font-style: normal; font-weight: 500; }
+
+.prob-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; }
+.prob-card { border-radius: var(--border-radius-lg); border: 0.5px solid var(--color-border-tertiary); background: var(--color-background-primary); padding: 14px 16px; }
+.prob-domain { font-size: 10px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.07em; color: var(--color-text-tertiary); margin-bottom: 5px; }
+.prob-title { font-size: 13px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 5px; line-height: 1.4; }
+.prob-body { font-size: 12px; color: var(--color-text-secondary); line-height: 1.6; margin-bottom: 8px; }
+.prob-solve { font-size: 11px; color: #0f6e56; background: #e1f5ee; border-radius: var(--border-radius-md); padding: 4px 8px; display: inline-block; line-height: 1.5; }
+
+.chap-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.chap-card { border-radius: var(--border-radius-lg); border: 0.5px solid var(--color-border-tertiary); background: var(--color-background-primary); padding: 16px 18px; }
+.chap-num { font-size: 10px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.07em; color: var(--color-text-tertiary); margin-bottom: 6px; }
+.chap-title { font-size: 14px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 12px; }
+.chap-list { display: flex; flex-direction: column; gap: 7px; }
+.chap-item { font-size: 12px; color: var(--color-text-secondary); line-height: 1.6; padding-left: 12px; border-left: 2px solid var(--color-border-tertiary); }
+.chap-item em { color: var(--color-text-primary); font-style: normal; }
+
+.model-block { border-radius: var(--border-radius-lg); border: 0.5px solid var(--color-border-tertiary); background: var(--color-background-primary); padding: 18px 20px; }
+.model-row { display: grid; grid-template-columns: 120px 1fr; gap: 14px; padding: 10px 0; border-bottom: 0.5px solid var(--color-border-tertiary); align-items: start; }
+.model-row:last-child { border-bottom: none; padding-bottom: 0; }
+.model-row:first-child { padding-top: 0; }
+.model-label { font-size: 12px; font-weight: 500; color: var(--color-text-primary); }
+.model-val { font-size: 12px; color: var(--color-text-secondary); line-height: 1.65; }
+.model-val em { color: var(--color-text-primary); font-style: normal; }
+</style>
+
+<div class="root">
+
+  <div class="sec">
+    <div class="lbl">Title options — choose your direction</div>
+    <div class="sublbl">Group A — infrastructure + smart campus (recommended lane)</div>
+
+    <div class="title-card top">
+      <div class="tc-meta">
+        <span class="tc-badge b-top">Top pick</span>
+        <span class="tc-badge b-domain">Innovation · Smart Campus</span>
+        <span class="tc-badge b-short">Concise</span>
+      </div>
+      <div class="tc-text">StudentHub: Design and Implementation of a Self-Sustaining Campus Edge Infrastructure with IoT-Integrated Network Access, Local Application Hosting, and ML-Driven Resource Analytics</div>
+      <div class="tc-kws">
+        <span class="kw kw-w">Web</span><span class="kw kw-m">Mobile</span><span class="kw kw-ml">ML</span><span class="kw kw-iot">IoT</span><span class="kw kw-map">Mapping</span><span class="kw kw-dcn">DCN · Infra</span>
+      </div>
+    </div>
+
+    <div class="title-card">
+      <div class="tc-meta">
+        <span class="tc-badge b-domain">Education · SUC</span>
+        <span class="tc-badge b-long">Descriptive</span>
+      </div>
+      <div class="tc-text">StudentHub: An Autonomous Campus Network Node for Tiered Internet Access, Student Application Hosting, and IoT-Based Micro-Payment Processing with Predictive Bandwidth Management</div>
+      <div class="tc-kws">
+        <span class="kw kw-w">Web</span><span class="kw kw-m">Mobile</span><span class="kw kw-ml">ML</span><span class="kw kw-iot">IoT</span><span class="kw kw-dcn">Education</span>
+      </div>
+    </div>
+
+    <div class="title-card">
+      <div class="tc-meta">
+        <span class="tc-badge b-domain">Government · SUC IGP</span>
+      </div>
+      <div class="tc-text">StudentHub: A Smart Campus Platform Infrastructure for Self-Sustaining Internet Access, Local Cloud Hosting, and IoT Micro-Payment Management in State Universities and Colleges</div>
+      <div class="tc-kws">
+        <span class="kw kw-w">Web</span><span class="kw kw-m">Mobile</span><span class="kw kw-ml">ML</span><span class="kw kw-iot">IoT</span><span class="kw kw-map">Mapping</span><span class="kw kw-dcn">SUC · Government</span>
+      </div>
+    </div>
+
+    <div class="sublbl" style="margin-top:20px;">Group B — micro-economy + fintech angle</div>
+
+    <div class="title-card">
+      <div class="tc-meta">
+        <span class="tc-badge b-domain">Innovation · Business</span>
+        <span class="tc-badge b-short">Punchy</span>
+      </div>
+      <div class="tc-text">StudentHub: An IoT-Powered Campus Micro-Economy and Edge Network Platform with Unified Payment API, Spatial Node Monitoring, and Predictive Analytics</div>
+      <div class="tc-kws">
+        <span class="kw kw-w">Web</span><span class="kw kw-m">Mobile</span><span class="kw kw-ml">ML</span><span class="kw kw-iot">IoT</span><span class="kw kw-map">Mapping</span>
+      </div>
+    </div>
+
+    <div class="title-card">
+      <div class="tc-meta">
+        <span class="tc-badge b-domain">Innovation · Smart Device</span>
+      </div>
+      <div class="tc-text">StudentHub: Design of a Converged Campus Infrastructure Node Integrating IoT Payment Terminals, Local PaaS Hosting, Mobile Access, and ML-Based Network Optimization</div>
+      <div class="tc-kws">
+        <span class="kw kw-w">Web</span><span class="kw kw-m">Mobile</span><span class="kw kw-ml">ML</span><span class="kw kw-iot">IoT</span><span class="kw kw-dcn">DCN · PaaS</span>
+      </div>
+    </div>
+
+    <div class="sublbl" style="margin-top:20px;">Group C — replicability / model for SUCs</div>
+
+    <div class="title-card">
+      <div class="tc-meta">
+        <span class="tc-badge b-domain">Government · SUC Model</span>
+        <span class="tc-badge b-long">Chapter 1 ready</span>
+      </div>
+      <div class="tc-text">StudentHub: A Replicable Smart Campus Infrastructure Model for State Universities Using IoT-Based Network Vending, Local Application Hosting, and Machine Learning Resource Management</div>
+      <div class="tc-kws">
+        <span class="kw kw-w">Web</span><span class="kw kw-m">Mobile</span><span class="kw kw-ml">ML</span><span class="kw kw-iot">IoT</span><span class="kw kw-map">Mapping</span><span class="kw kw-dcn">SUC Model</span>
+      </div>
+    </div>
+
+    <div class="title-card">
+      <div class="tc-meta">
+        <span class="tc-badge b-domain">Education · Digital Equity</span>
+      </div>
+      <div class="tc-text">StudentHub: Addressing Digital Infrastructure Gaps in Philippine State Universities Through a Self-Sustaining Edge Network with IoT Payment Integration and Local Cloud Hosting</div>
+      <div class="tc-kws">
+        <span class="kw kw-w">Web</span><span class="kw kw-m">Mobile</span><span class="kw kw-ml">ML</span><span class="kw kw-iot">IoT</span><span class="kw kw-dcn">Digital Equity</span>
+      </div>
+    </div>
+
+    <div class="title-card">
+      <div class="tc-meta">
+        <span class="tc-badge b-domain">Innovation · Infrastructure</span>
+        <span class="tc-badge b-short">Clean</span>
+      </div>
+      <div class="tc-text">StudentHub: An Autonomous Edge Infrastructure for Campus Connectivity, Student Application Deployment, and IoT-Enabled Micro-Payment Processing</div>
+      <div class="tc-kws">
+        <span class="kw kw-w">Web</span><span class="kw kw-m">Mobile</span><span class="kw kw-iot">IoT</span><span class="kw kw-dcn">DCN · Infra</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="lbl">Research gaps in SUCs — your chapter 1 and 2 backbone</div>
+    <div class="gap-list">
+      <div class="gap-item">
+        <div class="gap-head"><i class="ti ti-building-community gap-icon" aria-hidden="true"></i><div class="gap-title">SUC server infrastructure exists but is severely underutilized</div></div>
+        <div class="gap-body">Most CHED institutions have procured servers through DBM/CHED grants, but these sit barely touched — locked down because of <em>PAR liability</em>, absence of dedicated sysadmin staff, and fear of audit exposure. Research gap: no published model exists for how a student-led body can legitimately operate edge infrastructure within a SUC without conflicting with government procurement rules.</div>
+      </div>
+      <div class="gap-item">
+        <div class="gap-head"><i class="ti ti-cloud-off gap-icon" aria-hidden="true"></i><div class="gap-title">No low-cost or zero-cost hosting environment for IT student projects</div></div>
+        <div class="gap-body">Philippine SUC students lack access to cloud infrastructure for academic deployment — AWS/GCP require credit cards, free tiers are unreliable and internet-dependent, and school servers are inaccessible. <em>No study has proposed a campus-local PaaS model</em> as an alternative to commercial cloud for BSIT capstone projects.</div>
+      </div>
+      <div class="gap-item">
+        <div class="gap-head"><i class="ti ti-cash gap-icon" aria-hidden="true"></i><div class="gap-title">Campus organizations lack digital financial infrastructure</div></div>
+        <div class="gap-body">Student org fund collection — dues, fines, crowdfunding — still relies on physical cash boxes and paper ledgers in most SUCs. E-wallet solutions (GCash, Maya) require accounts, face BSP regulation, and exclude unbanked students. <em>No campus-embedded micro-payment API has been documented in Philippine academic literature</em> as a transparent alternative.</div>
+      </div>
+      <div class="gap-item">
+        <div class="gap-head"><i class="ti ti-wifi-off gap-icon" aria-hidden="true"></i><div class="gap-title">Campus internet access is centrally bottlenecked, not student-accessible</div></div>
+        <div class="gap-body">CHED SUCs receive internet through DICT's freeWi-Fi program or institutional ISP contracts, but bandwidth is centrally controlled, underpowered per student, and inaccessible in non-admin zones. <em>No self-sustaining, revenue-generating access model</em> has been proposed as a complement to institutional internet in Philippine SUC literature.</div>
+      </div>
+      <div class="gap-item">
+        <div class="gap-head"><i class="ti ti-refresh gap-icon" aria-hidden="true"></i><div class="gap-title">No replicable SUC-specific edge infrastructure model exists</div></div>
+        <div class="gap-body">Global literature on edge computing and campus networking focuses on large universities with dedicated IT departments and significant capex budgets — not on resource-constrained Philippine SUCs. <em>The gap is a deployable, documented, open reference architecture</em> that a student group can stand up, operate, and hand off to the next batch.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="lbl">Problems and how StudentHub solves them — full picture</div>
+    <div class="prob-grid">
+      <div class="prob-card">
+        <div class="prob-domain">Student / IT Learner</div>
+        <div class="prob-title">No place to host and test real apps</div>
+        <div class="prob-body">Students have no deployment environment — only localhost. Learning CI/CD, Docker, or microservices is theoretical.</div>
+        <div class="prob-solve">Coolify PaaS on local edge node — zero cost, zero internet dependency</div>
+      </div>
+      <div class="prob-card">
+        <div class="prob-domain">Student / Consumer</div>
+        <div class="prob-title">Internet access is slow, expensive, and unreliable</div>
+        <div class="prob-body">School Wi-Fi is bottlenecked. Mobile data costs are real. Students pay per load just to access a quiz or form.</div>
+        <div class="prob-solve">Tiered PisoWiFi access — affordable, local ISP line separate from school network</div>
+      </div>
+      <div class="prob-card">
+        <div class="prob-domain">Student Org / Treasurer</div>
+        <div class="prob-title">Cash collection is opaque and prone to loss</div>
+        <div class="prob-body">Org dues, fines, abuloy — all manual. No audit trail, receipts go missing, treasurers get accused.</div>
+        <div class="prob-solve">Payment API with immutable transaction log and digital receipt generation</div>
+      </div>
+      <div class="prob-card">
+        <div class="prob-domain">Campus Events</div>
+        <div class="prob-title">Voting and ticketing is easy to manipulate</div>
+        <div class="prob-body">Paper tickets for intramurals and pageants are easy to forge or miscounted.</div>
+        <div class="prob-solve">Coin-triggered cryptographic token generation — one coin, one verifiable vote</div>
+      </div>
+      <div class="prob-card">
+        <div class="prob-domain">Faculty / Admin</div>
+        <div class="prob-title">Existing campus apps go down with the internet</div>
+        <div class="prob-body">Library systems, enrollment mirrors, grade portals — dependent on external ISP. Crash during peak periods.</div>
+        <div class="prob-solve">Locally hosted apps on Coolify — 100% uptime regardless of external internet health</div>
+      </div>
+      <div class="prob-card">
+        <div class="prob-domain">Institution / CHED</div>
+        <div class="prob-title">Server assets are procured but not operationalized</div>
+        <div class="prob-body">Servers purchased via government funds sit underused due to PAR liability and lack of sysadmin staff.</div>
+        <div class="prob-solve">Student-managed edge node model — no PAR burden, no full-time sysadmin required</div>
+      </div>
+      <div class="prob-card">
+        <div class="prob-domain">Institution / CAS IGP</div>
+        <div class="prob-title">SUC income-generating projects lack digital channels</div>
+        <div class="prob-body">Most IGPs are physical (canteen, printing). No campus IGP in Philippine SUC literature uses a networked, self-sustaining digital infrastructure.</div>
+        <div class="prob-solve">PisoWiFi revenue funds the ISP line — IGP that pays for its own infrastructure</div>
+      </div>
+      <div class="prob-card">
+        <div class="prob-domain">Next Batch / Replicability</div>
+        <div class="prob-title">Campus innovations don't survive beyond their creators</div>
+        <div class="prob-body">Student-built systems are abandoned after capstone defense. No handoff model, no documentation standard.</div>
+        <div class="prob-solve">Open architecture + policy framework designed explicitly for institutional handoff and SUC replication</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="lbl">Chapter 1 and 2 anchor points</div>
+    <div class="chap-cols">
+      <div class="chap-card">
+        <div class="chap-num">Chapter 1</div>
+        <div class="chap-title">Introduction</div>
+        <div class="chap-list">
+          <div class="chap-item"><em>Background:</em> Digital infrastructure gap in Philippine SUCs — underutilized servers, no student hosting environment, cash-only org finance</div>
+          <div class="chap-item"><em>Statement of the Problem:</em> The target prospect campus (e.g., ISPSC Tagudin) lacks a self-sustaining local network and hosting environment accessible to students and organizations</div>
+          <div class="chap-item"><em>Significance:</em> Model for SUC-wide adoption; first documented campus edge + micro-payment system in Philippine BSIT literature</div>
+          <div class="chap-item"><em>Scope:</em> Target prospect campus (e.g., ISPSC Tagudin) boundary, CAS IGP framework, limited to local network boundary</div>
+          <div class="chap-item"><em>Objectives:</em> Design, implement, and evaluate the system across IoT, web, mobile, ML, and mapping components</div>
+        </div>
+      </div>
+      <div class="chap-card">
+        <div class="chap-num">Chapter 2</div>
+        <div class="chap-title">Review of Related Literature</div>
+        <div class="chap-list">
+          <div class="chap-item"><em>Edge computing in education:</em> global studies on campus-local compute vs. cloud dependency</div>
+          <div class="chap-item"><em>Captive portal systems:</em> openNDS, CoovaChilli, JuanFi, AdoPiSoft — compare architectures and gaps</div>
+          <div class="chap-item"><em>IoT payment systems:</em> coin/bill acceptor literature, ESP32 pulse counting, hardware-to-API bridges</div>
+          <div class="chap-item"><em>SUC digital infrastructure policy:</em> CHED memos, DICT freeWi-Fi program, RA 9184 procurement — establish the bureaucratic gap</div>
+          <div class="chap-item"><em>ML for network management:</em> bandwidth prediction literature, regression/clustering for traffic forecasting</div>
+          <div class="chap-item"><em>Campus fintech gaps:</em> org fund management, micro-payment in education settings, BSP exemption framework</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="lbl">The replicability angle — why this matters beyond ISPSC</div>
+    <div class="model-block">
+      <div class="model-row">
+        <div class="model-label">The core claim</div>
+        <div class="model-val">StudentHub is not just a system for ISPSC Tagudin — it is a <em>documented reference model</em> that any SUC with a student organization, an available physical space, and an ISP connection can replicate without government procurement, without MIS department involvement, and without cloud budget.</div>
+      </div>
+      <div class="model-row">
+        <div class="model-label">What makes it replicable</div>
+        <div class="model-val">All components are open-source (Proxmox, Coolify, openNDS, Laravel). Hardware is commodity (ESP32, generic coin/bill acceptors). Policies are drafted and included as appendices. A new batch can clone the repo and redeploy.</div>
+      </div>
+      <div class="model-row">
+        <div class="model-label">The gap it fills in literature</div>
+        <div class="model-val">No published Philippine academic study has proposed a <em>student-operated, self-funding campus edge infrastructure</em>. Most related work focuses on enterprise networking or large-university IT departments. This is the first SUC-specific, IGP-integrated, open-architecture reference.</div>
+      </div>
+      <div class="model-row">
+        <div class="model-label">How to say it in defense</div>
+        <div class="model-val">"This project is significant not only as a functioning system for ISPSC Tagudin, but as a replicable blueprint — the first documented model in Philippine SUC literature for a student-managed, self-sustaining campus edge infrastructure that operates without institutional IT dependency."</div>
+      </div>
+    </div>
+  </div>
+
+</div>

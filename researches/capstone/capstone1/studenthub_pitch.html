@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StudentHub — Campus Edge & Micro-Economy Hub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --ink: #0e0e0d;
+    --ink-muted: #5a5954;
+    --ink-faint: #a8a59f;
+    --paper: #f7f5f0;
+    --paper-warm: #ede9e0;
+    --paper-card: #ffffff;
+    --accent: #c84b2f;
+    --accent-light: #fce9e4;
+    --accent-dark: #8c2f18;
+    --blue: #1e4fa3;
+    --blue-light: #e4ebf9;
+    --green: #1a6644;
+    --green-light: #e2f1ea;
+    --border: rgba(14,14,13,0.1);
+    --border-strong: rgba(14,14,13,0.2);
+    --serif: 'DM Serif Display', Georgia, serif;
+    --sans: 'Instrument Sans', system-ui, sans-serif;
+    --mono: 'DM Mono', monospace;
+    --radius: 6px;
+    --radius-lg: 12px;
+  }
+
+  html { font-size: 16px; scroll-behavior: smooth; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 15px;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* PAGE WRAPPER */
+  .page { max-width: 760px; margin: 0 auto; padding: 60px 32px 100px; }
+
+  /* HEADER */
+  .header { border-bottom: 1.5px solid var(--ink); padding-bottom: 28px; margin-bottom: 52px; }
+  .header-eyebrow { font-family: var(--mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-muted); margin-bottom: 16px; }
+  .header-eyebrow span { color: var(--accent); }
+  .header-title { font-family: var(--serif); font-size: clamp(36px, 6vw, 54px); line-height: 1.1; color: var(--ink); margin-bottom: 20px; }
+  .header-title em { font-style: italic; color: var(--accent); }
+  .header-pitch { font-size: 16px; color: var(--ink-muted); line-height: 1.75; max-width: 600px; border-left: 3px solid var(--accent); padding-left: 16px; }
+
+  /* SECTION STRUCTURE */
+  .section { margin-bottom: 56px; }
+  .section-header { display: flex; align-items: baseline; gap: 16px; margin-bottom: 24px; }
+  .section-num { font-family: var(--mono); font-size: 11px; color: var(--ink-faint); }
+  .section-title { font-family: var(--serif); font-size: 22px; color: var(--ink); }
+
+  /* PAIN BLOCK */
+  .pain-grid { display: flex; flex-direction: column; gap: 0; border: 1px solid var(--border-strong); border-radius: var(--radius-lg); overflow: hidden; }
+  .pain-item { padding: 18px 22px; border-bottom: 1px solid var(--border); background: var(--paper-card); display: grid; grid-template-columns: 28px 1fr; gap: 12px; align-items: start; }
+  .pain-item:last-child { border-bottom: none; }
+  .pain-item:hover { background: var(--paper-warm); transition: background 0.15s; }
+  .pain-bullet { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); margin-top: 8px; justify-self: center; flex-shrink: 0; }
+  .pain-text { }
+  .pain-main { font-size: 14px; font-weight: 500; color: var(--ink); line-height: 1.5; margin-bottom: 3px; }
+  .pain-sub { font-size: 13px; color: var(--ink-muted); line-height: 1.55; }
+
+  /* ARCHITECTURE BLOCK */
+  .arch-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 520px) { .arch-cols { grid-template-columns: 1fr; } }
+  .arch-card { border-radius: var(--radius-lg); padding: 22px 24px; }
+  .arch-card.side-a { background: var(--blue-light); border: 1px solid rgba(30,79,163,0.2); }
+  .arch-card.side-b { background: var(--green-light); border: 1px solid rgba(26,102,68,0.2); }
+  .arch-label { font-family: var(--mono); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 8px; }
+  .side-a .arch-label { color: var(--blue); }
+  .side-b .arch-label { color: var(--green); }
+  .arch-name { font-family: var(--serif); font-size: 18px; margin-bottom: 10px; }
+  .side-a .arch-name { color: var(--blue); }
+  .side-b .arch-name { color: var(--green); }
+  .arch-desc { font-size: 13px; color: var(--ink-muted); line-height: 1.65; }
+  .arch-connector { text-align: center; font-family: var(--mono); font-size: 11px; color: var(--ink-faint); padding: 12px 0; }
+
+  /* PAYMENT API SECTION */
+  .payment-intro { font-size: 14px; color: var(--ink-muted); line-height: 1.7; margin-bottom: 20px; padding: 16px 20px; background: var(--accent-light); border-left: 3px solid var(--accent); border-radius: 0 var(--radius) var(--radius) 0; }
+  .payment-intro strong { color: var(--accent-dark); font-weight: 600; }
+
+  .payment-sources { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
+  @media (max-width: 520px) { .payment-sources { grid-template-columns: 1fr; } }
+  .source-chip { border-radius: var(--radius); border: 1px solid var(--border-strong); background: var(--paper-card); padding: 14px 16px; }
+  .source-type { font-family: var(--mono); font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 4px; }
+  .source-name { font-size: 14px; font-weight: 500; color: var(--ink); }
+  .source-note { font-size: 12px; color: var(--ink-muted); margin-top: 3px; }
+
+  /* USE CASES */
+  .usecase-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 520px) { .usecase-grid { grid-template-columns: 1fr; } }
+  .usecase-card { background: var(--paper-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 18px 20px; }
+  .usecase-tag { display: inline-block; font-family: var(--mono); font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; padding: 3px 8px; border-radius: 3px; margin-bottom: 10px; }
+  .tag-payment { background: var(--accent-light); color: var(--accent-dark); }
+  .tag-hosting { background: var(--green-light); color: var(--green); }
+  .tag-free { background: var(--blue-light); color: var(--blue); }
+  .usecase-title { font-size: 14px; font-weight: 500; color: var(--ink); margin-bottom: 5px; }
+  .usecase-desc { font-size: 13px; color: var(--ink-muted); line-height: 1.6; }
+
+  /* FREE ACCESS SECTION */
+  .free-block { background: var(--paper-card); border: 1px solid var(--border-strong); border-radius: var(--radius-lg); padding: 24px 28px; }
+  .free-block p { font-size: 14px; color: var(--ink-muted); line-height: 1.75; margin-bottom: 14px; }
+  .free-block p:last-child { margin-bottom: 0; }
+  .free-block p strong { color: var(--ink); font-weight: 500; }
+
+  /* LEGAL SECTION */
+  .legal-list { display: flex; flex-direction: column; gap: 14px; }
+  .legal-item { display: grid; grid-template-columns: 40px 1fr; gap: 14px; align-items: start; background: var(--paper-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 18px 20px; }
+  .legal-num { font-family: var(--mono); font-size: 12px; color: var(--ink-faint); padding-top: 2px; }
+  .legal-heading { font-size: 14px; font-weight: 500; color: var(--ink); margin-bottom: 4px; }
+  .legal-body { font-size: 13px; color: var(--ink-muted); line-height: 1.65; }
+  .legal-body em { color: var(--ink); font-style: normal; font-weight: 500; }
+
+  /* NEW LEGALITIES */
+  .new-legal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 520px) { .new-legal-grid { grid-template-columns: 1fr; } }
+  .new-legal-card { border-left: 3px solid var(--border-strong); padding: 14px 18px; background: var(--paper-card); border-radius: 0 var(--radius) var(--radius) 0; }
+  .new-legal-card.highlight { border-left-color: var(--accent); }
+  .new-legal-title { font-size: 13px; font-weight: 500; color: var(--ink); margin-bottom: 4px; }
+  .new-legal-body { font-size: 12px; color: var(--ink-muted); line-height: 1.6; }
+
+  /* STRATEGY */
+  .strategy-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  @media (max-width: 520px) { .strategy-row { grid-template-columns: 1fr; } }
+  .strategy-card { padding: 18px 20px; background: var(--paper-card); border: 1px solid var(--border); border-radius: var(--radius-lg); }
+  .strategy-icon { font-size: 18px; margin-bottom: 8px; }
+  .strategy-title { font-size: 13px; font-weight: 500; color: var(--ink); margin-bottom: 5px; }
+  .strategy-body { font-size: 12px; color: var(--ink-muted); line-height: 1.6; }
+
+  /* CLOSING */
+  .closing { margin-top: 60px; border-top: 1.5px solid var(--ink); padding-top: 32px; }
+  .closing-quote { font-family: var(--serif); font-size: clamp(20px, 3.5vw, 28px); line-height: 1.45; color: var(--ink); margin-bottom: 20px; }
+  .closing-quote em { color: var(--accent); font-style: italic; }
+  .closing-sub { font-size: 14px; color: var(--ink-muted); line-height: 1.75; }
+
+  /* FOOTNOTE */
+  .footnote { margin-top: 48px; display: flex; gap: 12px; align-items: center; font-family: var(--mono); font-size: 11px; color: var(--ink-faint); }
+  .footnote-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--ink-faint); flex-shrink: 0; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="header-eyebrow">BSIT Capstone · ISPSC Tagudin Campus · <span>Proposed IGP Integration Concept</span></div>
+    <h1 class="header-title">StudentHub<br><em>Campus Edge &amp; Micro-Economy Hub</em></h1>
+    <p class="header-pitch">Every day, IT students walk past problems na kaya nating ayusin — mahabang pila sa registrar, walang digital na bayaran sa canteen, campus apps na hindi ma-deploy dahil mahal ang cloud. Ito ang infrastructure na kulang. Ito ang gagawin natin.</p>
+  </header>
+
+  <!-- SECTION 1: PROBLEMS -->
+  <section class="section">
+    <div class="section-header">
+      <span class="section-num">01</span>
+      <h2 class="section-title">Ang Mga Totoong Problema</h2>
+    </div>
+    <div class="pain-grid">
+      <div class="pain-item">
+        <div class="pain-bullet"></div>
+        <div class="pain-text">
+          <div class="pain-main">Walang libre na lugar para mag-deploy ng campus app</div>
+          <div class="pain-sub">Gusto mong i-host ang capstone mo — kailangan mo pa ng credit card para sa AWS o Vercel. Karamisan sa atin wala. Nagte-test lang sa localhost, hindi nag-a-appear sa defense ng maayos.</div>
+        </div>
+      </div>
+      <div class="pain-item">
+        <div class="pain-bullet"></div>
+        <div class="pain-text">
+          <div class="pain-main">Digital quiz o campus app → need pa mag-load ng lahat</div>
+          <div class="pain-sub">Pag sabay-sabay nag-a-access ang klase sa isang app na naka-host sa panlabas na internet, puro buffer lang. Ang school net natin ay bottleneck — mabagal at laging unreliable.</div>
+        </div>
+      </div>
+      <div class="pain-item">
+        <div class="pain-bullet"></div>
+        <div class="pain-text">
+          <div class="pain-main">Mano-mano pa ang fund collection ng mga org</div>
+          <div class="pain-sub">Absent fines, abuloy, membership dues — papel pa rin, cash box pa rin. Walang audit trail, madalas may nawawalang pondo o resibo. Laging may reklamo sa treasurer.</div>
+        </div>
+      </div>
+      <div class="pain-item">
+        <div class="pain-bullet"></div>
+        <div class="pain-text">
+          <div class="pain-main">School portal — laging may mali</div>
+          <div class="pain-sub">Down tuwing enrollment, expired na SSL, lapsed na domain subscription. Estudyante naka-ulila tuwing kailangan nila ang info — dahil dependent tayo sa panlabas na internet para sa lahat.</div>
+        </div>
+      </div>
+      <div class="pain-item">
+        <div class="pain-bullet"></div>
+        <div class="pain-text">
+          <div class="pain-main">Walang infrastructure para sa campus-specific innovation</div>
+          <div class="pain-sub">Queue sa registrar, cashless canteen, library system, real-time abuloy tracking, intramurals voting — lahat to pwedeng gawing app. Pero walang server, walang budget para i-deploy. Namamatay ang mga ideya bago pa magsimula.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 2: ARCHITECTURE -->
+  <section class="section">
+    <div class="section-header">
+      <span class="section-num">02</span>
+      <h2 class="section-title">Ang System — Dalawang Service, Isang Server</h2>
+    </div>
+    <div class="arch-cols">
+      <div class="arch-card side-a">
+        <div class="arch-label">Side A · IGP</div>
+        <div class="arch-name">PisoWiFi Gateway</div>
+        <div class="arch-desc">Nagbibigay ng tiered internet access sa mga estudyante. Ito ang kumikita — binabayaran nito ang monthly ISP line at hardware costs. Self-sustaining ang buong system.</div>
+      </div>
+      <div class="arch-card side-b">
+        <div class="arch-label">Side B · Local Cloud</div>
+        <div class="arch-name">Dokploy App Server</div>
+        <div class="arch-desc">Ang "libreng Vercel" ng campus. IT students pwedeng mag-deploy ng apps, databases, at APIs locally — walang credit card, walang panlabas na internet kailangan para ma-access.</div>
+      </div>
+    </div>
+    <div class="arch-connector">↳ both running on Proxmox · physically and logically isolated from ISPSC's main network</div>
+  </section>
+
+  <!-- SECTION 3: PAYMENT API -->
+  <section class="section">
+    <div class="section-header">
+      <span class="section-num">03</span>
+      <h2 class="section-title">Ang Payment API — Unified Collection Layer</h2>
+    </div>
+    <div class="payment-intro">
+      Ang physical payment hardware natin ay may API. Hindi lang ito para sa PisoWiFi — <strong>any app hosted on our server can tap into it</strong> para makatanggap ng payment. Ito ang nagko-convert ng isang vending machine sa isang campus-wide micro-payment infrastructure.
+    </div>
+
+    <div class="payment-sources">
+      <div class="source-chip">
+        <div class="source-type">Hardware</div>
+        <div class="source-name">Coin Acceptor</div>
+        <div class="source-note">₱1, ₱5, ₱10, ₱20</div>
+      </div>
+      <div class="source-chip">
+        <div class="source-type">Hardware</div>
+        <div class="source-name">Bill Acceptor</div>
+        <div class="source-note">₱20, ₱50, ₱100+</div>
+      </div>
+      <div class="source-chip">
+        <div class="source-type">Online · Xendit</div>
+        <div class="source-name">Digital Payments</div>
+        <div class="source-note">GCash, Maya, cards</div>
+      </div>
+    </div>
+
+    <p style="font-size:13px; color:var(--ink-muted); margin-bottom:20px;">Lahat ng payment channels ay pumupunta sa iisang unified Payment API — mula sa panlabas na Xendit para sa online, hanggang sa physical hardware para sa on-site. Ang mga app na naka-host sa Dokploy ay tumawag lang ng endpoint, at ang system ang bahala sa ibaba.</p>
+
+    <div class="usecase-grid">
+      <div class="usecase-card">
+        <span class="usecase-tag tag-payment">Payment API · org</span>
+        <div class="usecase-title">Digital Abuloy / Crowdfunding</div>
+        <div class="usecase-desc">Hulog ng barya o GCash → real-time dashboard update. Nakikita ng lahat kung magkano na ang nakolekta para sa benepisyaryo.</div>
+      </div>
+      <div class="usecase-card">
+        <span class="usecase-tag tag-payment">Payment API · org</span>
+        <div class="usecase-title">Org Fines &amp; Dues Collection</div>
+        <div class="usecase-desc">Bayad ng absent fine sa IT Society → automatic na pasok sa database, may digital receipt. Walang papel na mawawala, may audit trail.</div>
+      </div>
+      <div class="usecase-card">
+        <span class="usecase-tag tag-payment">Payment API · event</span>
+        <div class="usecase-title">Secure Campus Voting</div>
+        <div class="usecase-desc">Hulog barya → may unique token. Para sa intramurals o pageant voting na hindi ma-dayaan. Automatic ang counting.</div>
+      </div>
+      <div class="usecase-card">
+        <span class="usecase-tag tag-hosting">App Server · utility</span>
+        <div class="usecase-title">Canteen / Queue App</div>
+        <div class="usecase-desc">Mag-order, magbayad gamit ang API, may queue number. Gawa ng isang IT student, naka-host locally — libre ang deployment.</div>
+      </div>
+      <div class="usecase-card">
+        <span class="usecase-tag tag-payment">Payment API · pisowifi</span>
+        <div class="usecase-title">Tiered Internet Access</div>
+        <div class="usecase-desc">Pangunahing gamit — bayad ng coins, bills, o online para sa internet time credits sa captive portal.</div>
+      </div>
+      <div class="usecase-card">
+        <span class="usecase-tag tag-hosting">App Server · campus</span>
+        <div class="usecase-title">Document / Print Queue</div>
+        <div class="usecase-desc">Mag-upload ng file, bayad gamit ang coin slot, may queue number para sa printing. No more manual na pagtawag ng pangalan.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 4: FREE ACCESS -->
+  <section class="section">
+    <div class="section-header">
+      <span class="section-num">04</span>
+      <h2 class="section-title">Free Access — Para sa Pinili at Hindi Monetized na Campus Apps</h2>
+    </div>
+    <div class="free-block">
+      <p>Hindi lahat ng app sa ating server ay kailangang magbayad. Ang StudentHub ay may <strong>Free Access Tier</strong> — mga campus applications na approved ng CAS o ng student org na ma-a-access kahit walang PisoWiFi credits, dahil ang layunin nila ay magsilbi sa komunidad, hindi kumita.</p>
+      <p>Halimbawa: ang existing <strong>Library System ng campus</strong>, o isang student-built <strong>Event Announcements Board</strong>, o ang <strong>Org Election Voter Registration portal</strong> — hindi dapat magbayad ng internet ang isang estudyante para ma-access ang mga ito. Naka-connect lang sila sa ating Wi-Fi network, at libre na ang access sa mga approved na app.</p>
+      <p>Ang desisyon kung aling app ang nasa Free Tier ay hawak ng <strong>CAS IGP Committee o ng Student Council</strong> — hindi ng developer. Ito ay nagbibigay ng governance layer na nagpoprotekta sa sistema mula sa abuse, at nagbibigay ng legitimate academic framing sa ating capstone.</p>
+    </div>
+  </section>
+
+  <!-- SECTION 5: LEGAL -->
+  <section class="section">
+    <div class="section-header">
+      <span class="section-num">05</span>
+      <h2 class="section-title">Legal Defensibility &amp; Compliance Framework</h2>
+    </div>
+    <div class="legal-list">
+      <div class="legal-item">
+        <div class="legal-num">L-01</div>
+        <div>
+          <div class="legal-heading">CAS IGP Registration — Pangunahing Legal Shield</div>
+          <div class="legal-body">I-register ang StudentHub bilang opisyal na <em>Income Generating Project ng College of Arts and Sciences</em>. Ang revenue mula sa PisoWiFi ay napupunta sa isang dedicated fund na approved ng CAS Dean. Nag-iibaba ito ng approval authority — hindi na kailangan ng central ISPSC admin, hindi na kailangan ng MIS Director. Kailangan lang ng Dean's endorsement at ng college-level IGP documentation.</div>
+        </div>
+      </div>
+      <div class="legal-item">
+        <div class="legal-num">L-02</div>
+        <div>
+          <div class="legal-heading">Network Isolation — Walang PAR Conflict sa Main Server</div>
+          <div class="legal-body">Ang buong system ay gumagamit ng <em>sariling dedicated ISP line</em> (babayaran ng PisoWiFi income) at hindi ito connected sa ISPSC's main network infrastructure. Dahil dito, ang mga IT instructor o admin na may PAR sa school server ay walang liability sa ating hardware. Ang ating server ay owned ng student organization — hindi ng estado, hindi ng ISPSC.</div>
+        </div>
+      </div>
+      <div class="legal-item">
+        <div class="legal-num">L-03</div>
+        <div>
+          <div class="legal-heading">Physical Payment — Exempt sa BSP Digital Payment Regulations</div>
+          <div class="legal-body">Ang coins at bills na tinatanggap ng ating hardware ay <em>converted into local system credits</em> — hindi sila external e-wallet transactions, hindi sila bank transfers. Ang Bangko Sentral ng Pilipinas (BSP) regulations para sa digital payment service providers ay hindi applicable dahil wala tayong nakabukas na financial account o money service business. Ito ay equivalent lang sa isang vending machine.</div>
+        </div>
+      </div>
+      <div class="legal-item">
+        <div class="legal-num">L-04</div>
+        <div>
+          <div class="legal-heading">Xendit Integration — Third-Party Compliance na Hawak ng Xendit</div>
+          <div class="legal-body">Para sa online payment channel (GCash, Maya, cards via Xendit), ang <em>legal compliance ay hawak na ng Xendit</em> bilang licensed payment aggregator ng BSP. Tayo ay client lang nila — gumagamit ng kanilang API. Ang responsibility natin ay ang proper disclosure sa users na ang online payment ay dinadala ng isang licensed third-party provider, at ang tamang data handling ng transaction records.</div>
+        </div>
+      </div>
+      <div class="legal-item">
+        <div class="legal-num">L-05</div>
+        <div>
+          <div class="legal-heading">App Hosting Agreement — Bagong Legality para sa Dokploy</div>
+          <div class="legal-body">Para sa bawat IT student o org na gustong mag-host ng app, kailangan ng isang <em>simple App Hosting Agreement</em> — isang dokumento na nag-a-acknowledge na: (a) ang app ay sumusunod sa campus acceptable use policy, (b) ang developer ay responsable sa kanilang data at code, at (c) ang StudentHub ay may karapatang mag-revoke ng hosting kung may violation. Ito ay katulad ng terms of service ng isang hosting provider — student-level lang ang scope.</div>
+        </div>
+      </div>
+      <div class="legal-item">
+        <div class="legal-num">L-06</div>
+        <div>
+          <div class="legal-heading">Payment API Access Policy — Para sa Non-PisoWiFi Use Cases</div>
+          <div class="legal-body">Kung gusto ng isang hosted app na gamitin ang ating Payment API (para sa org fund collection, event ticketing, etc.), kailangan ng <em>Payment API Access Request</em> — isang one-page form na inaprubahan ng CAS IGP Committee. Ito ay nagtatala kung sino ang tatanggap ng funds, at kung paano i-withdraw ang collected amount. Ang withdrawal at fund management ay hawak ng student org mismo, hindi ng StudentHub.</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top:20px;">
+      <p style="font-size:13px; color:var(--ink-muted); margin-bottom:14px;">Mga bagong policies na kailangan nating i-draft at i-submit sa CAS admin bilang bahagi ng capstone deployment:</p>
+      <div class="new-legal-grid">
+        <div class="new-legal-card highlight">
+          <div class="new-legal-title">App Hosting Policy</div>
+          <div class="new-legal-body">Sino pwede mag-host, ano ang acceptable use, paano mag-revoke, ano ang data retention rules.</div>
+        </div>
+        <div class="new-legal-card highlight">
+          <div class="new-legal-title">Payment API Access Policy</div>
+          <div class="new-legal-body">Paano mag-apply para gamitin ang coin/bill/Xendit API, sino ang approver, paano mag-withdraw ng funds.</div>
+        </div>
+        <div class="new-legal-card">
+          <div class="new-legal-title">Free Tier Whitelist Policy</div>
+          <div class="new-legal-body">Paano ma-approve ang isang app para sa libre na access, at sino ang may kapangyarihang magdagdag o mag-alis ng app sa whitelist.</div>
+        </div>
+        <div class="new-legal-card">
+          <div class="new-legal-title">IGP Revenue Distribution Policy</div>
+          <div class="new-legal-body">Paano gagastusin ang PisoWiFi income — ISP bill, hardware maintenance, reserve fund, at optional na student org support.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 6: STRATEGY -->
+  <section class="section">
+    <div class="section-header">
+      <span class="section-num">06</span>
+      <h2 class="section-title">Defense Strategy</h2>
+    </div>
+    <div class="strategy-row">
+      <div class="strategy-card">
+        <div class="strategy-title">Frame as CAS IGP, not campus system</div>
+        <div class="strategy-body">Iwasang sabihin "i-i-integrate natin sa ISPSC network." Ang tamang framing: isang standalone student-managed infrastructure na incidentally deployed sa campus premises.</div>
+      </div>
+      <div class="strategy-card">
+        <div class="strategy-title">Emphasize the policy layer</div>
+        <div class="strategy-body">Ang panel ay nag-aalala sa governance at legality. Ang pagpresenta ng mga draft policies (hosting, payment API, free tier) ay nagpapakita ng maturity ng ating capstone bilang isang deployable real-world system.</div>
+      </div>
+      <div class="strategy-card">
+        <div class="strategy-title">Let the apps speak</div>
+        <div class="strategy-body">Sa defense, i-demo ang isang end-to-end: isang student app (hal. abuloy tracker), gumagamit ng Payment API, naka-host sa Dokploy, accessible via local Wi-Fi — lahat live, lahat connected.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CLOSING -->
+  <div class="closing">
+    <p class="closing-quote">Hindi lang tayo gumagawa ng capstone.<br><em>Ginagawa natin ang infrastructure na kulang sa campus natin.</em></p>
+    <p class="closing-sub">Para sa mga IT student na gustong mag-deploy nang libre. Para sa mga org na gustong mag-collect nang may transparency. Para sa mga estudyante na deserve ng mas mabilis at mas maaasahang digital campus experience — kahit mawalan ng internet ang buong campus. Tayo ang magtatayo nito. Tayo ang magpapatakbo nito.</p>
+  </div>
+
+  <div class="footnote">
+    <div class="footnote-dot"></div>
+    StudentHub · BSIT Capstone · ISPSC Tagudin Campus · Proposed IGP Concept
+    <div class="footnote-dot"></div>
+    Proxmox · Dokploy · Xendit · openNDS
+  </div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,2331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SynapseRT — Multi-Agent Cognitive Orchestration System</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <style>
+        /* ==========================================================================
+           BASE RESET & LAYOUT SYSTEMS
+           ========================================================================== */
+        :root {
+            /* Color Schemes */
+            /* Dark Theme Colors */
+            --bg-dark: #0f1219;
+            --bg-dark-card: rgba(22, 28, 42, 0.65);
+            --bg-dark-card-hover: rgba(30, 38, 56, 0.85);
+            --text-dark: #f3f4f6;
+            --text-dark-muted: #9ca3af;
+            --border-dark: rgba(255, 255, 255, 0.08);
+            --border-dark-strong: rgba(255, 255, 255, 0.18);
+            
+            /* Light Theme Colors (Warm Paper) */
+            --bg-light: #f8f5ef;
+            --bg-light-warm: #f0ebe1;
+            --bg-light-card: #ffffff;
+            --text-light: #1a1612;
+            --text-light-muted: #5c554a;
+            --border-light: rgba(26, 22, 18, 0.12);
+            --border-light-strong: rgba(26, 22, 18, 0.25);
+
+            /* Accent Colors */
+            --accent-cyan: #00e5ff;
+            --accent-cyan-glow: rgba(0, 229, 255, 0.4);
+            --accent-amber: #ffab40;
+            --accent-amber-glow: rgba(255, 171, 64, 0.4);
+            --accent-red: #ff5252;
+            --accent-green: #00e676;
+
+            /* Typography */
+            --font-serif: 'Playfair Display', Georgia, serif;
+            --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+
+            /* Transitions & Curves */
+            --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+            --transition-speed: 0.6s;
+            
+            /* Responsive Sizing */
+            --title-size: clamp(2rem, 5.5vw, 4.5rem);
+            --h2-size: clamp(1.4rem, 3.5vw, 2.5rem);
+            --h3-size: clamp(1.1rem, 2vw, 1.6rem);
+            --body-size: clamp(0.85rem, 1.2vw, 1.05rem);
+            --small-size: clamp(0.7rem, 0.9vw, 0.85rem);
+            --slide-padding: clamp(1.5rem, 5vw, 5rem);
+            --gap-content: clamp(0.5rem, 2.5vh, 2.2rem);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+            overflow: hidden;
+            font-family: var(--font-sans);
+            font-size: var(--body-size);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        html {
+            scroll-snap-type: y mandatory;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-dark);
+        }
+
+        /* Scroll Snap Slide Scaffolding */
+        .slide {
+            width: 100vw;
+            height: 100vh;
+            height: 100dvh;
+            overflow: hidden;
+            scroll-snap-align: start;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .slide-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            max-height: 100%;
+            padding: var(--slide-padding);
+            z-index: 5;
+            position: relative;
+        }
+
+        /* Alternate Theme Configurations */
+        .slide.theme-dark {
+            background-color: var(--bg-dark);
+            color: var(--text-dark);
+        }
+        
+        .slide.theme-light {
+            background-color: var(--bg-light);
+            color: var(--text-light);
+        }
+
+        /* Grid Background Texture overlay */
+        .grid-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            opacity: 0.04;
+            z-index: 1;
+        }
+        
+        .theme-dark .grid-bg {
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+        }
+        
+        .theme-light .grid-bg {
+            background-image: 
+                linear-gradient(rgba(26, 22, 18, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(26, 22, 18, 0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            opacity: 0.07;
+        }
+
+        /* ==========================================================================
+           GLOBAL NAVIGATION OVERLAYS (Fixed Position)
+           ========================================================================== */
+        .progress-bar-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.05);
+            z-index: 10000;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--accent-cyan), var(--accent-amber));
+            box-shadow: 0 0 8px var(--accent-cyan-glow);
+            transition: width 0.4s var(--ease-out-expo);
+        }
+
+        .nav-dots {
+            position: fixed;
+            right: clamp(12px, 3vw, 32px);
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            z-index: 9999;
+        }
+
+        .nav-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            border: 1px solid transparent;
+            background: rgba(156, 163, 175, 0.4);
+            padding: 0;
+            cursor: pointer;
+            transition: all 0.4s var(--ease-out-expo);
+        }
+
+        .theme-light-active-nav .nav-dot {
+            background: rgba(26, 22, 18, 0.25);
+        }
+
+        .nav-dot:hover {
+            background: var(--accent-cyan);
+            transform: scale(1.3);
+        }
+
+        .nav-dot.active {
+            background: var(--accent-cyan);
+            box-shadow: 0 0 10px var(--accent-cyan-glow);
+            transform: scale(1.6);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .slide-num {
+            position: absolute;
+            top: clamp(1.2rem, 3.5vh, 2.5rem);
+            left: var(--slide-padding);
+            align-self: flex-start;
+            text-align: left;
+            font-family: var(--font-mono);
+            font-size: var(--small-size);
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            z-index: 10;
+        }
+
+        .theme-dark .slide-num {
+            color: var(--text-dark-muted);
+        }
+
+        .theme-light .slide-num {
+            color: var(--text-light-muted);
+        }
+
+        /* ==========================================================================
+           REVEAL SCROLL ANIMATION SYSTEM
+           ========================================================================== */
+        .reveal {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity var(--transition-speed) var(--ease-out-expo),
+                        transform var(--transition-speed) var(--ease-out-expo);
+        }
+
+        .slide.visible .reveal {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .reveal.delay-1 { transition-delay: 0.1s; }
+        .reveal.delay-2 { transition-delay: 0.2s; }
+        .reveal.delay-3 { transition-delay: 0.3s; }
+        .reveal.delay-4 { transition-delay: 0.4s; }
+        .reveal.delay-5 { transition-delay: 0.5s; }
+
+        .reveal-scale-x {
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.8s var(--ease-out-expo);
+        }
+
+        .slide.visible .reveal-scale-x {
+            transform: scaleX(1);
+        }
+
+        /* ==========================================================================
+           TYPOGRAPHY & UTILITIES
+           ========================================================================== */
+        .section-kicker {
+            font-family: var(--font-mono);
+            font-size: var(--small-size);
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            font-weight: 500;
+            margin-bottom: 0.4rem;
+            display: inline-block;
+        }
+
+        .theme-dark .section-kicker {
+            color: var(--accent-cyan);
+        }
+
+        .theme-light .section-kicker {
+            color: var(--text-light-muted);
+            border-bottom: 2px solid var(--text-light-muted);
+            padding-bottom: 2px;
+        }
+
+        h2 {
+            font-family: var(--font-serif);
+            font-size: var(--h2-size);
+            font-weight: 600;
+            line-height: 1.25;
+            margin-bottom: var(--gap-content);
+        }
+
+        .theme-dark h2 {
+            color: var(--text-dark);
+        }
+
+        .theme-light h2 {
+            color: var(--text-light);
+        }
+
+        .accent-text {
+            color: var(--accent-cyan);
+        }
+
+        .accent-amber-text {
+            color: var(--accent-amber);
+        }
+
+        /* ==========================================================================
+           SLIDE 1: THE TITLE (Dark Theme)
+           ========================================================================== */
+        .slide-title-hero {
+            background-color: var(--bg-dark);
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        #titleCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        .title-container {
+            max-width: 900px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 10;
+        }
+
+        .hero-title {
+            font-family: var(--font-serif);
+            font-size: var(--title-size);
+            font-weight: 700;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, #ffffff 40%, rgba(255, 255, 255, 0.4));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 40px rgba(0, 229, 255, 0.15);
+        }
+
+        .hero-subtitle {
+            font-family: var(--font-sans);
+            font-weight: 300;
+            font-size: clamp(1rem, 2.5vw, 1.4rem);
+            color: var(--text-dark-muted);
+            line-height: 1.6;
+            margin-bottom: 2.5rem;
+            max-width: 750px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .hero-divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--border-dark-strong), transparent);
+            width: 80%;
+            margin: 0 auto 2.5rem auto;
+        }
+
+        .hero-metadata {
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+            font-family: var(--font-mono);
+            font-size: var(--small-size);
+            color: var(--text-dark-muted);
+        }
+
+        .hero-metadata span {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .hero-metadata span::before {
+            content: '';
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background-color: var(--accent-cyan);
+        }
+
+        .scroll-indicator {
+            position: absolute;
+            bottom: clamp(1.5rem, 4vh, 3rem);
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            font-family: var(--font-mono);
+            font-size: var(--small-size);
+            color: var(--text-dark-muted);
+            cursor: pointer;
+            z-index: 10;
+            transition: color 0.3s;
+        }
+        
+        .scroll-indicator:hover {
+            color: var(--accent-cyan);
+        }
+
+        .scroll-indicator svg {
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-8px); }
+            60% { transform: translateY(-4px); }
+        }
+
+        /* ==========================================================================
+           SLIDE 2: THE SCENE & THE PROBLEM (Light Theme)
+           ========================================================================== */
+        .slide-problem {
+            background-color: var(--bg-light);
+        }
+
+        .problem-layout {
+            display: grid;
+            grid-template-columns: 1.1fr 0.9fr;
+            gap: clamp(1.5rem, 5vw, 4rem);
+            align-items: center;
+        }
+
+        .problem-left {
+            display: flex;
+            flex-direction: column;
+            gap: var(--gap-content);
+        }
+
+        .hook-quote {
+            font-family: var(--font-serif);
+            font-size: clamp(1.6rem, 3.2vw, 2.6rem);
+            line-height: 1.25;
+            color: var(--text-light);
+            font-style: italic;
+            font-weight: 400;
+        }
+
+        .hook-divider {
+            height: 2px;
+            background-color: var(--text-light-muted);
+            width: 100px;
+            margin-top: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .problem-cards {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .problem-card {
+            background-color: var(--bg-light-card);
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+            padding: 18px 24px;
+            box-shadow: 0 2px 8px rgba(26,22,18,0.03);
+            transition: all 0.4s var(--ease-out-expo);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .problem-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 4px;
+            background-color: var(--text-light-muted);
+            transition: background-color 0.4s var(--ease-out-expo);
+        }
+
+        .problem-card:hover {
+            transform: translateX(6px);
+            box-shadow: 0 4px 15px rgba(26,22,18,0.08);
+            border-color: var(--border-light-strong);
+        }
+
+        .problem-card:hover::before {
+            background-color: var(--text-light);
+        }
+
+        .problem-card-title {
+            font-family: var(--font-serif);
+            font-size: var(--h3-size);
+            font-weight: 600;
+            color: var(--text-light);
+            margin-bottom: 6px;
+        }
+
+        .problem-card-text {
+            font-size: var(--body-size);
+            color: var(--text-light-muted);
+            line-height: 1.5;
+        }
+
+        /* Live Transcript Fade Component */
+        .transcript-column {
+            position: relative;
+            height: 420px;
+            background: var(--bg-light-warm);
+            border: 1px solid var(--border-light);
+            border-radius: 12px;
+            padding: 20px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .transcript-blur-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 120px;
+            background: linear-gradient(to bottom, var(--bg-light-warm) 20%, transparent);
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        .transcript-scroller {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            transform: translateY(0);
+            transition: transform 0.5s ease-in-out;
+        }
+
+        .transcript-bubble {
+            background: var(--bg-light-card);
+            border: 1px solid var(--border-light);
+            border-radius: 12px;
+            padding: 12px 16px;
+            max-width: 85%;
+            font-size: 0.9rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+            transition: all 0.6s var(--ease-out-expo);
+            opacity: 1;
+            filter: blur(0px);
+        }
+
+        .transcript-bubble.system {
+            align-self: flex-start;
+            border-left: 3px solid var(--text-light-muted);
+        }
+
+        .transcript-bubble.user {
+            align-self: flex-end;
+            background: var(--bg-light);
+            border-right: 3px solid var(--text-light-muted);
+        }
+
+        .transcript-speaker {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: var(--text-light-muted);
+            margin-bottom: 4px;
+            text-transform: uppercase;
+        }
+
+        .transcript-text {
+            color: var(--text-light);
+            line-height: 1.4;
+        }
+
+        /* Animated fade out to representing context collapse */
+        .transcript-bubble.fade-out-3 {
+            opacity: 0.5;
+            filter: blur(1px);
+        }
+        .transcript-bubble.fade-out-2 {
+            opacity: 0.25;
+            filter: blur(2px);
+        }
+        .transcript-bubble.fade-out-1 {
+            opacity: 0.08;
+            filter: blur(4px);
+        }
+        .transcript-bubble.fade-out-0 {
+            opacity: 0;
+            filter: blur(8px);
+            transform: scale(0.95);
+        }
+
+        /* ==========================================================================
+           SLIDE 3: THE PROPOSED SYSTEM (Dark Theme)
+           ========================================================================== */
+        .slide-architecture {
+            background-color: var(--bg-dark);
+        }
+
+        .arch-layout {
+            display: grid;
+            grid-template-rows: auto 1fr auto;
+            gap: 20px;
+            height: 100%;
+        }
+
+        .pipeline-container {
+            position: relative;
+            display: grid;
+            grid-template-columns: 1fr auto 1.1fr auto 1fr;
+            align-items: center;
+            gap: 15px;
+            margin: 1.5rem 0;
+        }
+
+        .pipeline-block {
+            background-color: var(--bg-dark-card);
+            border: 1px solid var(--border-dark);
+            border-radius: 12px;
+            padding: 24px;
+            position: relative;
+            z-index: 5;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            transition: all 0.5s var(--ease-out-expo);
+            backdrop-filter: blur(10px);
+        }
+
+        .pipeline-block:hover {
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 15px rgba(0, 229, 255, 0.2);
+            transform: translateY(-4px);
+        }
+
+        .pipeline-block.active-pulse {
+            animation: pulse-border 1.5s infinite alternate;
+        }
+
+        @keyframes pulse-border {
+            0% { border-color: var(--border-dark); }
+            100% { border-color: var(--accent-cyan); box-shadow: 0 0 10px rgba(0, 229, 255, 0.15); }
+        }
+
+        .block-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            border-bottom: 1px solid var(--border-dark-strong);
+            padding-bottom: 8px;
+        }
+
+        .block-title {
+            font-family: var(--font-sans);
+            font-size: var(--h3-size);
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        .block-num {
+            font-family: var(--font-mono);
+            font-size: var(--small-size);
+            color: var(--accent-cyan);
+            background: rgba(0, 229, 255, 0.1);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .block-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .block-list li {
+            font-size: 0.9rem;
+            color: var(--text-dark-muted);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .block-list li::before {
+            content: '·';
+            font-size: 1.5rem;
+            color: var(--accent-cyan);
+            line-height: 0;
+        }
+
+        /* SVG arrows connecting blocks */
+        .pipeline-arrow {
+            width: clamp(30px, 6vw, 80px);
+            height: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .pipeline-arrow svg {
+            width: 100%;
+            overflow: visible;
+        }
+
+        .arrow-line {
+            fill: none;
+            stroke: var(--border-dark-strong);
+            stroke-width: 2px;
+            stroke-dasharray: 6, 4;
+            animation: dash 1s linear infinite;
+        }
+
+        @keyframes dash {
+            to { stroke-dashoffset: -10; }
+        }
+
+        .arrow-line-active {
+            stroke: var(--accent-cyan);
+            stroke-width: 3px;
+            filter: drop-shadow(0 0 3px var(--accent-cyan-glow));
+        }
+
+        /* Stat Metrics Row */
+        .metrics-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
+            margin-top: 1rem;
+        }
+
+        .metric-card {
+            background-color: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-dark);
+            border-radius: 8px;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            transition: all 0.3s;
+        }
+
+        .metric-card:hover {
+            background-color: rgba(255, 255, 255, 0.04);
+            border-color: var(--border-dark-strong);
+        }
+
+        .metric-value {
+            font-family: var(--font-serif);
+            font-size: clamp(1.8rem, 4vw, 2.8rem);
+            font-weight: 700;
+            color: var(--accent-amber);
+            line-height: 1;
+        }
+
+        .metric-label {
+            font-size: var(--small-size);
+            color: var(--text-dark-muted);
+            line-height: 1.3;
+        }
+
+        .metric-label strong {
+            display: block;
+            font-family: var(--font-sans);
+            color: #ffffff;
+            font-size: 0.9rem;
+            margin-bottom: 2px;
+        }
+
+        /* ==========================================================================
+           SLIDE 4: COMPONENT COVERAGE MAP (Light Theme)
+           ========================================================================== */
+        .slide-components {
+            background-color: var(--bg-light);
+        }
+
+        .component-layout {
+            display: grid;
+            grid-template-rows: auto 1fr auto;
+            gap: 20px;
+            height: 100%;
+        }
+
+        .component-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+
+        .comp-card {
+            background-color: var(--bg-light-card);
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+            padding: 16px 20px;
+            cursor: pointer;
+            transition: all 0.4s var(--ease-out-expo);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            position: relative;
+            box-shadow: 0 2px 6px rgba(26,22,18,0.02);
+        }
+
+        .comp-card::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background-color: transparent;
+            transition: all 0.3s;
+        }
+
+        .comp-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 4px 15px rgba(26,22,18,0.08);
+            border-color: var(--border-light-strong);
+        }
+
+        .comp-card.active {
+            border-color: var(--text-light);
+            box-shadow: 0 4px 15px rgba(26,22,18,0.06);
+        }
+
+        .comp-card.active::after {
+            background-color: var(--text-light);
+        }
+
+        .comp-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .comp-icon {
+            font-size: 1.3rem;
+            line-height: 1;
+        }
+
+        .comp-title {
+            font-family: var(--font-sans);
+            font-weight: 600;
+            color: var(--text-light);
+            font-size: 0.95rem;
+        }
+
+        .comp-desc {
+            font-size: 0.85rem;
+            color: var(--text-light-muted);
+            line-height: 1.4;
+        }
+
+        /* Bottom Detail Panel */
+        .detail-panel {
+            background: var(--bg-light-warm);
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+            padding: 20px;
+            min-height: 90px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+
+        .detail-panel-kicker {
+            font-family: var(--font-mono);
+            font-size: var(--small-size);
+            color: var(--text-light-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 4px;
+        }
+
+        .detail-panel-content {
+            font-family: var(--font-serif);
+            font-size: clamp(1rem, 1.8vw, 1.25rem);
+            color: var(--text-light);
+            line-height: 1.4;
+            font-style: italic;
+        }
+
+        /* ==========================================================================
+           SLIDE 5: NOVELTY CLAIM & SCOPE (Dark Theme)
+           ========================================================================== */
+        .slide-novelty-scope {
+            background-color: var(--bg-dark);
+        }
+
+        .ns-layout {
+            display: grid;
+            grid-template-columns: 1.15fr 0.85fr;
+            gap: clamp(2rem, 5vw, 4rem);
+            align-items: start;
+        }
+
+        .novelty-col {
+            display: flex;
+            flex-direction: column;
+            gap: var(--gap-content);
+        }
+
+        .novelty-card {
+            background: var(--bg-dark-card);
+            border: 1px solid var(--border-dark);
+            border-radius: 12px;
+            padding: 24px;
+            border-left: 4px solid var(--accent-cyan);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        }
+
+        .novelty-text {
+            font-family: var(--font-serif);
+            font-size: clamp(0.95rem, 1.6vw, 1.25rem);
+            line-height: 1.5;
+            color: #ffffff;
+            font-style: italic;
+            margin-bottom: 12px;
+        }
+
+        /* Comparative Mini Table */
+        .comp-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            font-size: 0.85rem;
+        }
+
+        .comp-table th, .comp-table td {
+            padding: 10px 14px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-dark);
+        }
+
+        .comp-table th {
+            font-family: var(--font-mono);
+            color: var(--text-dark-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .comp-table td strong {
+            color: #ffffff;
+        }
+
+        .comp-table td.cyan-highlight {
+            color: var(--accent-cyan);
+            font-weight: 500;
+        }
+
+        /* Scope lists on right */
+        .scope-col {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-dark);
+            border-radius: 12px;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .scope-list-block h4 {
+            font-family: var(--font-mono);
+            font-size: var(--small-size);
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+
+        .scope-list-block.in-scope h4 {
+            color: var(--accent-green);
+        }
+
+        .scope-list-block.out-scope h4 {
+            color: var(--accent-red);
+        }
+
+        .scope-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .scope-list li {
+            font-size: 0.85rem;
+            color: var(--text-dark-muted);
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            line-height: 1.4;
+        }
+
+        .scope-list li svg {
+            flex-shrink: 0;
+            width: 14px;
+            height: 14px;
+            margin-top: 2px;
+        }
+
+        /* MESI Badge Visual component */
+        .mesi-badge-container {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-top: 10px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-dark);
+            border-radius: 8px;
+            padding: 12px 16px;
+        }
+
+        .mesi-badge {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: var(--font-mono);
+            font-weight: bold;
+            font-size: 1.4rem;
+            color: #ffffff;
+            transition: all 0.5s;
+            box-shadow: 0 0 15px currentColor;
+        }
+
+        .mesi-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .mesi-label {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: var(--text-dark-muted);
+            text-transform: uppercase;
+        }
+
+        .mesi-title {
+            font-family: var(--font-sans);
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: #ffffff;
+            transition: color 0.5s;
+        }
+
+        /* ==========================================================================
+           SLIDE 6: DIFFICULTY & ROADMAP (Dark Theme)
+           ========================================================================== */
+        .slide-difficulty-roadmap {
+            background-color: var(--bg-dark);
+        }
+
+        .dr-layout {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 20px;
+            height: 100%;
+        }
+
+        /* Top: Challenge Cards */
+        .challenge-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+
+        .challenge-card {
+            background-color: var(--bg-dark-card);
+            border: 1px solid var(--border-dark);
+            border-radius: 8px;
+            padding: 18px;
+            border-top: 3px solid var(--accent-amber);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            transition: transform 0.3s;
+        }
+
+        .challenge-card:hover {
+            transform: translateY(-3px);
+            border-top-color: #ffca28;
+        }
+
+        .challenge-title {
+            font-family: var(--font-serif);
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        .challenge-desc {
+            font-size: 0.82rem;
+            color: var(--text-dark-muted);
+            line-height: 1.4;
+        }
+
+        /* Bottom: Horizontal Timeline */
+        .roadmap-container {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-dark);
+            border-radius: 12px;
+            padding: 24px 30px;
+            position: relative;
+            margin-top: 10px;
+        }
+
+        .timeline-line-bg {
+            position: absolute;
+            top: 10px;
+            left: 16.67%;
+            right: 16.67%;
+            height: 2px;
+            background: var(--border-dark-strong);
+            z-index: 1;
+        }
+
+        .timeline-line-active {
+            position: absolute;
+            top: 10px;
+            left: 16.67%;
+            height: 2px;
+            background: linear-gradient(90deg, var(--accent-cyan), var(--accent-amber));
+            z-index: 2;
+            width: 0%;
+            transition: width 1.5s ease-in-out;
+        }
+
+        .slide.visible .timeline-line-active {
+            width: 66.66%;
+        }
+
+        .timeline-nodes {
+            position: relative;
+            z-index: 3;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            justify-items: center;
+            align-items: start;
+        }
+
+        .timeline-node {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.6s var(--ease-out-expo);
+        }
+
+        .slide.visible .timeline-node.active-node {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .timeline-node:nth-child(1) { transition-delay: 0.3s; }
+        .timeline-node:nth-child(2) { transition-delay: 0.8s; }
+        .timeline-node:nth-child(3) { transition-delay: 1.3s; }
+
+        .timeline-dot {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: var(--bg-dark);
+            border: 3px solid var(--border-dark-strong);
+            margin-bottom: 12px;
+            position: relative;
+            transition: all 0.4s;
+        }
+
+        .timeline-node.active-node .timeline-dot {
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 10px var(--accent-cyan-glow);
+            background: #ffffff;
+        }
+
+        .timeline-node:nth-child(2).active-node .timeline-dot {
+            border-color: #ffd54f;
+            box-shadow: 0 0 10px rgba(255, 213, 79, 0.4);
+        }
+
+        .timeline-node:nth-child(3).active-node .timeline-dot {
+            border-color: var(--accent-amber);
+            box-shadow: 0 0 10px var(--accent-amber-glow);
+        }
+
+        .timeline-phase {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: var(--text-dark-muted);
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        .timeline-title {
+            font-family: var(--font-sans);
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: #ffffff;
+            margin-bottom: 4px;
+        }
+
+        .timeline-deliverable {
+            font-family: var(--font-serif);
+            font-style: italic;
+            font-size: 0.82rem;
+            color: var(--text-dark-muted);
+            max-width: 80%;
+            line-height: 1.3;
+        }
+
+        .timeline-node.active-node .timeline-deliverable {
+            color: var(--text-dark);
+        }
+
+        .self-assessment-bar {
+            margin-top: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.82rem;
+            color: var(--text-dark-muted);
+        }
+
+        .self-assessment-val {
+            font-family: var(--font-serif);
+            font-style: italic;
+            color: var(--accent-cyan);
+        }
+
+        /* ==========================================================================
+           RESPONSIVE OVERRIDES
+           ========================================================================== */
+        @media (max-width: 900px) {
+            .problem-layout, .ns-layout {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .transcript-column {
+                height: 200px;
+            }
+
+            .pipeline-container {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .pipeline-arrow {
+                display: none;
+            }
+
+            .component-grid, .challenge-row {
+                grid-template-columns: 1fr 1fr;
+            }
+            
+            .metrics-row {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+            
+            .timeline-line-bg, .timeline-line-active {
+                display: none;
+            }
+            
+            .timeline-nodes {
+                grid-template-columns: 1fr;
+                gap: 20px;
+                justify-items: start;
+            }
+            
+            .timeline-node {
+                flex-direction: row;
+                text-align: left;
+                align-items: flex-start;
+                gap: 16px;
+            }
+            
+            .timeline-dot {
+                margin-bottom: 0;
+                margin-top: 4px;
+            }
+            
+            .timeline-deliverable {
+                max-width: 100%;
+            }
+        }
+        
+        @media (max-height: 650px) {
+            .metrics-row, .challenge-row, .detail-panel {
+                display: none;
+            }
+            
+            .transcript-column {
+                height: 180px;
+            }
+        }
+    </style>
+</head>
+<body class="theme-dark-active-nav">
+
+    <!-- Global Progress Bar Overlay -->
+    <div class="progress-bar-container">
+        <div class="progress-bar" id="progressBar"></div>
+    </div>
+
+    <!-- Global Nav Dots Overlay -->
+    <div class="nav-dots" id="navDots"></div>
+
+    <!-- ==========================================================================
+       SLIDE 1 — THE TITLE (Dark Theme)
+       ========================================================================== -->
+    <section class="slide theme-dark slide-title-hero" id="slide1">
+        <div class="grid-bg"></div>
+        <canvas id="titleCanvas"></canvas>
+        <div class="slide-num">Slide 1 · Project Identity</div>
+        <div class="slide-content">
+            <div class="title-container">
+                <h1 class="hero-title reveal delay-1">SynapseRT</h1>
+                <p class="hero-subtitle reveal delay-2">
+                    A Multi-Agent Cognitive Orchestration System for Real-Time Collaborative Knowledge Mapping
+                </p>
+                <div class="hero-divider reveal-scale-x delay-3"></div>
+                <div class="hero-metadata reveal delay-4">
+                    <span>CAPSTONE PROJECT 2</span>
+                    <span>BSIT</span>
+                    <span>2026</span>
+                </div>
+            </div>
+        </div>
+        <div class="scroll-indicator reveal delay-5" onclick="window.slidePresentation.goToSlide(1)">
+            <span>Scroll to begin</span>
+            <svg viewBox="0 0 24 24">
+                <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/>
+            </svg>
+        </div>
+    </section>
+
+    <!-- ==========================================================================
+       SLIDE 2 — THE SCENE & THE PROBLEM (Light Theme)
+       ========================================================================== -->
+    <section class="slide theme-light slide-problem" id="slide2">
+        <div class="grid-bg"></div>
+        <div class="slide-num">Slide 2 · The Problem</div>
+        <div class="slide-content">
+            <div class="problem-layout">
+                
+                <!-- Left: Hook sentence & Problem layers -->
+                <div class="problem-left">
+                    <div class="reveal">
+                        <span class="section-kicker">The Scene & Pain</span>
+                        <div class="hook-divider"></div>
+                        <h2 class="hook-quote">"Two hours of brainstorming. One messy notebook. Half the ideas — already lost."</h2>
+                    </div>
+                    
+                    <div class="problem-cards">
+                        <!-- Problem Card 1 -->
+                        <div class="problem-card reveal delay-1">
+                            <h3 class="problem-card-title">Cognitive Overload</h3>
+                            <p class="problem-card-text">
+                                Passive transcription tools dump flat text. No visual structure, no conceptual relationships, and no semantic contradictions are preserved.
+                            </p>
+                        </div>
+                        
+                        <!-- Problem Card 2 -->
+                        <div class="problem-card reveal delay-2">
+                            <h3 class="problem-card-title">Processing Latency</h3>
+                            <p class="problem-card-text">
+                                Cloud-dependent API configurations impose 3–10s delays. By the time the system parses, the conversation has moved on.
+                            </p>
+                        </div>
+                        
+                        <!-- Problem Card 3 -->
+                        <div class="problem-card reveal delay-3">
+                            <h3 class="problem-card-title">Context Collapse</h3>
+                            <p class="problem-card-text">
+                                After 60 minutes of multi-party debate, system context windows overflow, forgetting initial foundational project premises.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right: Simulated Live Transcript -->
+                <div class="transcript-column reveal delay-4">
+                    <div class="transcript-blur-overlay"></div>
+                    <div class="transcript-scroller" id="transcriptScroller">
+                        <!-- Bubble items populated dynamically -->
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- ==========================================================================
+       SLIDE 3 — THE PROPOSED SYSTEM / ARCHITECTURE (Dark Theme)
+       ========================================================================== -->
+    <section class="slide theme-dark slide-architecture" id="slide3">
+        <div class="grid-bg"></div>
+        <div class="slide-num">Slide 3 · System Shape</div>
+        <div class="slide-content">
+            <div class="arch-layout">
+                
+                <div class="reveal">
+                    <span class="section-kicker">Proposed System Architecture</span>
+                    <h2>Three-Layer Cognitive Orchestration</h2>
+                </div>
+
+                <!-- Pipeline block flowchart -->
+                <div class="pipeline-container reveal delay-1">
+                    
+                    <!-- Block 1 -->
+                    <div class="pipeline-block active-pulse" id="block-ingestion">
+                        <div class="block-header">
+                            <h3 class="block-title">Ingestion Layer</h3>
+                            <span class="block-num">01</span>
+                        </div>
+                        <ul class="block-list">
+                            <li>20ms audio chunking</li>
+                            <li>Silero VAD segmentation</li>
+                            <li>Local Whisper.cpp STT</li>
+                            <li>Dialogue Act classification</li>
+                        </ul>
+                    </div>
+
+                    <!-- Connective arrow -->
+                    <div class="pipeline-arrow">
+                        <svg viewBox="0 0 100 20">
+                            <path class="arrow-line arrow-line-active" id="arrow1" d="M0,10 L100,10"/>
+                        </svg>
+                    </div>
+
+                    <!-- Block 2 -->
+                    <div class="pipeline-block" id="block-memory">
+                        <div class="block-header">
+                            <h3 class="block-title">Memory Hierarchy</h3>
+                            <span class="block-num">02</span>
+                        </div>
+                        <ul class="block-list">
+                            <li>L1 (SLM current context)</li>
+                            <li>L2 (Redis semantic cache)</li>
+                            <li>LT (Neo4j long-term graph)</li>
+                            <li>Vgold paging heuristics</li>
+                        </ul>
+                    </div>
+
+                    <!-- Connective arrow -->
+                    <div class="pipeline-arrow">
+                        <svg viewBox="0 0 100 20">
+                            <path class="arrow-line" id="arrow2" d="M0,10 L100,10"/>
+                        </svg>
+                    </div>
+
+                    <!-- Block 3 -->
+                    <div class="pipeline-block" id="block-agents">
+                        <div class="block-header">
+                            <h3 class="block-title">Agent Orchestration</h3>
+                            <span class="block-num">03</span>
+                        </div>
+                        <ul class="block-list">
+                            <li>Context-Capture agent</li>
+                            <li>Arbitrator agent (conflict)</li>
+                            <li>Suggestive-Prompt agent</li>
+                            <li>Corrective agent (MESI)</li>
+                        </ul>
+                    </div>
+
+                </div>
+
+                <!-- Bottom Metrics -->
+                <div class="metrics-row reveal delay-2">
+                    
+                    <div class="metric-card">
+                        <div class="metric-value">&lt;700ms</div>
+                        <div class="metric-label">
+                            <strong>End-to-End Latency</strong>
+                            VAD, STT, and classification pipeline processing threshold
+                        </div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-value">4 Agents</div>
+                        <div class="metric-label">
+                            <strong>Concurrent Orchestration</strong>
+                            Parallel agent execution with MESI cache coherence protocol
+                        </div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-value">3-Tier</div>
+                        <div class="metric-label">
+                            <strong>Memory Pipeline</strong>
+                            L1 local context, L2 cache, and long-term Neo4j graph storage
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- ==========================================================================
+       SLIDE 4 — COMPONENT COVERAGE MAP (Light Theme)
+       ========================================================================== -->
+    <section class="slide theme-light slide-components" id="slide4">
+        <div class="grid-bg"></div>
+        <div class="slide-num">Slide 4 · Component Map</div>
+        <div class="slide-content">
+            <div class="component-layout">
+                
+                <div class="reveal">
+                    <span class="section-kicker">Compliance Mapping</span>
+                    <h2>Where Each Component Lives</h2>
+                </div>
+
+                <!-- Interactive Grid -->
+                <div class="component-grid reveal delay-1">
+                    
+                    <!-- Web -->
+                    <div class="comp-card active" data-index="0">
+                        <div class="comp-header">
+                            <span class="comp-icon">🌐</span>
+                            <span class="comp-title">Web Component</span>
+                        </div>
+                        <p class="comp-desc">SvelteKit web dashboard for analytics monitoring and graph display.</p>
+                    </div>
+
+                    <!-- Mobile -->
+                    <div class="comp-card" data-index="1">
+                        <div class="comp-header">
+                            <span class="comp-icon">📱</span>
+                            <span class="comp-title">Mobile Interface</span>
+                        </div>
+                        <p class="comp-desc">Responsive PWA layout with WebSocket subscriptions and alerts.</p>
+                    </div>
+
+                    <!-- ML/AI -->
+                    <div class="comp-card" data-index="2">
+                        <div class="comp-header">
+                            <span class="comp-icon">🧠</span>
+                            <span class="comp-title">ML / AI Engine</span>
+                        </div>
+                        <p class="comp-desc">Nous Hermes 2 Pro (7B), Silero VAD, and custom classifier pipeline.</p>
+                    </div>
+
+                    <!-- IoT -->
+                    <div class="comp-card" data-index="3">
+                        <div class="comp-header">
+                            <span class="comp-icon">⚡</span>
+                            <span class="comp-title">IoT &amp; Hardware</span>
+                        </div>
+                        <p class="comp-desc">Web Audio API mic arrays and local GPU host server nodes.</p>
+                    </div>
+
+                    <!-- Viz -->
+                    <div class="comp-card" data-index="4">
+                        <div class="comp-header">
+                            <span class="comp-icon">📊</span>
+                            <span class="comp-title">Data Visualization</span>
+                        </div>
+                        <p class="comp-desc">D3.js force-directed knowledge mapping and sub-graph filters.</p>
+                    </div>
+
+                    <!-- Net -->
+                    <div class="comp-card" data-index="5">
+                        <div class="comp-header">
+                            <span class="comp-icon">🔗</span>
+                            <span class="comp-title">Networking Layer</span>
+                        </div>
+                        <p class="comp-desc">Local server VLAN bounds, OpenWrt, and SQM QoS rules.</p>
+                    </div>
+
+                </div>
+
+                <!-- Bottom Detail Card -->
+                <div class="detail-panel reveal delay-2">
+                    <div class="detail-panel-kicker" id="detailKicker">Web Detail</div>
+                    <div class="detail-panel-content" id="detailContent">
+                        Deploying SvelteKit to run on the local edge. Facilitates live Canvas rendering of the force-directed graph with persistent real-time WebSocket feeds pushing new speech act nodes.
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- ==========================================================================
+       SLIDE 5 — NOVELTY & SCOPE (Dark Theme)
+       ========================================================================== -->
+    <section class="slide theme-dark slide-novelty-scope" id="slide5">
+        <div class="grid-bg"></div>
+        <div class="slide-num">Slide 5 · Novelty &amp; Scope</div>
+        <div class="slide-content">
+            <div class="ns-layout">
+                
+                <!-- Left: Novelty Claim -->
+                <div class="novelty-col">
+                    <div class="reveal">
+                        <span class="section-kicker">Academic Novelty</span>
+                        <h2>The Research Gap</h2>
+                    </div>
+
+                    <div class="novelty-card reveal delay-1">
+                        <p class="novelty-text">
+                            "No existing study in Philippine BSIT literature has documented a locally deployed, multi-agent cognitive orchestration system operating on live streaming audio with sub-second turn-taking, enforcing semantic cache coherence (MESI) across parallel agents, and implementing a hardware-inspired memory tiering model."
+                        </p>
+                        
+                        <div class="mesi-badge-container">
+                            <div class="mesi-badge" id="mesiBadge">M</div>
+                            <div class="mesi-info">
+                                <span class="mesi-label">MESI Coherence Protocol State</span>
+                                <span class="mesi-title" id="mesiTitle">Modified (Cache dirty, requires sync)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Comparative Table -->
+                    <table class="comp-table reveal delay-2">
+                        <thead>
+                            <tr>
+                                <th>Feature Dimension</th>
+                                <th>Commercial (Otter.ai)</th>
+                                <th>SynapseRT (Ours)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Deployment Location</td>
+                                <td>Cloud SaaS (high latency)</td>
+                                <td><strong>Local Edge (secure, low latency)</strong></td>
+                            </tr>
+                            <tr>
+                                <td>Agent Architecture</td>
+                                <td>Single-agent summary</td>
+                                <td class="cyan-highlight">4-Agent Coherent Orchestration</td>
+                            </tr>
+                            <tr>
+                                <td>Output Format</td>
+                                <td>Flat chronologic text</td>
+                                <td class="cyan-highlight">Evolving Relational Knowledge Graph</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Right: Scope Bounds -->
+                <div class="scope-col reveal delay-3">
+                    
+                    <div class="scope-list-block in-scope">
+                        <h4>In Scope</h4>
+                        <ul class="scope-list">
+                            <li>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                <span>Real-time transcription of English &amp; Taglish streaming audio (2–6 concurrent speakers)</span>
+                            </li>
+                            <li>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                <span>Multi-agent context arbitration running locally on a dedicated edge server host</span>
+                            </li>
+                            <li>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                <span>Tiered memory architecture with L1 cache, L2 Redis, and Neo4j long-term graph database</span>
+                            </li>
+                            <li>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                <span>Empirical validation measuring Cognitive Load (NASA-TLX) and Semantic Precision (R-graph)</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="scope-list-block out-scope">
+                        <h4>Out of Scope</h4>
+                        <ul class="scope-list">
+                            <li>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                                <span>Speaker voiceprint diarization (identifying speaker name solely by bio-voiceprint)</span>
+                            </li>
+                            <li>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                                <span>Automated multilingual translation out of English/Taglish dialect boundaries</span>
+                            </li>
+                            <li>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                                <span>Multi-tenant SaaS subscription billing infrastructure</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- ==========================================================================
+       SLIDE 6 — DIFFICULTY & ROADMAP (Dark Theme)
+       ========================================================================== -->
+    <section class="slide theme-dark slide-difficulty-roadmap" id="slide6">
+        <div class="grid-bg"></div>
+        <div class="slide-num">Slide 6 · Execution &amp; Trust</div>
+        <div class="slide-content">
+            <div class="dr-layout">
+                
+                <div class="reveal">
+                    <span class="section-kicker">Project Feasibility</span>
+                    <h2>Difficulty Acknowledgment &amp; Roadmap</h2>
+                </div>
+
+                <!-- Challenge cards -->
+                <div class="challenge-row reveal delay-1">
+                    
+                    <div class="challenge-card">
+                        <div class="challenge-title">Taglish STT Accuracy</div>
+                        <div class="challenge-desc">
+                            Whisper's phonetic performance under high-speed code-switching (Taglish) is highly variable. We mitigate this using custom prompt-priming arrays and phonetic mapping hooks.
+                        </div>
+                    </div>
+
+                    <div class="challenge-card">
+                        <div class="challenge-title">Lock-Free Agent Concurrency</div>
+                        <div class="challenge-desc">
+                            Preventing deadlocks when 4 agents write to the same L2 Redis cache context window demands strict implementation of the MESI-inspired cache coherence rules.
+                        </div>
+                    </div>
+
+                    <div class="challenge-card">
+                        <div class="challenge-title">D3 Layout Jitter</div>
+                        <div class="challenge-desc">
+                            Streaming data insertion causes node layout physics loops to jump erratically. We resolve this by tuning custom alpha-decay loops and locking older nodes.
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Roadmap Timeline -->
+                <div class="roadmap-container reveal delay-2">
+                    <div class="timeline-nodes">
+                        <div class="timeline-line-bg"></div>
+                        <div class="timeline-line-active" id="activeTimelineLine"></div>
+                        
+                        <!-- Phase 1 -->
+                        <div class="timeline-node" id="node1">
+                            <div class="timeline-dot"></div>
+                            <div class="timeline-phase">Phase 1 (Wks 1-4)</div>
+                            <div class="timeline-title">Infrastructure &amp; Ingestion</div>
+                            <div class="timeline-deliverable">Deliverable: Working local Whisper chunk streaming ingestion model</div>
+                        </div>
+
+                        <!-- Phase 2 -->
+                        <div class="timeline-node" id="node2">
+                            <div class="timeline-dot"></div>
+                            <div class="timeline-phase">Phase 2 (Wks 5-10)</div>
+                            <div class="timeline-title">Memory &amp; Multi-Agent</div>
+                            <div class="timeline-deliverable">Deliverable: Relational memory routing &amp; agent cache sync</div>
+                        </div>
+
+                        <!-- Phase 3 -->
+                        <div class="timeline-node" id="node3">
+                            <div class="timeline-dot"></div>
+                            <div class="timeline-phase">Phase 3 (Wks 11-14)</div>
+                            <div class="timeline-title">Visualization &amp; Evaluation</div>
+                            <div class="timeline-deliverable">Deliverable: SvelteKit visualization dashboard &amp; empirical evaluations</div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="self-assessment-bar reveal delay-3">
+                    <span>Complexity Self-Rating: <strong class="self-assessment-val">High Complexity (BSIT Capstone 2 Standard)</strong></span>
+                    <span>Team Strengths: Local edge computing, GPU parallelization, and JS networking fundamentals.</span>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- ==========================================================================
+       JAVASCRIPT SYSTEMS
+       ========================================================================== -->
+    <script>
+        // ==========================================================================
+        // SLIDE PRESENTATION ENGINE (SCROLL SNAP TRACKING)
+        // ==========================================================================
+        class SlidePresentation {
+            constructor() {
+                this.slides = document.querySelectorAll('.slide');
+                this.currentSlide = 0;
+                this.isScrolling = false;
+                this.scrollTimeout = null;
+                this.touchStartY = 0;
+
+                this.setupIntersectionObserver();
+                this.setupKeyboardNav();
+                this.setupTouchNav();
+                this.setupWheelNav();
+                this.setupProgressBar();
+                this.setupNavDots();
+
+                // Go to slide 0 initially
+                this.goToSlide(0);
+            }
+
+            setupIntersectionObserver() {
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        const index = Array.from(this.slides).indexOf(entry.target);
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('visible');
+                            if (index !== -1) {
+                                this.currentSlide = index;
+                                this.updateProgressBar();
+                                this.updateNavDots();
+                                this.handleSlideActiveState(index);
+                            }
+                        } else {
+                            entry.target.classList.remove('visible');
+                        }
+                    });
+                }, { threshold: 0.45 });
+
+                this.slides.forEach(slide => observer.observe(slide));
+            }
+
+            setupKeyboardNav() {
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'ArrowDown' || e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+                        e.preventDefault();
+                        this.nextSlide();
+                    } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft' || e.key === 'PageUp') {
+                        e.preventDefault();
+                        this.prevSlide();
+                    } else if (e.key === 'Home') {
+                        e.preventDefault();
+                        this.goToSlide(0);
+                    } else if (e.key === 'End') {
+                        e.preventDefault();
+                        this.goToSlide(this.slides.length - 1);
+                    }
+                });
+            }
+
+            setupTouchNav() {
+                document.addEventListener('touchstart', (e) => {
+                    this.touchStartY = e.touches[0].clientY;
+                }, { passive: true });
+
+                document.addEventListener('touchend', (e) => {
+                    const diff = this.touchStartY - e.changedTouches[0].clientY;
+                    if (Math.abs(diff) > 50) {
+                        if (diff > 0) this.nextSlide();
+                        else this.prevSlide();
+                    }
+                }, { passive: true });
+            }
+
+            setupWheelNav() {
+                document.addEventListener('wheel', (e) => {
+                    e.preventDefault();
+                    if (this.isScrolling) return;
+
+                    this.isScrolling = true;
+                    if (e.deltaY > 0) {
+                        this.nextSlide();
+                    } else if (e.deltaY < 0) {
+                        this.prevSlide();
+                    }
+
+                    clearTimeout(this.scrollTimeout);
+                    this.scrollTimeout = setTimeout(() => {
+                        this.isScrolling = false;
+                    }, 800);
+                }, { passive: false });
+            }
+
+            setupProgressBar() {
+                this.progressBar = document.getElementById('progressBar');
+            }
+
+            setupNavDots() {
+                this.navDotsContainer = document.getElementById('navDots');
+                this.navDotsContainer.innerHTML = '';
+                this.slides.forEach((_, i) => {
+                    const dot = document.createElement('button');
+                    dot.className = 'nav-dot';
+                    dot.setAttribute('aria-label', `Go to slide ${i + 1}`);
+                    dot.addEventListener('click', () => this.goToSlide(i));
+                    this.navDotsContainer.appendChild(dot);
+                });
+                this.navDots = this.navDotsContainer.querySelectorAll('.nav-dot');
+            }
+
+            updateProgressBar() {
+                const progress = ((this.currentSlide + 1) / this.slides.length) * 100;
+                if (this.progressBar) {
+                    this.progressBar.style.width = progress + '%';
+                }
+            }
+
+            updateNavDots() {
+                if (this.navDots) {
+                    this.navDots.forEach((dot, i) => {
+                        dot.classList.toggle('active', i === this.currentSlide);
+                    });
+                }
+                
+                // Toggle global class on body if active slide is light or dark (for nav dot contrast)
+                const activeSlide = this.slides[this.currentSlide];
+                if (activeSlide && activeSlide.classList.contains('theme-light')) {
+                    document.body.className = 'theme-light-active-nav';
+                } else {
+                    document.body.className = 'theme-dark-active-nav';
+                }
+            }
+
+            goToSlide(index) {
+                if (index < 0 || index >= this.slides.length) return;
+                this.currentSlide = index;
+                this.slides[index].scrollIntoView({ behavior: 'smooth' });
+                this.updateProgressBar();
+                this.updateNavDots();
+            }
+
+            nextSlide() {
+                if (this.currentSlide < this.slides.length - 1) {
+                    this.goToSlide(this.currentSlide + 1);
+                }
+            }
+
+            prevSlide() {
+                if (this.currentSlide > 0) {
+                    this.goToSlide(this.currentSlide - 1);
+                }
+            }
+
+            handleSlideActiveState(index) {
+                // Trigger slide specific actions/animations
+                if (index === 2) {
+                    // Pipeline Slide (Slide 3)
+                    startPipelineAnimation();
+                } else if (index === 5) {
+                    // Roadmap Slide (Slide 6)
+                    triggerRoadmapTimeline();
+                }
+            }
+        }
+
+        // Initialize presentation engine
+        window.addEventListener('DOMContentLoaded', () => {
+            window.slidePresentation = new SlidePresentation();
+        });
+
+
+        // ==========================================================================
+        // SLIDE 1: KNOWLEDGE GRAPH CANVAS ANIMATION (HTML5 CANVAS)
+        // ==========================================================================
+        const canvas = document.getElementById('titleCanvas');
+        const ctx = canvas.getContext('2d');
+
+        let nodes = [];
+        let edges = [];
+        const maxNodes = 36;
+        const connectionDistance = 140;
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        class GraphNode {
+            constructor(x, y) {
+                this.x = x || Math.random() * canvas.width;
+                this.y = y || Math.random() * canvas.height;
+                this.vx = (Math.random() - 0.5) * 0.4;
+                this.vy = (Math.random() - 0.5) * 0.4;
+                this.radius = Math.random() * 4 + 3;
+                this.glowColor = 'rgba(0, 229, 255, 0.6)';
+                this.color = '#ffffff';
+                this.pulseFactor = Math.random() * Math.PI;
+            }
+
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+
+                // Bounce off edges
+                if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+                if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+
+                this.pulseFactor += 0.02;
+            }
+
+            draw() {
+                const currentRadius = this.radius + Math.sin(this.pulseFactor) * 1.5;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, currentRadius, 0, Math.PI * 2);
+                ctx.fillStyle = this.color;
+                
+                // Add soft ambient neon glow
+                ctx.shadowBlur = 12;
+                ctx.shadowColor = this.glowColor;
+                ctx.fill();
+                ctx.shadowBlur = 0; // reset
+            }
+        }
+
+        // Initialize drifting nodes
+        for (let i = 0; i < maxNodes; i++) {
+            nodes.push(new GraphNode());
+        }
+
+        function animateGraph() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw links first (underneath nodes)
+            for (let i = 0; i < nodes.length; i++) {
+                for (let j = i + 1; j < nodes.length; j++) {
+                    const dx = nodes[i].x - nodes[j].x;
+                    const dy = nodes[i].y - nodes[j].y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+
+                    if (dist < connectionDistance) {
+                        const alpha = (1 - dist / connectionDistance) * 0.18;
+                        ctx.beginPath();
+                        ctx.moveTo(nodes[i].x, nodes[i].y);
+                        ctx.lineTo(nodes[j].x, nodes[j].y);
+                        ctx.strokeStyle = `rgba(0, 229, 255, ${alpha})`;
+                        ctx.lineWidth = 1;
+                        ctx.stroke();
+                    }
+                }
+            }
+
+            // Update & draw nodes
+            nodes.forEach(node => {
+                node.update();
+                node.draw();
+            });
+
+            requestAnimationFrame(animateGraph);
+        }
+        animateGraph();
+
+
+        // ==========================================================================
+        // SLIDE 2: MEETING TRANSCRIPT SIMULATION (SCROLL & COLLAPSE)
+        // ==========================================================================
+        const transcriptData = [
+            { speaker: "Speaker A (Moderator)", text: "Let's align on the schema for the multi-agent arbitration logic." },
+            { speaker: "Speaker B (Engine)", text: "We need concurrency! If two agents compile the graph simultaneously, we get race conditions." },
+            { speaker: "Speaker C (Architecture)", text: "Agreed. Let's model it like a hardware cache coherence protocol. Say, MESI." },
+            { speaker: "Speaker D (Security)", text: "Exactly. The arbitrator sets state to Modified, locking read access from suggestive prompts." },
+            { speaker: "System (L1 Context)", text: "ALERT: Buffer sizing approaching window limit. Initial references evicted." },
+            { speaker: "Speaker A (Moderator)", text: "Wait, did we document the initial database parameters? What was the local port?" },
+            { speaker: "Speaker B (Engine)", text: "It's gone. We discussed that 30 minutes ago, standard context buffer is flushed." },
+            { speaker: "Speaker C (Architecture)", text: "This is exactly why we need SynapseRT. Linear buffers lose critical details." }
+        ];
+
+        const scroller = document.getElementById('transcriptScroller');
+        let transcriptIndex = 0;
+        let activeBubbles = [];
+
+        function renderBubble(data) {
+            const bubble = document.createElement('div');
+            const isSystem = data.speaker.startsWith('System');
+            bubble.className = `transcript-bubble ${isSystem ? 'system' : 'user'}`;
+            
+            const speakerEl = document.createElement('div');
+            speakerEl.className = 'transcript-speaker';
+            speakerEl.innerText = data.speaker;
+            
+            const textEl = document.createElement('div');
+            textEl.className = 'transcript-text';
+            textEl.innerText = data.text;
+
+            bubble.appendChild(speakerEl);
+            bubble.appendChild(textEl);
+            scroller.appendChild(bubble);
+
+            activeBubbles.push(bubble);
+
+            // Limit array and fade out top items
+            if (activeBubbles.length > 5) {
+                const shifted = activeBubbles.shift();
+                shifted.classList.add('fade-out-0');
+                setTimeout(() => shifted.remove(), 600);
+            }
+
+            // Apply incremental fade levels to active bubbles
+            const len = activeBubbles.length;
+            for (let i = 0; i < len; i++) {
+                activeBubbles[i].className = `transcript-bubble ${activeBubbles[i].classList.contains('system') ? 'system' : 'user'}`;
+                
+                // Assign classes based on age/distance from bottom
+                const positionFromBottom = len - 1 - i;
+                if (positionFromBottom === 1) activeBubbles[i].classList.add('fade-out-3');
+                else if (positionFromBottom === 2) activeBubbles[i].classList.add('fade-out-2');
+                else if (positionFromBottom === 3) activeBubbles[i].classList.add('fade-out-1');
+                else if (positionFromBottom >= 4) activeBubbles[i].classList.add('fade-out-0');
+            }
+        }
+
+        // Loop transcript feeder
+        setInterval(() => {
+            if (!document.getElementById('slide2').classList.contains('visible')) return;
+            
+            renderBubble(transcriptData[transcriptIndex]);
+            transcriptIndex = (transcriptIndex + 1) % transcriptData.length;
+        }, 2200);
+
+        // Prepopulate first 3 items
+        for (let i = 0; i < 3; i++) {
+            renderBubble(transcriptData[transcriptIndex]);
+            transcriptIndex = (transcriptIndex + 1) % transcriptData.length;
+        }
+
+
+        // ==========================================================================
+        // SLIDE 3: SVG PIPELINE ANMATIONS (INGESTION -> MEMORY -> AGENTS)
+        // ==========================================================================
+        let pipelineInterval;
+        function startPipelineAnimation() {
+            clearInterval(pipelineInterval);
+
+            const blocks = [
+                document.getElementById('block-ingestion'),
+                document.getElementById('block-memory'),
+                document.getElementById('block-agents')
+            ];
+            const arrows = [
+                document.getElementById('arrow1'),
+                document.getElementById('arrow2')
+            ];
+
+            let activeStep = 0;
+
+            function advancePipeline() {
+                // Clear active states
+                blocks.forEach(b => b.classList.remove('active-pulse'));
+                arrows.forEach(a => a.classList.remove('arrow-line-active'));
+
+                // Set current active
+                blocks[activeStep].classList.add('active-pulse');
+                
+                if (activeStep > 0) {
+                    arrows[activeStep - 1].classList.add('arrow-line-active');
+                }
+
+                activeStep = (activeStep + 1) % 3;
+            }
+
+            advancePipeline();
+            pipelineInterval = setInterval(advancePipeline, 3000);
+        }
+
+
+        // ==========================================================================
+        // SLIDE 4: COMPONENT DETAILS CAROUSEL WITH INTERACTIVE OVERRIDES
+        // ==========================================================================
+        const componentDetails = [
+            {
+                kicker: "Web Component — SvelteKit Engine",
+                desc: "Deploying SvelteKit to run on the local edge. Facilitates live Canvas rendering of the force-directed graph with persistent real-time WebSocket feeds pushing new speech act nodes."
+            },
+            {
+                kicker: "Mobile Component — Progressive Web App",
+                desc: "Built with responsive styling for cross-device support. Employs offline-first WebSockets to receive instant amber alerts when agent conflict thresholds are breached."
+            },
+            {
+                kicker: "ML / AI Component — Local Model Deployment",
+                desc: "Running local inference of Nous Hermes 2 Pro (7B) via llama.cpp. Backed by Silero VAD for low-latency chunking and a neural classifier parsing speech acts in &lt;200ms."
+            },
+            {
+                kicker: "IoT & Hardware Component — Acoustic Capture & Cluster",
+                desc: "Capture layer using high-resolution boundary microphones via Web Audio API, routed to a local hardware container utilizing GPU acceleration via PCIe passthrough of an RTX 3060."
+            },
+            {
+                kicker: "Data Visualization Component — Interactive Graph rendering",
+                desc: "Harnessing D3.js physics algorithms. Renders semantic networks using force-directed spacing, custom edge tension indicating node support, and node filtering based on semantic age."
+            },
+            {
+                kicker: "Networking Component — VLAN Isolation",
+                desc: "VLAN-segmented networking on OpenWrt to isolate AI local traffic. Integrates Smart Queue Management (SQM CAKE) prioritizing local WebSocket audio streaming over school WAN."
+            }
+        ];
+
+        const cards = document.querySelectorAll('.comp-card');
+        const kickerEl = document.getElementById('detailKicker');
+        const contentEl = document.getElementById('detailContent');
+        
+        let activeCompIndex = 0;
+        let compCycleInterval;
+
+        function setFocusedComponent(index) {
+            cards.forEach(c => c.classList.remove('active'));
+            cards[index].classList.add('active');
+            
+            kickerEl.innerText = componentDetails[index].kicker;
+            contentEl.innerHTML = componentDetails[index].desc;
+            activeCompIndex = index;
+        }
+
+        function startComponentCycle() {
+            clearInterval(compCycleInterval);
+            compCycleInterval = setInterval(() => {
+                if (!document.getElementById('slide4').classList.contains('visible')) return;
+                let nextIdx = (activeCompIndex + 1) % cards.length;
+                setFocusedComponent(nextIdx);
+            }, 4000);
+        }
+
+        cards.forEach(card => {
+            card.addEventListener('click', () => {
+                // Stop automatic cycles once user interacts
+                clearInterval(compCycleInterval);
+                const idx = parseInt(card.getAttribute('data-index'));
+                setFocusedComponent(idx);
+            });
+        });
+
+        // Initialize cycle
+        startComponentCycle();
+
+
+        // ==========================================================================
+        // SLIDE 5: MESI CACHE COHERENCE PROTOCOL STATE BADGE CYCLE
+        // ==========================================================================
+        const mesiStates = [
+            { state: "M", title: "Modified (Context dirty, locked for sync)", color: "var(--accent-red)", bgGlow: "rgba(255, 82, 82, 0.4)" },
+            { state: "E", title: "Exclusive (Owned by Agent A, read-only clean)", color: "var(--accent-amber)", bgGlow: "rgba(255, 171, 64, 0.4)" },
+            { state: "S", title: "Shared (Synced across all agent context views)", color: "var(--accent-green)", bgGlow: "rgba(0, 230, 118, 0.4)" },
+            { state: "I", title: "Invalid (Context expired, forced to pull fresh L3 Neo4j state)", color: "var(--text-dark-muted)", bgGlow: "rgba(156, 163, 175, 0.2)" }
+        ];
+
+        let mesiIndex = 0;
+        const mesiBadge = document.getElementById('mesiBadge');
+        const mesiTitle = document.getElementById('mesiTitle');
+
+        setInterval(() => {
+            if (!document.getElementById('slide5').classList.contains('visible')) return;
+
+            mesiIndex = (mesiIndex + 1) % mesiStates.length;
+            const data = mesiStates[mesiIndex];
+
+            mesiBadge.innerText = data.state;
+            mesiBadge.style.color = data.color;
+            mesiBadge.style.boxShadow = `0 0 15px ${data.bgGlow}`;
+            
+            mesiTitle.innerText = data.title;
+            mesiTitle.style.color = data.color;
+        }, 2500);
+
+
+        // ==========================================================================
+        // SLIDE 6: SCROLL-TRIGGERED TIMELINE ROADMAP REVEAL
+        // ==========================================================================
+        function triggerRoadmapTimeline() {
+            const timelineLine = document.getElementById('activeTimelineLine');
+            const nodes = [
+                document.getElementById('node1'),
+                document.getElementById('node2'),
+                document.getElementById('node3')
+            ];
+
+            // Reset transitions to re-trigger
+            timelineLine.style.width = '0%';
+            nodes.forEach(n => n.classList.remove('active-node'));
+
+            setTimeout(() => {
+                timelineLine.style.width = 'calc(100% - 100px)';
+                
+                // Staggered node animations matching line progress
+                setTimeout(() => nodes[0].classList.add('active-node'), 300);
+                setTimeout(() => nodes[1].classList.add('active-node'), 1000);
+                setTimeout(() => nodes[2].classList.add('active-node'), 1700);
+            }, 200);
+            }
+            
+            /* === Gallery Navigation Patch === */
+            (function() {
+              const galleryUrl = '../../index.html';
+              const btn = document.createElement('div');
+              btn.innerHTML = '&#8592; Gallery';
+              Object.assign(btn.style, {
+                position: 'fixed', top: '16px', left: '16px', zIndex: '9999',
+                background: 'rgba(0,0,0,0.7)', color: '#fff', padding: '6px 14px',
+                borderRadius: '8px', fontSize: '13px', fontFamily: 'system-ui, sans-serif',
+                cursor: 'pointer', opacity: '0', transition: 'opacity 0.3s ease',
+                backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.15)',
+                userSelect: 'none', lineHeight: '1.4'
+              });
+              btn.addEventListener('click', function() { window.location.href = galleryUrl; });
+              document.body.appendChild(btn);
+              document.addEventListener('mousemove', function(e) {
+                btn.style.opacity = e.clientX < 160 && e.clientY < 60 ? '1' : '0';
+              });
+              document.addEventListener('mouseleave', function() { btn.style.opacity = '0'; });
+              btn.addEventListener('mouseenter', function() { btn.style.opacity = '1'; });
+              function patchSlides() {
+                const sp = window.slidePresentation;
+                if (!sp || !sp.nextSlide) { setTimeout(patchSlides, 500); return; }
+              const origNext = sp.nextSlide.bind(sp);
+              sp.nextSlide = function() {
+                if (sp.currentSlide >= sp.slides.length - 1) {
+                  window.location.href = galleryUrl;
+                } else {
+                  origNext();
+                }
+              };
+              }
+              patchSlides();
+            })();
+        </script>
+</body>
+</html>

@@ -1,0 +1,1980 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Capstone 1 Guide & Details - StudentHub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #06080d;
+  --bg-card: rgba(14, 20, 36, 0.7);
+  --bg-card-hover: rgba(20, 30, 52, 0.85);
+  --border: rgba(255, 255, 255, 0.06);
+  --border-hover: rgba(167, 139, 250, 0.25);
+  --text: #e8ecf4;
+  --text-muted: #7a889e;
+  --text-faint: #4a5568;
+  --sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --heading: 'Space Grotesk', system-ui, sans-serif;
+  --mono: 'Fira Code', monospace;
+  
+  --accent: rgb(167, 139, 250);
+  --accent-light: rgba(167, 139, 250, 0.08);
+  --accent-border: rgba(167, 139, 250, 0.2);
+  --accent-glow: rgba(139, 92, 246, 0.15);
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  min-height: 100vh;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+.bg-mesh {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 80% 50% at 20% 20%, rgba(167, 139, 250, 0.06) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 80%, rgba(16, 185, 129, 0.04) 0%, transparent 55%);
+}
+
+.bg-grid {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.01) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.01) 1px, transparent 1px);
+  background-size: 50px 50px;
+}
+
+/* Sticky Top Bar & Sticky Search Bar */
+.sticky-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(6, 8, 13, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  padding: 1rem 2rem;
+  transition: all 0.3s ease;
+}
+
+.header-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.top-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--text-muted);
+  text-decoration: none;
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.4rem 0.8rem;
+  border-radius: 8px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+  transition: all 0.2s ease;
+}
+
+.back-btn:hover {
+  color: var(--text);
+  background: rgba(255,255,255,0.08);
+  border-color: var(--text-muted);
+}
+
+.project-title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.title-icon {
+  font-size: 1.5rem;
+}
+
+.title-badge {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--accent);
+  background: var(--accent-light);
+  border: 1px solid var(--accent-border);
+  padding: 0.2rem 0.6rem;
+  border-radius: 100px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+}
+
+h1 {
+  font-family: var(--heading);
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text);
+}
+
+/* Sticky Search Bar Container */
+.search-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.search-input {
+  width: 100%;
+  padding: 0.8rem 1.2rem 0.8rem 2.8rem;
+  background: rgba(14, 20, 36, 0.9);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 0.95rem;
+  outline: none;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 20px -5px rgba(0,0,0,0.5);
+}
+
+.search-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 15px -3px var(--accent-glow), 0 4px 20px -5px rgba(0,0,0,0.5);
+  background: rgba(20, 30, 52, 0.95);
+}
+
+.search-icon {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  pointer-events: none;
+  font-size: 1rem;
+}
+
+.search-clear {
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 1rem;
+  display: none;
+  padding: 0.2rem;
+}
+
+.search-clear:hover {
+  color: var(--text);
+}
+
+.search-stats {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-family: var(--mono);
+  text-align: right;
+  margin-top: 0.25rem;
+  display: none;
+}
+
+/* Layout */
+.main-layout {
+  position: relative;
+  z-index: 1;
+  max-width: 1400px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 2.5rem;
+  padding: 2.5rem 2rem;
+}
+
+/* Sidebar navigation */
+.sidebar {
+  position: sticky;
+  top: 170px;
+  height: calc(100vh - 200px);
+  overflow-y: auto;
+  padding-right: 1rem;
+}
+
+.sidebar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 4px;
+}
+
+.toc-group {
+  margin-bottom: 1.5rem;
+}
+
+.toc-group-title {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  color: var(--text-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  padding-left: 0.75rem;
+}
+
+.toc-link {
+  display: block;
+  color: var(--text-muted);
+  text-decoration: none;
+  font-size: 0.85rem;
+  padding: 0.5rem 0.75rem;
+  border-left: 2px solid transparent;
+  transition: all 0.2s ease;
+  line-height: 1.4;
+  border-radius: 0 6px 6px 0;
+}
+
+.toc-link:hover {
+  color: var(--text);
+  background: rgba(255,255,255,0.02);
+  border-left-color: var(--text-faint);
+}
+
+.toc-link.active {
+  color: var(--accent);
+  font-weight: 500;
+  border-left-color: var(--accent);
+  background: var(--accent-light);
+}
+
+/* Main Content Area */
+.content-pane {
+  max-width: 900px;
+}
+
+.content-section {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 2.5rem;
+  margin-bottom: 2rem;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition: all 0.3s ease;
+}
+
+.content-section:hover {
+  border-color: rgba(167, 139, 250, 0.15);
+}
+
+.section-title {
+  font-family: var(--heading);
+  font-size: 1.8rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+  background: linear-gradient(135deg, #fff 0%, rgba(167, 139, 250, 0.85) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Typography inside Content Sections */
+p {
+  font-size: 0.95rem;
+  line-height: 1.65;
+  color: var(--text-muted);
+  margin-bottom: 1.25rem;
+}
+
+strong {
+  color: var(--text);
+  font-weight: 600;
+}
+
+h3 {
+  font-family: var(--heading);
+  font-size: 1.3rem;
+  color: var(--text);
+  margin: 2rem 0 1rem 0;
+  font-weight: 500;
+}
+
+h4 {
+  font-family: var(--heading);
+  font-size: 1.1rem;
+  color: var(--text);
+  margin: 1.5rem 0 0.75rem 0;
+  font-weight: 500;
+}
+
+ul, ol {
+  margin-bottom: 1.25rem;
+  padding-left: 1.5rem;
+}
+
+li {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--text-muted);
+  margin-bottom: 0.5rem;
+}
+
+blockquote {
+  border-left: 3px solid var(--accent);
+  background: var(--accent-light);
+  padding: 1rem 1.25rem;
+  margin: 1.5rem 0;
+  border-radius: 0 8px 8px 0;
+  font-style: italic;
+}
+
+blockquote p {
+  margin-bottom: 0;
+  color: var(--text);
+}
+
+hr {
+  border: 0;
+  height: 1px;
+  background: var(--border);
+  margin: 2.5rem 0;
+}
+
+/* Code Blocks */
+pre {
+  background: #020306;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.25rem;
+  margin: 1.5rem 0;
+  overflow-x: auto;
+}
+
+code {
+  font-family: var(--mono);
+  font-size: 0.85rem;
+  color: rgba(167, 139, 250, 0.95);
+  background: rgba(167, 139, 250, 0.05);
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+}
+
+pre code {
+  color: #cfd8e3;
+  background: none;
+  padding: 0;
+  border-radius: 0;
+}
+
+/* Table Styling */
+.table-container {
+  width: 100%;
+  overflow-x: auto;
+  margin: 1.5rem 0;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 0.9rem;
+}
+
+th {
+  background: rgba(255,255,255,0.02);
+  color: var(--text);
+  font-weight: 600;
+  padding: 1rem;
+  border-bottom: 1px solid var(--border);
+  font-family: var(--heading);
+}
+
+td {
+  padding: 1rem;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+tr:last-child td {
+  border-bottom: none;
+}
+
+tr:hover td {
+  background: rgba(255,255,255,0.01);
+  color: var(--text);
+}
+
+/* Mock Q&A Accordion */
+.qa-filters {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+}
+
+.filter-btn {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  font-family: var(--mono);
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.filter-btn:hover, .filter-btn.active {
+  background: var(--accent-light);
+  border-color: var(--accent-border);
+  color: var(--accent);
+}
+
+.qa-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.qa-item {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: rgba(255,255,255,0.01);
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.qa-item:hover {
+  border-color: var(--accent-border);
+  background: rgba(255,255,255,0.02);
+}
+
+.qa-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  background: none;
+  border: none;
+  color: var(--text);
+  font-family: var(--heading);
+  font-size: 0.95rem;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  outline: none;
+  justify-content: space-between;
+}
+
+.qa-q-badge {
+  width: 24px;
+  height: 24px;
+  background: var(--accent-light);
+  border: 1px solid var(--accent-border);
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.qa-question-text {
+  flex: 1;
+  line-height: 1.4;
+}
+
+.qa-toggle {
+  font-size: 1.2rem;
+  color: var(--text-faint);
+  transition: transform 0.3s ease;
+  padding-left: 0.5rem;
+}
+
+.qa-body {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.qa-answer {
+  padding: 0 1.25rem 1.25rem 3.25rem;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--text-muted);
+}
+
+.qa-answer p {
+  margin-bottom: 0.75rem;
+}
+
+.qa-answer p:last-child {
+  margin-bottom: 0;
+}
+
+.qa-item.open {
+  border-color: var(--accent-border);
+  background: rgba(167, 139, 250, 0.02);
+  box-shadow: 0 4px 20px -10px var(--accent-glow);
+}
+
+.qa-item.open .qa-body {
+  max-height: 1200px; /* Large enough for detailed answers */
+}
+
+.qa-item.open .qa-toggle {
+  transform: rotate(45deg);
+  color: var(--accent);
+}
+
+/* Highlighted search text */
+mark.highlight {
+  background: rgba(var(--accent), 0.25);
+  color: var(--text);
+  border-radius: 4px;
+  padding: 0.1rem 0.2rem;
+  border-bottom: 2px solid var(--accent);
+}
+
+/* Search Flex Layout with AI Button */
+.search-flex-container {
+  display: flex;
+  gap: 0.75rem;
+  width: 100%;
+  align-items: center;
+}
+
+.ai-explore-btn {
+  background: linear-gradient(135deg, rgba(var(--accent), 0.2) 0%, rgba(var(--accent), 0.05) 100%);
+  color: var(--text);
+  border: 1px solid rgba(var(--accent), 0.35);
+  border-radius: 10px;
+  padding: 0.8rem 1.25rem;
+  font-weight: 600;
+  font-family: var(--sans);
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  white-space: nowrap;
+  box-shadow: 0 0 15px -3px rgba(var(--accent), 0.1), 0 4px 20px -5px rgba(0,0,0,0.5);
+}
+
+.ai-explore-btn:hover {
+  border-color: rgba(var(--accent), 0.7);
+  background: linear-gradient(135deg, rgba(var(--accent), 0.3) 0%, rgba(var(--accent), 0.15) 100%);
+  box-shadow: 0 0 20px -2px rgba(var(--accent), 0.35), 0 4px 20px -5px rgba(0,0,0,0.5);
+  transform: translateY(-1px);
+}
+
+.ai-explore-btn:active {
+  transform: translateY(1px);
+  box-shadow: 0 0 10px -2px rgba(var(--accent), 0.2);
+}
+
+.ai-icon {
+  font-size: 1.1rem;
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+@keyframes pulse-glow {
+  0%, 100% { transform: scale(1); filter: drop-shadow(0 0 2px rgba(var(--accent), 0.5)); }
+  50% { transform: scale(1.1); filter: drop-shadow(0 0 6px rgba(var(--accent), 0.8)); }
+}
+
+/* Toast Notification Styles */
+.ai-toast {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  background: rgba(10, 15, 30, 0.95);
+  border: 1px solid rgba(var(--accent), 0.3);
+  border-radius: 12px;
+  padding: 1rem 1.5rem;
+  color: var(--text);
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.6), 0 0 30px -5px rgba(var(--accent), 0.3);
+  transform: translateY(150%) scale(0.9);
+  opacity: 0;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
+  max-width: 350px;
+}
+
+.ai-toast.show {
+  transform: translateY(0) scale(1);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.toast-content {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.toast-icon {
+  font-size: 1.5rem;
+}
+
+.toast-text-wrapper {
+  display: flex;
+  flex-direction: column;
+}
+
+.toast-title {
+  font-family: var(--heading);
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--text);
+}
+
+.toast-desc {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.toast-progress {
+  height: 3px;
+  background: var(--accent);
+  width: 100%;
+  border-radius: 2px;
+  transform-origin: left;
+  transform: scaleX(0);
+}
+
+.toast-progress.animate {
+  animation: progress-bar linear forwards;
+}
+
+@keyframes progress-bar {
+  from { transform: scaleX(1); }
+  to { transform: scaleX(0); }
+}
+
+/* Search overlay for empty search results */
+.no-results {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: var(--text-muted);
+  display: none;
+}
+
+.no-results-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+/* Floating Mobile Menu Button & Drawer */
+.mobile-menu-toggle {
+  display: none;
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  z-index: 110;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #000;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 30px -5px var(--accent-glow);
+  transition: all 0.3s ease;
+}
+
+.mobile-menu-toggle:hover {
+  transform: scale(1.05);
+}
+
+/* Responsive Breakpoints */
+@media (max-width: 1024px) {
+  .main-layout {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    padding: 1.5rem 1.25rem;
+    position: static;
+    z-index: auto;
+  }
+  
+  .content-pane {
+    min-width: 0;
+    width: 100%;
+  }
+  
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: -300px;
+    width: 280px;
+    height: 100vh;
+    z-index: 1000;
+    background: #090d16;
+    border-right: 1px solid var(--border);
+    padding: 2rem 1.5rem;
+    transition: left 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  
+  .sidebar.open {
+    left: 0;
+    box-shadow: 20px 0 60px rgba(0,0,0,0.8);
+  }
+  
+  .mobile-menu-toggle {
+    display: flex;
+  }
+  
+  .content-section {
+    padding: 1.75rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .sticky-header {
+    padding: 0.5rem 0.75rem;
+  }
+  
+  .header-container {
+    gap: 0.5rem;
+  }
+  
+  h1 {
+    font-size: 1.1rem;
+  }
+  
+  .project-title {
+    flex-wrap: nowrap;
+    gap: 0.4rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  .search-flex-container {
+    flex-direction: row;
+    gap: 0.5rem;
+    align-items: center;
+  }
+  
+  .search-wrapper {
+    flex: 1;
+  }
+  
+  .ai-explore-btn {
+    width: auto;
+    padding: 0.6rem 0.8rem;
+    font-size: 0.85rem;
+    white-space: nowrap;
+  }
+  
+  .ai-btn-text-extra {
+    display: none;
+  }
+  
+  .content-section {
+    padding: 1.25rem;
+    border-radius: 12px;
+  }
+  
+  .section-title {
+    font-size: 1.4rem;
+  }
+  
+  .qa-answer {
+    padding-left: 1.25rem;
+  }
+  
+  /* Prevent tables from causing horizontal page scrolling */
+  table {
+    font-size: 0.8rem;
+  }
+  
+  th, td {
+    padding: 0.75rem 0.5rem;
+  }
+}
+
+/* Overlay for mobile drawer */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  z-index: 999;
+  backdrop-filter: blur(4px);
+}
+
+.sidebar-overlay.open {
+  display: block;
+}
+</style>
+  <!-- MathJax for rendering LaTeX formulas -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true
+      },
+      options: {
+        ignoreHtmlClass: 'tex2jax_ignore',
+        processHtmlClass: 'tex2jax_process'
+      }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+  <div class="bg-mesh"></div>
+  <div class="bg-grid"></div>
+
+  <!-- Sticky Header containing search and title -->
+  <header class="sticky-header">
+    <div class="header-container">
+      <div class="top-nav">
+        <a class="back-btn" href="../../index.html">&larr; Dashboard</a>
+        <div class="project-title">
+          <span class="title-icon">🏫</span>
+          <h1>StudentHub</h1>
+          <span class="title-badge">Capstone 1</span>
+        </div>
+      </div>
+      
+      <!-- Sticky Search Bar -->
+      <div class="search-flex-container">
+        <div class="search-wrapper">
+          <span class="search-icon">&#x1F50D;</span>
+          <input type="text" class="search-input" id="search-input" placeholder="Search guide or type AI question, then click 'Explore with AI'...">
+          <button class="search-clear" id="search-clear">&times;</button>
+        </div>
+        <button class="ai-explore-btn" id="ai-explore-btn" onclick="exploreWithAI()">
+          <span class="ai-icon">✨</span> Explore <span class="ai-btn-text-extra">with AI</span>
+        </button>
+      </div>
+      <div class="search-stats" id="search-stats">Showing all sections</div>
+    </div>
+  </header>
+
+  <!-- Sidebar Overlay -->
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+  <!-- Floating Mobile Menu Button -->
+  <button class="mobile-menu-toggle" id="mobile-menu-toggle">&#x2630;</button>
+
+  <!-- Main Layout -->
+  <div class="main-layout">
+    <!-- Sidebar navigation -->
+    <aside class="sidebar" id="sidebar">
+      <div class="toc-group">
+  <div class="toc-group-title">Core Defense Guide</div>
+  <a href="#title-defense-guide-studenthub" class="toc-link" data-target="title-defense-guide-studenthub">Title Defense Guide: StudentHub</a>
+  <a href="#1-the-core-defense-pitch-slide-script" class="toc-link" data-target="1-the-core-defense-pitch-slide-script">1. The Core Defense Pitch (Slide Script)</a>
+  <a href="#2-four-critical-defense-arguments" class="toc-link" data-target="2-four-critical-defense-arguments">2. Four Critical Defense Arguments</a>
+  <a href="#cat-argument-1-the-bsp-compliance-defense-closed-loop-wallet" class="toc-link" data-target="cat-argument-1-the-bsp-compliance-defense-closed-loop-wallet">Argument 1: The BSP Compliance Defense (Closed-Loop Wallet)</a>
+  <a href="#cat-argument-2-the-coa-and-suc-asset-defense-government-auditing" class="toc-link" data-target="cat-argument-2-the-coa-and-suc-asset-defense-government-auditing">Argument 2: The COA & SUC Asset Defense (Government Auditing)</a>
+  <a href="#cat-argument-3-the-system-isolation-and-hypervisor-defense-proxmox-security" class="toc-link" data-target="cat-argument-3-the-system-isolation-and-hypervisor-defense-proxmox-security">Argument 3: The System Isolation & Hypervisor Defense (Proxmox Security)</a>
+  <a href="#cat-argument-4-the-network-congestion-and-resource-allocation-defense-qos-ap-and-isp" class="toc-link" data-target="cat-argument-4-the-network-congestion-and-resource-allocation-defense-qos-ap-and-isp">Argument 4: The Network Congestion & Resource Allocation Defense (QoS, AP, & ISP)</a>
+  <a href="#3-technical-mock-qanda-deep-dive" class="toc-link" data-target="3-technical-mock-qanda-deep-dive">3. Technical Mock Q&A: Deep-Dive</a>
+  <a href="#cat-category-a-virtualization-and-hypervisor-proxmox-ve" class="toc-link" data-target="cat-category-a-virtualization-and-hypervisor-proxmox-ve">Category A: Virtualization & Hypervisor (Proxmox VE)</a>
+  <a href="#cat-category-b-platform-as-a-service-and-containers-dokploy-and-docker" class="toc-link" data-target="cat-category-b-platform-as-a-service-and-containers-dokploy-and-docker">Category B: Platform-as-a-Service & Containers (Dokploy & Docker)</a>
+  <a href="#cat-category-c-layer-23-networking-and-wi-fi-topology-vlans-switches-and-aps" class="toc-link" data-target="cat-category-c-layer-23-networking-and-wi-fi-topology-vlans-switches-and-aps">Category C: Layer 2/3 Networking & Wi-Fi Topology (VLANs, Switches, & APs)</a>
+  <a href="#cat-category-b-platform-as-a-service-and-containers-dokploy-and-docker" class="toc-link" data-target="cat-category-b-platform-as-a-service-and-containers-dokploy-and-docker">Category B: Platform-as-a-Service & Containers (Dokploy & Docker)</a>
+  <a href="#cat-category-d-captive-portal-and-session-lifecycle-opennds-and-binauth" class="toc-link" data-target="cat-category-d-captive-portal-and-session-lifecycle-opennds-and-binauth">Category D: Captive Portal & Session Lifecycle (openNDS & BinAuth)</a>
+  <a href="#cat-category-e-payments-and-financial-auditing-xendit-esp32-and-coa" class="toc-link" data-target="cat-category-e-payments-and-financial-auditing-xendit-esp32-and-coa">Category E: Payments & Financial Auditing (Xendit, ESP32, and COA)</a>
+  <a href="#cat-category-f-component-integration-ml-and-mapping" class="toc-link" data-target="cat-category-f-component-integration-ml-and-mapping">Category F: Component Integration (ML & Mapping)</a>
+  <a href="#4-summary-system-matrix" class="toc-link" data-target="4-summary-system-matrix">4. Summary System Matrix</a>
+</div>
+    </aside>
+
+    <!-- Main Content Pane -->
+    <main class="content-pane" id="content-pane">
+      <section id="title-defense-guide-studenthub" class="content-section">
+  <h2 class="section-title searchable">Title Defense Guide: StudentHub</h2>
+  <p class='searchable'><em>A Comprehensive Strategic Roadmap, System Architecture Deep-Dive, and Mock Q&amp;A for the Capstone Title Defense</em></p>
+  <hr>
+</section>
+<section id="1-the-core-defense-pitch-slide-script" class="content-section">
+  <h2 class="section-title searchable">1. The Core Defense Pitch (Slide Script)</h2>
+  <blockquote><p><strong>Pitch Duration:</strong> 2 to 3 minutes. Present this clearly and confidently during the solution/architecture slides.</p></blockquote>
+  <p class='searchable'>&quot;Good day, members of the panel. Our project, <strong>StudentHub</strong>, is a <strong>Smart Vending Machine System and Self-Sustaining Campus Edge Infrastructure</strong> with an integrated, secure campus utility wallet and intranet Platform-as-a-Service (PaaS) hosting layer.</p>
+  <p class='searchable'>Rather than running a monolithic server, StudentHub virtualizes its entire infrastructure using a <strong>Proxmox VE Type-1 Hypervisor</strong> hosted locally on a campus x86 mini PC. It separates the core network gateway (<strong>OpenWrt</strong>) from the application hosting environment (<strong>Ubuntu Server running Dokploy</strong>). Network segmentation is enforced using <strong>802.1Q VLANs</strong> trunked through a <strong>TP-Link Omada managed switch</strong> to dedicated campus <strong>wireless access points (APs)</strong>.</p>
+  <p class='searchable'>For digital payments, the system integrates <strong>Xendit</strong> as an Operator of Payment System (OPS) registered gateway to ingest digital cash-ins (GCash, Maya, QR Ph) alongside a physical coin acceptor managed by an <strong>ESP32 microcontroller</strong>. To ensure absolute compliance with Philippine banking regulations and State Universities and Colleges (SUC) auditing rules, the system operates as a strict <strong>Closed-Loop Utility</strong>. Digital top-ups are automated, but cash-outs (refunds or withdrawals) are restricted to a <strong>manual, cashier-verified dashboard workflow</strong>. This design provides campus students with a zero-cost local deployment platform for their projects while maintaining rigorous security, bandwidth fairness through <strong>SQM CAKE</strong>, and complete administrative audit trails.&quot;</p>
+  <hr>
+</section>
+<section id="2-four-critical-defense-arguments" class="content-section">
+  <h2 class="section-title searchable">2. Four Critical Defense Arguments</h2>
+</section>
+<section id="cat-argument-1-the-bsp-compliance-defense-closed-loop-wallet" class="content-section">
+  <h2 class="section-title searchable">Argument 1: The BSP Compliance Defense (Closed-Loop Wallet)</h2>
+  <ul class='searchable'>
+  <li><strong>The Attack:</strong> <em>&quot;Are you operating an illegal bank or digital wallet without a Bangko Sentral ng Pilipinas (BSP) license? How can you hold student money?&quot;</em></li>
+  <li><strong>The Rebuttal:</strong> &quot;No. The system utilizes a strict <strong>Closed-Loop Utility Architecture</strong> that exempts it from licensing requirements under BSP guidelines.&quot;</li>
+  <li><strong>The Logic:</strong></li>
+  </ul>
+  <ol class='searchable'>
+  <li><strong>BSP Circular No. 1166 (Guidelines on Electronic Money):</strong> Closed-loop systems—where the monetary value stored is used exclusively within a single merchant, entity, or closed ecosystem (in this case, the ISPSC Tagudin campus grounds for campus-specific services)—are <strong>exempt</strong> from Electronic Money Issuer (EMI) licensing.</li>
+  <li><strong>Licensed Payment Rails:</strong> We do not process credit cards or digital money directly on our servers. All digital cash-in transactions go through <strong>Xendit</strong>, which holds a formal <strong>Operator of Payment System (OPS)</strong> registration with the BSP. StudentHub is simply a merchant client utilizing Xendit’s secure, licensed API rails.</li>
+  <li><strong>Utility Point System:</strong> The money in the campus wallet is not general-purpose currency; it functions as a utility token representing pre-paid compute credits or campus connectivity.</li>
+  </ol>
+</section>
+<section id="cat-argument-2-the-coa-and-suc-asset-defense-government-auditing" class="content-section">
+  <h2 class="section-title searchable">Argument 2: The COA & SUC Asset Defense (Government Auditing)</h2>
+  <ul class='searchable'>
+  <li><strong>The Attack:</strong> <em>&quot;Why make cash-outs manual and documented? Why not automate it through Xendit&#x27;s disbursement API to make the system completely digital?&quot;</em></li>
+  <li><strong>The Rebuttal:</strong> &quot;We enforce manual, documented cash-outs to strictly comply with the <strong>Government Accounting Manual (GAM)</strong> and the <strong>Commission on Audit (COA)</strong> rules governing State Universities and Colleges (SUCs).&quot;</li>
+  <li><strong>The Logic:</strong></li>
+  </ul>
+  <ol class='searchable'>
+  <li><strong>Public/IGP Fund Classification:</strong> ISPSC Tagudin is a state institution. Any money generated by the PisoWiFi network or collected for student orgs becomes part of the school&#x27;s <strong>Income Generating Project (IGP)</strong> or official trust funds.</li>
+  <li><strong>No Automated Disbursements:</strong> Under COA rules, public funds cannot be disbursed or refunded automatically from a digital system without a verifying officer, physical signatures, and a formal disbursement voucher. Automatic digital cash-outs would constitute a serious auditing violation.</li>
+  <li><strong>Physical Paper Trail:</strong> When a student requests a cash-out, the system freezes their balance and generates a single-use voucher code. The student presents this to the campus cashier or org treasurer, who verifies the database state, pays the student cash, and files the physically signed voucher. This ensures absolute transparency and fraud prevention.</li>
+  </ol>
+</section>
+<section id="cat-argument-3-the-system-isolation-and-hypervisor-defense-proxmox-security" class="content-section">
+  <h2 class="section-title searchable">Argument 3: The System Isolation & Hypervisor Defense (Proxmox Security)</h2>
+  <ul class='searchable'>
+  <li><strong>The Attack:</strong> <em>&quot;Why complicate the hardware by installing Proxmox and multiple VMs? Why not host everything on a single Ubuntu Server to reduce performance overhead?&quot;</em></li>
+  <li><strong>The Rebuttal:</strong> &quot;We use Proxmox VE to guarantee <strong>strict security isolation, sandboxed software testing, and high availability</strong> for the campus network.&quot;</li>
+  <li><strong>The Logic:</strong></li>
+  </ul>
+  <ol class='searchable'>
+  <li><strong>Virtual Isolation of Routing and Applications:</strong> If the student application container (Dokploy) gets compromised or suffers a memory leak, the core routing VM (OpenWrt) remains unaffected. Students will not lose internet access or network connectivity due to application failures.</li>
+  <li><strong>Prevention of Docker Firewall Leaks:</strong> Running Docker on the same kernel as a network gateway is a well-known vulnerability. Docker automatically manipulates <code>iptables</code> rules, bypassing standard firewall blocks. By separating OpenWrt (routing VM) and Dokploy/Docker (application VM), OpenWrt retains total control over the firewall ruleset without Docker interference.</li>
+  <li><strong>Local Dev Playbook:</strong> Proxmox provides snapshotted restore points. If a student developer misconfigures a system configuration, the administrator can restore the container state within seconds, preserving campus uptime.</li>
+  </ol>
+</section>
+<section id="cat-argument-4-the-network-congestion-and-resource-allocation-defense-qos-ap-and-isp" class="content-section">
+  <h2 class="section-title searchable">Argument 4: The Network Congestion & Resource Allocation Defense (QoS, AP, & ISP)</h2>
+  <ul class='searchable'>
+  <li><strong>The Attack:</strong> <em>&quot;How will your network survive 50 to 100 concurrent students accessing the platform simultaneously on a limited ISP link?&quot;</em></li>
+  <li><strong>The Rebuttal:</strong> &quot;We implement Layer 3 traffic shaping via <strong>SQM CAKE</strong> on segmented <strong>802.1Q VLANs</strong>, backed by dedicated <strong>physical Access Points (APs)</strong> and an independent ISP backhaul.&quot;</li>
+  <li><strong>The Logic:</strong></li>
+  </ul>
+  <ol class='searchable'>
+  <li><strong>SQM CAKE (Common Applications Kept Equal):</strong> Unlike traditional FIFO queues that suffer from bufferbloat, CAKE provides flow-fairness and host-fairness. It ensures that a student downloading a large file cannot choke the connection for students loading text-based learning materials or processing transactions.</li>
+  <li><strong>Trunked VLAN Segmentation:</strong> Student client traffic is completely separated from admin operations and local vending machines at Layer 2. Administrative interfaces are inaccessible to students, preventing brute-force attacks and network scanning.</li>
+  <li><strong>Multi-AP Channel Planning:</strong> Multiple TP-Link Omada APs are deployed with non-overlapping channels (2.4GHz channels 1/6/11 and 5GHz width restrictions) to eliminate co-channel interference and handle high client density across campus common areas.</li>
+  </ol>
+  <hr>
+</section>
+<section id="3-technical-mock-qanda-deep-dive" class="content-section">
+  <h2 class="section-title searchable">3. Technical Mock Q&A: Deep-Dive</h2>
+</section>
+<section id="cat-category-a-virtualization-and-hypervisor-proxmox-ve" class="content-section">
+  <h2 class="section-title searchable">Category A: Virtualization & Hypervisor (Proxmox VE)</h2>
+  <hr>
+  <div class="qa-list" style="margin-top: 1.5rem;">
+    <div class="qa-item searchable" data-qa-id="qa-1" data-category="Category A: Virtualization & Hypervisor (Proxmox VE)">
+      <button class="qa-header">
+        <span class="qa-q-badge">Q</span>
+        <span class="qa-question-text">Why did you select Proxmox VE over bare-metal OS or basic containers (LXD/Docker) on a single machine?</span>
+        <span class="qa-toggle">+</span>
+      </button>
+      <div class="qa-body">
+        <div class="qa-answer"><p><em></em> &quot;Proxmox VE is a Type-1 hypervisor. It runs directly on the bare metal, providing near-native hardware performance while allowing us to partition a single physical mini PC into multiple virtual environments.</p>
+<ol>
+<li><strong>Logical and Security Segmentation:</strong> Our router (OpenWrt) runs in a dedicated Virtual Machine (VM) with hardware network interfaces passed through, while our application stack (Ubuntu/Dokploy) runs in a separate VM. If a student-deployed application crashes the Docker daemon, the network gateway remains operational.</li>
+<li><strong>Snapshotting and Backups:</strong> It enables instant snapshots and replication. We can test major routing or ledger updates and roll them back in seconds if they fail, ensuring zero downtime for the campus network.</li>
+<li><strong>Resource Quotas:</strong> We can hard-allocate CPU cores, RAM limits, and disk space to the application server (e.g., 4 cores, 8GB RAM) and the routing server (e.g., 2 cores, 2GB RAM), preventing resource starvation.&quot;</li>
+</ol></div>
+      </div>
+    </div>
+    <div class="qa-item searchable" data-qa-id="qa-2" data-category="Category A: Virtualization & Hypervisor (Proxmox VE)">
+      <button class="qa-header">
+        <span class="qa-q-badge">Q</span>
+        <span class="qa-question-text">Since you are testing this in a nested virtualization setup, what are the performance and stability considerations?</span>
+        <span class="qa-toggle">+</span>
+      </button>
+      <div class="qa-body">
+        <div class="qa-answer"><p><strong> &quot;For nested virtualization (running Proxmox VE as a VM inside VMware Workstation on a Windows 11 host), we configure the CPU type to </strong>&#x27;host&#x27; (Host CPU Passthrough)<em></em>.</p>
+<ol>
+<li><strong>Instruction Passthrough:</strong> This exposes physical CPU virtualization extensions (Intel VT-x/AMD-V) to the nested Proxmox hypervisor, allowing it to run KVM-based virtual machines.</li>
+<li><strong>Nested Performance Overhead:</strong> Nested virtualization increases address translation overhead because Second-Level Address Translation (SLAT/EPT) must occur twice. While this reduces disk and memory I/O speed, it is highly sufficient for our staging and testing environment.</li>
+<li><strong>Stability Controls:</strong> On Windows 11 hosts, we ensure that Virtualization-Based Security (VBS) and Core Isolation are configured properly to avoid hypervisor conflicts, which sometimes manifest as vCPU crashes in nested configurations.&quot;</li>
+</ol></div>
+      </div>
+    </div>
+    <div class="qa-item searchable" data-qa-id="qa-3" data-category="Category A: Virtualization & Hypervisor (Proxmox VE)">
+      <button class="qa-header">
+        <span class="qa-q-badge">Q</span>
+        <span class="qa-question-text">What is the physical and virtual resource allocation plan for the production environment?</span>
+        <span class="qa-toggle">+</span>
+      </button>
+      <div class="qa-body">
+        <div class="qa-answer"><p><em></em> &quot;Our target production hardware is a refurbished x86 Mini PC (such as an HP EliteDesk or Dell OptiPlex Mini) with an Intel Core i5 (8th Gen, 6 Cores), 16GB of DDR4 RAM, and a 512GB NVMe SSD.</p>
+<ul>
+<li><strong>Hypervisor Host (Proxmox VE):</strong> Reserves 1 Core and 2GB RAM for hypervisor overhead and host monitoring.</li>
+<li><strong>Gateway Router VM (OpenWrt x86):</strong> Allocated 1 Core, 1GB RAM, and a 4GB virtual disk. This is more than sufficient for routing, DHCP, DNS, and openNDS operations.</li>
+<li><strong>Application &amp; PaaS VM (Ubuntu Server + Dokploy):</strong> Allocated 4 Cores, 12GB RAM, and a 450GB virtual disk. This hosts the database, MQTT broker, Laravel ledger, and student application deployments.&quot;</li>
+</ul></div>
+      </div>
+    </div>
+    <div class="qa-item searchable" data-qa-id="qa-4" data-category="Category A: Virtualization & Hypervisor (Proxmox VE)">
+      <button class="qa-header">
+        <span class="qa-q-badge">Q</span>
+        <span class="qa-question-text">What is your backup and recovery strategy if the main Proxmox mini PC experiences a physical hardware failure?</span>
+        <span class="qa-toggle">+</span>
+      </button>
+      <div class="qa-body">
+        <div class="qa-answer"><p><em></em> &quot;We implement a multi-tiered backup strategy:</p>
+<ol>
+<li><strong>Automated Snapshot Backups:</strong> Proxmox is configured to run weekly snapshot backups of all VMs/LXCs to an external USB storage drive attached to the mini PC.</li>
+<li><strong>Offsite Configuration Backup:</strong> The OpenWrt configuration file (<code>/etc/config/</code>) and the Laravel database SQL dumps are exported daily to a secure, off-campus cloud storage bucket (or a local admin PC).</li>
+<li><strong>Hardware Swappability:</strong> Since the entire system is virtualized, in the event of a total motherboard failure, we can restore the backup images onto any standard x86 computer in less than an hour. We do not have custom hardware dependencies on the main host.&quot;</li>
+</ol></div>
+      </div>
+    </div>
+  </div>
+</section>
+<section id="cat-category-b-platform-as-a-service-and-containers-dokploy-and-docker" class="content-section">
+  <h2 class="section-title searchable">Category B: Platform-as-a-Service & Containers (Dokploy & Docker)</h2>
+  <p class='searchable'>#### Q7: &quot;How can you provision valid SSL certificates for local domains (<code>*.studenthub.ph</code>) that resolve on an intranet without public IP exposure?&quot;</p>
+  <ul class='searchable'>
+  <li><strong>Answer:</strong> &quot;We use the <strong>Let&#x27;s Encrypt DNS-01 Challenge</strong> protocol managed automatically by Traefik inside the Dokploy VM.</li>
+  </ul>
+  <ol class='searchable'>
+  <li><strong>Why HTTP-01 Fails:</strong> Standard HTTP-01 challenges require Let&#x27;s Encrypt to connect to our server on port 80 from the public internet. Since our server resides behind a local network (CGNAT / private IP), this is impossible.</li>
+  <li><strong>DNS-01 Mechanics:</strong> Traefik connects to our public DNS provider (Cloudflare) via an API token and temporarily creates a TXT record (e.g., <code>_acme-challenge.studenthub.ph</code>) containing a verification token.</li>
+  <li><strong>Local Resolution with Valid SSL:</strong> Let&#x27;s Encrypt verifies the TXT record on the public DNS servers, confirms our ownership of the domain, and issues a wildcard SSL certificate (<code>*.studenthub.ph</code>). Traefik stores this certificate locally. Even though our services resolve to local IP addresses (Split-Horizon DNS), user browsers recognize the certificate as valid and secure.&quot;</li>
+  </ol>
+  <hr>
+  <div class="qa-list" style="margin-top: 1.5rem;">
+    <div class="qa-item searchable" data-qa-id="qa-5" data-category="Category B: Platform-as-a-Service & Containers (Dokploy & Docker)">
+      <button class="qa-header">
+        <span class="qa-q-badge">Q</span>
+        <span class="qa-question-text">What is Dokploy, and how does it solve the hosting gap for IT students?</span>
+        <span class="qa-toggle">+</span>
+      </button>
+      <div class="qa-body">
+        <div class="qa-answer"><p><em></em> &quot;Dokploy is an open-source, self-hosted Platform-as-a-Service (PaaS) built on Docker. It acts as a local alternative to platforms like Heroku or Vercel.</p>
+<ol>
+<li><strong>Deployment Dashboard:</strong> It provides student developers with a simple web interface where they can deploy applications (Node.js, Laravel, Python, databases) directly from GitHub or via zip file uploads.</li>
+<li><strong>Automated Containerization:</strong> Dokploy automatically builds the code into a Docker image, configures Traefik for reverse proxying, and routes a local domain name (e.g., <code>myapp.studenthub.ph</code>) to the container.</li>
+<li><strong>Zero External Dependencies:</strong> It runs entirely on our local Proxmox server, eliminating the need for student developers to purchase domain names, SSL certificates, or cloud hosting services.&quot;</li>
+</ol></div>
+      </div>
+    </div>
+    <div class="qa-item searchable" data-qa-id="qa-6" data-category="Category B: Platform-as-a-Service & Containers (Dokploy & Docker)">
+      <button class="qa-header">
+        <span class="qa-q-badge">Q</span>
+        <span class="qa-question-text">How does Dokploy isolate student applications from one another and prevent port conflicts?</span>
+        <span class="qa-toggle">+</span>
+      </button>
+      <div class="qa-body">
+        <div class="qa-answer"><p><em></em> &quot;Dokploy leverages Docker&#x27;s network isolation:</p>
+<ol>
+<li><strong>Virtual Bridge Networks:</strong> Each student project is deployed on its own isolated Docker bridge network. Containers in project A cannot access containers in project B unless explicitly linked.</li>
+<li><strong>Reverse Proxy Routing (Traefik):</strong> Student applications do not expose their internal ports (e.g., port 3000 or 8000) directly to the host network. Instead, all traffic passes through Dokploy&#x27;s integrated <strong>Traefik reverse proxy</strong> running on ports 80 and 443. Traefik inspects the incoming HTTP Host header (e.g., <code>myapp.studenthub.ph</code>) and routes the traffic internally to the correct container, eliminating port collision issues.&quot;</li>
+</ol></div>
+      </div>
+    </div>
+    <div class="qa-item searchable" data-qa-id="qa-12" data-category="Category B: Platform-as-a-Service & Containers (Dokploy & Docker)">
+      <button class="qa-header">
+        <span class="qa-q-badge">Q</span>
+        <span class="qa-question-text">What is the detailed breakdown of the VMs and containers in your Proxmox VE setup?</span>
+        <span class="qa-toggle">+</span>
+      </button>
+      <div class="qa-body">
+        <div class="qa-answer"><p><em></em> &quot;Our virtual design partitions the server logically:</p>
+<ul>
+<li><strong>VM 100 - Router Gateway (OpenWrt x86):</strong> Operates on the network edge. It manages WAN, DHCP leases for all subnets, Split-Horizon DNS, CAKE SQM, and the openNDS captive portal.</li>
+<li><strong>VM 101 - App Platform (Ubuntu Server 24.04 LTS):</strong> Hosts the Dokploy PaaS manager. Inside VM 101:</li>
+<li><strong>Traefik Container:</strong> The entrypoint reverse proxy handling routing and wildcard SSL.</li>
+<li><strong>Laravel Ledger Container:</strong> The core transaction engine, ledger database, named account controller, and cashier panel.</li>
+<li><strong>Node.js MQTT Bridge Container:</strong> Listens for physical coin pulse topics, validates message hashes, and triggers Laravel APIs or local OpenWrt firewall commands via <code>ndsctl</code>.</li>
+<li><strong>Mosquitto Broker Container:</strong> The MQTT queue managing lightweight hardware-software messaging.</li>
+<li><strong>PostgreSQL Container:</strong> A persistent database storing user records, wallet histories, and transaction states.&quot;</li>
+</ul></div>
+      </div>
+    </div>
+  </div>
+</section>
+<section id="cat-category-c-layer-23-networking-and-wi-fi-topology-vlans-switches-and-aps" class="content-section">
+  <h2 class="section-title searchable">Category C: Layer 2/3 Networking & Wi-Fi Topology (VLANs, Switches, & APs)</h2>
+  <hr>
+  <div class="qa-list" style="margin-top: 1.5rem;">
+    <div class="qa-item searchable" data-qa-id="qa-7" data-category="Category C: Layer 2/3 Networking & Wi-Fi Topology (VLANs, Switches, & APs)">
+      <button class="qa-header">
+        <span class="qa-q-badge">Q</span>
+        <span class="qa-question-text">Explain the Linux VLAN-Aware Bridge configuration in Proxmox and how it is defined.</span>
+        <span class="qa-toggle">+</span>
+      </button>
+      <div class="qa-body">
+        <div class="qa-answer"><p><strong> &quot;Instead of creating a separate virtual bridge interface for every single VLAN, we use a single </strong>VLAN-Aware Linux Bridge (<code>vmbr0</code>)<em></em> in Proxmox.</p>
+<ul>
+<li>In the <code>/etc/network/interfaces</code> file, the physical network port (e.g., <code>eno1</code>) is set to manual mode with no IP.</li>
+<li>The bridge <code>vmbr0</code> is created with the physical port as its member and the attribute <code>bridge-vlan-aware yes</code> enabled.</li>
+<li>Virtual machines can be assigned to the bridge with a specific VLAN tag (e.g., Tag 30 for the Student client VLAN) directly in the Proxmox UI.</li>
+<li>This setup allows Proxmox to act as a virtual managed switch, passing tagged Ethernet frames directly to the physical switch.&quot;</li>
+</ul></div>
+      </div>
+    </div>
+    <div class="qa-item searchable" data-qa-id="qa-8" data-category="Category C: Layer 2/3 Networking & Wi-Fi Topology (VLANs, Switches, & APs)">
+      <button class="qa-header">
+        <span class="qa-q-badge">Q</span>
+        <span class="qa-question-text">How is the physical managed switch (TP-Link Omada SG2008P) configured to connect the router, server, and access points?</span>
+        <span class="qa-toggle">+</span>
+      </button>
+      <div class="qa-body">
+        <div class="qa-answer"><p><em></em> &quot;The switch is configured with a strict Port/VLAN matrix to separate management, client, and IoT traffic:</p>
+<ol>
+<li><strong>VLAN Allocation:</strong> We define VLAN 10 (Management), VLAN 20 (Canteen/SSIDs), VLAN 30 (PisoWiFi Clients), and VLAN 40 (Admin/Dokploy).</li>
+<li><strong>Trunk Ports (Tagged):</strong> The port connected to the Proxmox host and the port connected to the physical Access Points are configured as <strong>Trunk Ports</strong>. They accept tagged frames for all VIDs (10, 20, 30, 40) and have a native PVID of 1 (or 10 for management).</li>
+<li><strong>Access Ports (Untagged):</strong> Ports connected to non-VLAN-aware hardware (like the ESP32 vending controller or administrative PCs) are set as <strong>Access Ports</strong>. For example, the ESP32 port is set as an untagged member of VLAN 40 with its PVID set to 40. Any incoming untagged traffic from the ESP32 is instantly tagged with VLAN 40 by the switch.&quot;</li>
+</ol>
+<p>| Switch Port | Connected Device | VLAN Mode | PVID | Tagged VIDs | Untagged VIDs |</p>
+<p>| :--- | :--- | :--- | :--- | :--- | :--- |</p>
+<p>| Port 1 | Proxmox Host (vmbr0) | Trunk | 10 | 10, 20, 30, 40 | 10 |</p>
+<p>| Port 2 | TP-Link Omada AP | Trunk | 10 | 20, 30 | 10 (AP Mgmt) |</p>
+<p>| Port 3 | ESP32 Vending Controller | Access | 40 | N/A | 40 |</p>
+<p>| Port 4 | Cashier Dashboard PC | Access | 40 | N/A | 40 |</p></div>
+      </div>
+    </div>
+    <div class="qa-item searchable" data-qa-id="qa-9" data-category="Category C: Layer 2/3 Networking & Wi-Fi Topology (VLANs, Switches, & APs)">
+      <button class="qa-header">
+        <span class="qa-q-badge">Q</span>
+        <span class="qa-question-text">How are the wireless Access Points configured to separate student PisoWiFi traffic from the administrative infrastructure?</span>
+        <span class="qa-toggle">+</span>
+      </button>
+      <div class="qa-body">
+        <div class="qa-answer"><p><strong> &quot;We use TP-Link Omada Access Points (such as the EAP225-Outdoor or EAP610) that support </strong>Multi-SSID mapping<em></em>:</p>
+<ol>
+<li><strong>SSID Broadcast:</strong> The AP broadcasts two distinct SSIDs: <code>StudentHub<em>PisoWiFi</code> and <code>StudentHub</em>Admin</code>.</li>
+<li><strong>VLAN Tag Mapping:</strong></li>
+</ol>
+<ul>
+<li>The <code>StudentHub_PisoWiFi</code> SSID is mapped directly to <strong>VLAN 30</strong>. Any client connecting to this network has their packets tagged with VLAN 30.</li>
+<li>The <code>StudentHub_Admin</code> SSID is mapped to <strong>VLAN 40</strong> (secured via WPA3 Enterprise/AES).</li>
+</ul>
+<ol>
+<li><strong>Power over Ethernet (PoE) Management:</strong> The APs are powered directly by the SG2008P switch using 802.3af/at PoE. This eliminates the need for separate power injectors and allows us to reboot the APs remotely by cycling port power through the switch dashboard.&quot;</li>
+</ol></div>
+      </div>
+    </div>
+    <div class="qa-item searchable" data-qa-id="qa-10" data-category="Category C: Layer 2/3 Networking & Wi-Fi Topology (VLANs, Switches, & APs)">
+      <button class="qa-header">
+        <span class="qa-q-badge">Q</span>
+        <span class="qa-question-text">How do you perform channel planning on campus to prevent wireless interference?</span>
+        <span class="qa-toggle">+</span>
+      </button>
+      <div class="qa-body">
+        <div class="qa-answer"><p><em></em> &quot;To ensure maximum throughput and stability under heavy loads:</p>
+<ol>
+<li><strong>2.4GHz Band Planning:</strong> We restrict broadcasts to the three non-overlapping channels: <strong>1, 6, and 11</strong>, using a 20MHz channel width. Channel assignments are staggered geographically across APs.</li>
+<li><strong>5GHz Band Planning:</strong> We use 40MHz channel widths on non-DFS channels (e.g., 36, 44, 149) to maximize capacity while avoiding overlap.</li>
+<li><strong>Transmit Power Adjustments:</strong> We tune the transmit power of each AP to minimize coverage overlap, preventing client devices from clinging to distant APs (sticky client issue) and encouraging clean roaming.&quot;</li>
+</ol></div>
+      </div>
+    </div>
+    <div class="qa-item searchable" data-qa-id="qa-11" data-category="Category C: Layer 2/3 Networking & Wi-Fi Topology (VLANs, Switches, & APs)">
+      <button class="qa-header">
+        <span class="qa-q-badge">Q</span>
+        <span class="qa-question-text">What is your ISP plan strategy, and how do you handle bandwidth allocation and failover?</span>
+        <span class="qa-toggle">+</span>
+      </button>
+      <div class="qa-body">
+        <div class="qa-answer"><p><em></em> &quot;We utilize a dedicated commercial business fiber plan (e.g., PLDT or Globe Business Fiber 100Mbps symmetrical) funded directly by the PisoWiFi network revenues.</p>
+<ol>
+<li><strong>Primary WAN Setup:</strong> The fiber modem is connected directly to the designated WAN port of our OpenWrt routing VM.</li>
+<li><strong>Bandwidth Shaping (SQM):</strong> OpenWrt is configured with <strong>SQM (Smart Queue Management) using the CAKE qdisc</strong> on the WAN interface, limited to 95% of the line rate (95Mbps) to control the bottleneck.</li>
+<li><strong>WAN Redundancy (Future Expansion):</strong> OpenWrt&#x27;s <code>mwan3</code> package is pre-installed. If a secondary low-cost backup link (such as a 4G/5G gateway) is added, OpenWrt will automatically route administrative traffic through the backup link during a primary fiber outage.&quot;</li>
+</ol></div>
+      </div>
+    </div>
+  </div>
+</section>
+<section id="cat-category-b-platform-as-a-service-and-containers-dokploy-and-docker" class="content-section">
+  <h2 class="section-title searchable">Category B: Platform-as-a-Service & Containers (Dokploy & Docker)</h2>
+  <hr>
+  <div class="qa-list" style="margin-top: 1.5rem;">
+    <div class="qa-item searchable" data-qa-id="qa-5" data-category="Category B: Platform-as-a-Service & Containers (Dokploy & Docker)">
+      <button class="qa-header">
+        <span class="qa-q-badge">Q</span>
+        <span class="qa-question-text">What is Dokploy, and how does it solve the hosting gap for IT students?</span>
+        <span class="qa-toggle">+</span>
+      </button>
+      <div class="qa-body">
+        <div class="qa-answer"><p><em></em> &quot;Dokploy is an open-source, self-hosted Platform-as-a-Service (PaaS) built on Docker. It acts as a local alternative to platforms like Heroku or Vercel.</p>
+<ol>
+<li><strong>Deployment Dashboard:</strong> It provides student developers with a simple web interface where they can deploy applications (Node.js, Laravel, Python, databases) directly from GitHub or via zip file uploads.</li>
+<li><strong>Automated Containerization:</strong> Dokploy automatically builds the code into a Docker image, configures Traefik for reverse proxying, and routes a local domain name (e.g., <code>myapp.studenthub.ph</code>) to the container.</li>
+<li><strong>Zero External Dependencies:</strong> It runs entirely on our local Proxmox server, eliminating the need for student developers to purchase domain names, SSL certificates, or cloud hosting services.&quot;</li>
+</ol></div>
+      </div>
+    </div>
+    <div class="qa-item searchable" data-qa-id="qa-6" data-category="Category B: Platform-as-a-Service & Containers (Dokploy & Docker)">
+      <button class="qa-header">
+        <span class="qa-q-badge">Q</span>
+        <span class="qa-question-text">How does Dokploy isolate student applications from one another and prevent port conflicts?</span>
+        <span class="qa-toggle">+</span>
+      </button>
+      <div class="qa-body">
+        <div class="qa-answer"><p><em></em> &quot;Dokploy leverages Docker&#x27;s network isolation:</p>
+<ol>
+<li><strong>Virtual Bridge Networks:</strong> Each student project is deployed on its own isolated Docker bridge network. Containers in project A cannot access containers in project B unless explicitly linked.</li>
+<li><strong>Reverse Proxy Routing (Traefik):</strong> Student applications do not expose their internal ports (e.g., port 3000 or 8000) directly to the host network. Instead, all traffic passes through Dokploy&#x27;s integrated <strong>Traefik reverse proxy</strong> running on ports 80 and 443. Traefik inspects the incoming HTTP Host header (e.g., <code>myapp.studenthub.ph</code>) and routes the traffic internally to the correct container, eliminating port collision issues.&quot;</li>
+</ol></div>
+      </div>
+    </div>
+    <div class="qa-item searchable" data-qa-id="qa-12" data-category="Category B: Platform-as-a-Service & Containers (Dokploy & Docker)">
+      <button class="qa-header">
+        <span class="qa-q-badge">Q</span>
+        <span class="qa-question-text">What is the detailed breakdown of the VMs and containers in your Proxmox VE setup?</span>
+        <span class="qa-toggle">+</span>
+      </button>
+      <div class="qa-body">
+        <div class="qa-answer"><p><em></em> &quot;Our virtual design partitions the server logically:</p>
+<ul>
+<li><strong>VM 100 - Router Gateway (OpenWrt x86):</strong> Operates on the network edge. It manages WAN, DHCP leases for all subnets, Split-Horizon DNS, CAKE SQM, and the openNDS captive portal.</li>
+<li><strong>VM 101 - App Platform (Ubuntu Server 24.04 LTS):</strong> Hosts the Dokploy PaaS manager. Inside VM 101:</li>
+<li><strong>Traefik Container:</strong> The entrypoint reverse proxy handling routing and wildcard SSL.</li>
+<li><strong>Laravel Ledger Container:</strong> The core transaction engine, ledger database, named account controller, and cashier panel.</li>
+<li><strong>Node.js MQTT Bridge Container:</strong> Listens for physical coin pulse topics, validates message hashes, and triggers Laravel APIs or local OpenWrt firewall commands via <code>ndsctl</code>.</li>
+<li><strong>Mosquitto Broker Container:</strong> The MQTT queue managing lightweight hardware-software messaging.</li>
+<li><strong>PostgreSQL Container:</strong> A persistent database storing user records, wallet histories, and transaction states.&quot;</li>
+</ul></div>
+      </div>
+    </div>
+  </div>
+</section>
+<section id="cat-category-d-captive-portal-and-session-lifecycle-opennds-and-binauth" class="content-section">
+  <h2 class="section-title searchable">Category D: Captive Portal & Session Lifecycle (openNDS & BinAuth)</h2>
+  <hr>
+  <div class="qa-list" style="margin-top: 1.5rem;">
+    <div class="qa-item searchable" data-qa-id="qa-13" data-category="Category D: Captive Portal & Session Lifecycle (openNDS & BinAuth)">
+      <button class="qa-header">
+        <span class="qa-q-badge">Q</span>
+        <span class="qa-question-text">How does openNDS intercept user traffic, and what firewall commands does it execute?</span>
+        <span class="qa-toggle">+</span>
+      </button>
+      <div class="qa-body">
+        <div class="qa-answer"><p><strong> &quot;openNDS integrates with the Linux kernel packet filtering subsystem via </strong>nftables<em></em> (or legacy iptables) in OpenWrt:</p>
+<ol>
+<li><strong>Redirection Chains:</strong> Upon startup, openNDS inserts prerouting rules that redirect port 80 (HTTP) traffic from unauthenticated clients on VLAN 30 to the local captive portal daemon on port 2050.</li>
+<li><strong>Walled Garden Pass-through:</strong> It allows pre-authenticated traffic to reach our local splash page (<code>portal.studenthub.ph</code>) and designated local services by bypassing the redirection rule.</li>
+<li><strong>Firewall Authorization:</strong> When a client is authenticated (e.g., via the Laravel API calling <code>ndsctl auth &lt;MAC&gt; &lt;minutes&gt;</code>), openNDS removes the redirection rule for that specific MAC address, allowing their packets to route to the WAN interface.&quot;</li>
+</ol></div>
+      </div>
+    </div>
+    <div class="qa-item searchable" data-qa-id="qa-14" data-category="Category D: Captive Portal & Session Lifecycle (openNDS & BinAuth)">
+      <button class="qa-header">
+        <span class="qa-q-badge">Q</span>
+        <span class="qa-question-text">Explain how Captive Portal Detection (CPD) works on client devices and how you handle it.</span>
+        <span class="qa-toggle">+</span>
+      </button>
+      <div class="qa-body">
+        <div class="qa-answer"><p><em></em> &quot;When a device connects to <code>StudentHub_PisoWiFi</code> and gets a DHCP lease (e.g., <code>10.30.0.150</code>), the client operating system attempts to fetch a specific web page:</p>
+<ul>
+<li><strong>Apple iOS/macOS:</strong> <code>http://captive.apple.com/hotspot-detect.html</code> (looks for <code>&lt;title&gt;Success&lt;/title&gt;</code>)</li>
+<li><strong>Android:</strong> <code>http://connectivitycheck.gstatic.com/generate_204</code> (looks for an HTTP 204 response)</li>
+<li><strong>Windows:</strong> <code>http://www.msftconnecttest.com/connecttest.txt</code></li>
+</ul>
+<p>Since the client is unauthenticated, openNDS intercepts these HTTP probes and returns an HTTP 302 redirect pointing to <code>http://portal.studenthub.ph:2050/</code>. The client OS detects the redirect, identifies the network as captive, and automatically opens the Captive Network Assistant (CNA) mini-browser displaying our Laravel splash page.&quot;</p></div>
+      </div>
+    </div>
+    <div class="qa-item searchable" data-qa-id="qa-15" data-category="Category D: Captive Portal & Session Lifecycle (openNDS & BinAuth)">
+      <button class="qa-header">
+        <span class="qa-q-badge">Q</span>
+        <span class="qa-question-text">How do you configure the Walled Garden to allow access to local services before the user pays?</span>
+        <span class="qa-toggle">+</span>
+      </button>
+      <div class="qa-body">
+        <div class="qa-answer"><p><em></em> &quot;We configure the Walled Garden rules in the <code>/etc/config/opennds</code> configuration file:</p>
+<ol>
+<li><strong>Subnet Whitelisting:</strong> We add the IP subnet of our application VM (VLAN 40) to the allowed destination ports.</li>
+<li><strong>Required openNDS Configurations:</strong></li>
+</ol>
+<p><code></code>`text</p>
+<p>list allowed<em>trusted</em>users &#x27;10.40.0.0/24&#x27;</p>
+<p>list allowed_ports &#x27;80&#x27;</p>
+<p>list allowed_ports &#x27;443&#x27;</p>
+<p><code></code>`</p>
+<ol>
+<li><strong>Pre-Auth Access:</strong> This allows unauthenticated student clients on VLAN 30 to access the Laravel backend, retrieve their wallet balance, and use free local services (such as the campus e-library) hosted on Dokploy without paying for internet access.&quot;</li>
+</ol></div>
+      </div>
+    </div>
+    <div class="qa-item searchable" data-qa-id="qa-16" data-category="Category D: Captive Portal & Session Lifecycle (openNDS & BinAuth)">
+      <button class="qa-header">
+        <span class="qa-q-badge">Q</span>
+        <span class="qa-question-text">How is the &#x27;Session Pause and Resume&#x27; mechanism implemented step-by-step?</span>
+        <span class="qa-toggle">+</span>
+      </button>
+      <div class="qa-body">
+        <div class="qa-answer"><p><strong> &quot;The session lifecycle is managed by pairing openNDS&#x27;s </strong>BinAuth script<em></em> with the Laravel backend database:</p>
+<ol>
+<li><strong>Deauthentication Trigger:</strong> When a student clicks &#x27;Pause&#x27; on the splash page (or their session idle-timeouts), the Laravel API or the OpenWrt daemon triggers a client deauthentication command: <code>ndsctl deauth &lt;MAC&gt;</code>.</li>
+<li><strong>BinAuth Script Execution:</strong> openNDS executes our configured script (<code>binauth_log.sh</code>) and passes session parameters:</li>
+</ol>
+<ul>
+<li><code>$1</code>: Event Type (<code>client<em>deauth</code>, <code>idle</em>deauth</code>)</li>
+<li><code>$2</code>: Client MAC address</li>
+<li><code>$5</code>: Session start timestamp (Unix Epoch)</li>
+<li><code>$6</code>: Session end timestamp (Unix Epoch)</li>
+</ul>
+<ol>
+<li><strong>Time Calculations:</strong> The script sends a secure HTTP POST request containing these variables to the Laravel API. Laravel calculates:</li>
+</ol>
+<p><em></em>MATH<em>BLOCK</em>0<em></em></p>
+<p><em></em>MATH<em>BLOCK</em>0<em></em></p>
+<ol>
+<li><strong>Ledger Credit Update:</strong> Laravel updates the student&#x27;s wallet database record, crediting back the <code>Unused Seconds</code> for future usage. The user&#x27;s firewall state is then reverted to the blocked/redirected status.&quot;</li>
+</ol></div>
+      </div>
+    </div>
+    <div class="qa-item searchable" data-qa-id="qa-17" data-category="Category D: Captive Portal & Session Lifecycle (openNDS & BinAuth)">
+      <button class="qa-header">
+        <span class="qa-q-badge">Q</span>
+        <span class="qa-question-text">How does the system address MAC Randomization (Private Wi-Fi Addresses) on modern smartphones?</span>
+        <span class="qa-toggle">+</span>
+      </button>
+      <div class="qa-body">
+        <div class="qa-answer"><p><em></em> &quot;We handle this using a two-pronged approach:</p>
+<ol>
+<li><strong>Per-SSID Persistence:</strong> In modern iOS and Android versions, the randomized MAC address generated by a device is persistent for a given SSID. As long as our SSID name (<code>StudentHub_PisoWiFi</code>) does not change, the device will present the same MAC address every time it reconnects.</li>
+<li><strong>Named Account Mapping (Fallback):</strong> For students who manually reset their network settings (which changes their randomized MAC), we require them to log in with their <strong>Student ID and PIN (Named Account)</strong>. The Laravel backend associates their active MAC address with their permanent student ledger account upon login. Their credits are tied directly to their database profile, not their physical device MAC address.&quot;</li>
+</ol></div>
+      </div>
+    </div>
+  </div>
+</section>
+<section id="cat-category-e-payments-and-financial-auditing-xendit-esp32-and-coa" class="content-section">
+  <h2 class="section-title searchable">Category E: Payments & Financial Auditing (Xendit, ESP32, and COA)</h2>
+  <hr>
+  <div class="qa-list" style="margin-top: 1.5rem;">
+    <div class="qa-item searchable" data-qa-id="qa-18" data-category="Category E: Payments & Financial Auditing (Xendit, ESP32, and COA)">
+      <button class="qa-header">
+        <span class="qa-q-badge">Q</span>
+        <span class="qa-question-text">Why utilize Xendit instead of connecting directly to GCash or Maya developer platforms?</span>
+        <span class="qa-toggle">+</span>
+      </button>
+      <div class="qa-body">
+        <div class="qa-answer"><p><strong> &quot;Direct developer API access with GCash or Maya requires a registered business corporation, hefty security deposits, and a minimum transaction volume history. Xendit operates as an authorized </strong>Operator of Payment System (OPS)<em></em> aggregator. They provide a unified API endpoint that handles GCash, Maya, and QR Ph under a single integration, allowing us to deploy local digital cash-ins legally under the Student Council&#x27;s campus-authorized IGP initiative without complex corporate setups.&quot;</p></div>
+      </div>
+    </div>
+    <div class="qa-item searchable" data-qa-id="qa-19" data-category="Category E: Payments & Financial Auditing (Xendit, ESP32, and COA)">
+      <button class="qa-header">
+        <span class="qa-q-badge">Q</span>
+        <span class="qa-question-text">Explain the hardware configuration of the vending machine and how physical coin insertions are verified.</span>
+        <span class="qa-toggle">+</span>
+      </button>
+      <div class="qa-body">
+        <div class="qa-answer"><p><em></em> &quot;The hardware vending machine operates on a secure physical-to-digital bridge:</p>
+<ol>
+<li><strong>ESP32 Microcontroller:</strong> An ESP32 is wired to a multi-coin acceptor (which recognizes ₱1, ₱5, and ₱10 coins).</li>
+<li><strong>Pulse Signal Interception:</strong> When a coin is inserted, the acceptor sends electrical pulses (e.g., 5 pulses for ₱5) to the ESP32 GPIO pins.</li>
+<li><strong>Debounce and Counting:</strong> The ESP32 code counts the pulses, implementing a hardware debounce delay to filter out static electrical noise.</li>
+<li><strong>MQTT Communication:</strong> The ESP32 connects to our local Wi-Fi (VLAN 40) and publishes a JSON payload containing the credit amount and a cryptographically signed HMAC token (to prevent payload spoofing) to our Mosquitto broker:</li>
+</ol>
+<p><code>topic: campus/vending/pulse</code></p>
+<ol>
+<li><strong>Node.js Processing:</strong> The Node.js subscriber validates the HMAC signature, confirms the physical vending machine ID, and calls the Laravel API to instantly update the user&#x27;s wallet database record.&quot;</li>
+</ol></div>
+      </div>
+    </div>
+    <div class="qa-item searchable" data-qa-id="qa-20" data-category="Category E: Payments & Financial Auditing (Xendit, ESP32, and COA)">
+      <button class="qa-header">
+        <span class="qa-q-badge">Q</span>
+        <span class="qa-question-text">Walk the panel through the complete step-by-step cashier checkout and cash-out audit trail.</span>
+        <span class="qa-toggle">+</span>
+      </button>
+      <div class="qa-body">
+        <div class="qa-answer"><p><em></em> &quot;To ensure strict compliance with COA trust fund rules, we enforce a manual checkout process:</p>
+<ol>
+<li><strong>Withdrawal Request:</strong> A student requests a cash-out of ₱50 from their campus wallet web interface.</li>
+<li><strong>Balance Freeze:</strong> The Laravel API locks the user&#x27;s database row, subtracts ₱50, and creates a record marked as <code>Pending Clearance</code>.</li>
+<li><strong>Voucher Generation:</strong> The system displays a unique, expiring QR code/voucher token on the student&#x27;s screen.</li>
+<li><strong>Cashier Verification:</strong> The student visits the Student Council treasurer or campus cashier. The cashier scans the QR code using their administrative dashboard.</li>
+<li><strong>Database Validation:</strong> The cashier dashboard verifies the voucher status directly with the Laravel database. If valid, the cashier hand-delivers ₱50 cash to the student.</li>
+<li><strong>Ledger Clearance:</strong> The cashier clicks &#x27;Clear Voucher&#x27; on their dashboard. The system updates the transaction state to <code>Cleared</code>, logging the cashier&#x27;s user ID, timestamp, and generating a printable paper receipt for physical filing.&quot;</li>
+</ol></div>
+      </div>
+    </div>
+  </div>
+</section>
+<section id="cat-category-f-component-integration-ml-and-mapping" class="content-section">
+  <h2 class="section-title searchable">Category F: Component Integration (ML & Mapping)</h2>
+  <hr>
+  <div class="qa-list" style="margin-top: 1.5rem;">
+    <div class="qa-item searchable" data-qa-id="qa-21" data-category="Category F: Component Integration (ML & Mapping)">
+      <button class="qa-header">
+        <span class="qa-q-badge">Q</span>
+        <span class="qa-question-text">What is the purpose of the Machine Learning component in a hardware and network project?</span>
+        <span class="qa-toggle">+</span>
+      </button>
+      <div class="qa-body">
+        <div class="qa-answer"><p><em></em> &quot;The ML component is a Python-based regression model (built using scikit-learn) running as a lightweight container in our application environment.</p>
+<ol>
+<li><strong>Predictive Bandwidth Scaling:</strong> It reads historical network telemetry (hourly bandwidth usage, DHCP lease durations, active client counts, and session metrics).</li>
+<li><strong>Saturation Prediction:</strong> It predicts periods of peak campus bandwidth saturation (e.g., exam weeks or lunch hours).</li>
+<li><strong>Automated QoS Adjustment:</strong> When saturation is predicted, it signals the OpenWrt API to dynamically lower the maximum bandwidth cap in SQM CAKE, ensuring that background downloads are throttled and priority learning applications remain fast and responsive.&quot;</li>
+</ol></div>
+      </div>
+    </div>
+    <div class="qa-item searchable" data-qa-id="qa-22" data-category="Category F: Component Integration (ML & Mapping)">
+      <button class="qa-header">
+        <span class="qa-q-badge">Q</span>
+        <span class="qa-question-text">How is the Mapping component implemented, and what information does it visualize?</span>
+        <span class="qa-toggle">+</span>
+      </button>
+      <div class="qa-body">
+        <div class="qa-answer"><p><strong> &quot;The mapping component is integrated into the Laravel Admin Dashboard using </strong>Leaflet.js<em></em>:</p>
+<ol>
+<li><strong>Spatial Network Layout:</strong> It renders an interactive, offline-cached map of the campus grounds.</li>
+<li><strong>AP Topology Overlay:</strong> It plots the locations of our TP-Link Access Points and color-codes them in real-time (Green for active, Red for offline) by polling their ping status.</li>
+<li><strong>User Density Maps:</strong> By parsing active DHCP leases and AP association lists, the map displays a visual heatmap of active user density, helping administrators identify dead zones or physical locations where additional AP hardware is needed.&quot;</li>
+</ol></div>
+      </div>
+    </div>
+  </div>
+</section>
+<section id="4-summary-system-matrix" class="content-section">
+  <h2 class="section-title searchable">4. Summary System Matrix</h2>
+  <div class='table-container'><table class='searchable'>
+<thead><tr>
+<th>Layer</th>
+<th>Core Technology</th>
+<th>Compliance/Standard</th>
+<th>Security Mitigation</th>
+<th>Role in Project</th>
+</tr></thead>
+<tbody>
+<tr>
+<td><strong>Virtualization</strong></td>
+<td>Proxmox VE (Type-1 Hypervisor)</td>
+<td>Nested Virtualization, ZFS Storage</td>
+<td>Host CPU type passthrough, virtual environment separation</td>
+<td>Isolates gateway (OpenWrt) from application containers.</td>
+</tr>
+<tr>
+<td><strong>PaaS &amp; Orchestration</strong></td>
+<td>Dokploy, Docker Engine, Traefik</td>
+<td>Multi-container isolation, Reverse Proxying</td>
+<td>Internal Docker bridge subnets, routing through Traefik ports</td>
+<td>Automates and manages deployment of student application code.</td>
+</tr>
+<tr>
+<td><strong>Network Routing</strong></td>
+<td>OpenWrt x86, openNDS, dnsmasq</td>
+<td>802.1Q tagging, RFC1918 Address space</td>
+<td>nftables redirection, Split-Horizon DNS rebind protection</td>
+<td>Acts as the primary router, DHCP server, and captive portal.</td>
+</tr>
+<tr>
+<td><strong>Physical Switch</strong></td>
+<td>TP-Link Omada SG2008P (PoE Smart Switch)</td>
+<td>802.1Q VLANs, 802.3af/at PoE</td>
+<td>Explicit VLAN access ports, untagged PVID mapping</td>
+<td>Physically isolates subnets and delivers power to AP hardware.</td>
+</tr>
+<tr>
+<td><strong>Wireless (AP)</strong></td>
+<td>TP-Link Omada EAP225/EAP610</td>
+<td>Multi-SSID mapping, 802.11ac/ax</td>
+<td>Roaming optimization, non-overlapping channel staggered layout</td>
+<td>Broadcasts SSIDs mapping student traffic to VLANs.</td>
+</tr>
+<tr>
+<td><strong>IoT Hardware</strong></td>
+<td>ESP32 Microcontroller, Multi-Coin Acceptor</td>
+<td>GPIO pulse counting, Serial communication</td>
+<td>Hardware debounce logic, HMAC-signed MQTT payload verification</td>
+<td>Counts physical coin insertions and publishes credits.</td>
+</tr>
+<tr>
+<td><strong>Payments</strong></td>
+<td>Xendit API, Webhooks</td>
+<td>BSP Circular 1166 (Closed-loop utility)</td>
+<td>Pessimistic db row-locking, secure HTTPS webhook signatures</td>
+<td>Ingests digital payments (GCash/Maya) into the ledger.</td>
+</tr>
+<tr>
+<td><strong>Financial Audit</strong></td>
+<td>Laravel Ledger Database</td>
+<td>COA/GAM SUC auditing rules</td>
+<td>Manual cash-out approval loop, single-use QR vouchers</td>
+<td>Enforces financial auditing and logs printable receipts.</td>
+</tr>
+<tr>
+<td><strong>Bandwidth QoS</strong></td>
+<td>SQM CAKE (OpenWrt)</td>
+<td>Flow-fairness, Host-fairness</td>
+<td>Ingress redirection via Intermediate Functional Block (IFB)</td>
+<td>Prevents bufferbloat and shares WAN links equally.</td>
+</tr>
+<tr>
+<td><strong>Domain Resolution</strong></td>
+<td>Cloudflare DNS, Traefik ACME</td>
+<td>Let&#x27;s Encrypt DNS-01 challenge</td>
+<td>Cloudflare API-token DNS TXT verification</td>
+<td>Provisions secure local HTTPS certificates without public IP exposure.</td>
+</tr>
+</tbody></table></div>
+</section>
+      
+      <div class="no-results" id="no-results">
+        <div class="no-results-icon">🕵️‍♂️</div>
+        <h3>No matching concepts found</h3>
+        <p style="margin-bottom: 1.5rem;">Try searching for other terms like "architecture", "security", or specific components.</p>
+        <button class="ai-explore-btn" onclick="exploreWithAI()" style="margin: 0 auto; display: inline-flex;">
+          <span class="ai-icon">✨</span> Explore <span class="ai-btn-text-extra">with AI</span>
+        </button>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    // Q&A Accordion Toggle
+    document.querySelectorAll('.qa-header').forEach(header => {
+      header.addEventListener('click', () => {
+        const item = header.parentElement;
+        item.classList.toggle('open');
+      });
+    });
+
+    // Category Filter for Q&A
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        
+        const cat = btn.getAttribute('data-cat');
+        document.querySelectorAll('.qa-item').forEach(item => {
+          if (cat === 'all' || item.getAttribute('data-category') === cat) {
+            item.style.display = 'block';
+          } else {
+            item.style.display = 'none';
+          }
+        });
+      });
+    });
+
+    // Mobile Navigation Drawer Toggle
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+    const menuToggle = document.getElementById('mobile-menu-toggle');
+
+    function toggleMobileMenu() {
+      sidebar.classList.toggle('open');
+      overlay.classList.toggle('open');
+      if (sidebar.classList.contains('open')) {
+        menuToggle.innerHTML = '&times;';
+        menuToggle.style.background = '#f87171'; // soft red for close
+      } else {
+        menuToggle.innerHTML = '&#x2630;';
+        menuToggle.style.background = 'var(--accent)';
+      }
+    }
+
+    menuToggle.addEventListener('click', toggleMobileMenu);
+    overlay.addEventListener('click', toggleMobileMenu);
+    
+    // Close mobile menu when link clicked
+    document.querySelectorAll('.toc-link').forEach(link => {
+      link.addEventListener('click', () => {
+        if (window.innerWidth <= 1024) {
+          toggleMobileMenu();
+        }
+      });
+    });
+
+    // Table of Contents Active Link Highlight on Scroll
+    const observerOptions = {
+      root: null,
+      rootMargin: '-10% 0px -70% 0px',
+      threshold: 0
+    };
+
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const id = entry.target.getAttribute('id');
+          document.querySelectorAll('.toc-link').forEach(link => {
+            if (link.getAttribute('data-target') === id) {
+              link.classList.add('active');
+            } else {
+              link.classList.remove('active');
+            }
+          });
+        }
+      });
+    }, observerOptions);
+
+    document.querySelectorAll('section.content-section').forEach(section => {
+      observer.observe(section);
+    });
+
+    // Client-side Search Engine
+    const searchInput = document.getElementById('search-input');
+    const searchClear = document.getElementById('search-clear');
+    const searchStats = document.getElementById('search-stats');
+    const noResults = document.getElementById('no-results');
+
+    // Create search index mapping from searchable items
+    const searchIndex = [];
+    document.querySelectorAll('.content-section').forEach(section => {
+      const sectionId = section.getAttribute('id');
+      const sectionTitle = section.querySelector('.section-title').textContent;
+      
+      // Store standard searchable elements (paragraphs, list items, headers)
+      section.querySelectorAll('.searchable').forEach(el => {
+        // Skip elements inside qa-item answers to avoid double-processing, Q&As handled separately below
+        if (el.closest('.qa-item')) return;
+        
+        searchIndex.push({
+          element: el,
+          sectionId: sectionId,
+          type: 'text',
+          originalHTML: el.innerHTML,
+          text: el.textContent.toLowerCase()
+        });
+      });
+      
+      // Store Q&A cards
+      section.querySelectorAll('.qa-item').forEach(qaItem => {
+        const qText = qaItem.querySelector('.qa-question-text');
+        const aContent = qaItem.querySelector('.qa-answer');
+        
+        searchIndex.push({
+          element: qaItem,
+          sectionId: sectionId,
+          type: 'qa',
+          qaItem: qaItem,
+          qTextEl: qText,
+          aContentEl: aContent,
+          originalQHTML: qText.innerHTML,
+          originalAHTML: aContent.innerHTML,
+          qText: qText.textContent.toLowerCase(),
+          aText: aContent.textContent.toLowerCase()
+        });
+      });
+    });
+
+    searchInput.addEventListener('input', runSearch);
+    searchClear.addEventListener('click', () => {
+      searchInput.value = '';
+      runSearch();
+      searchInput.focus();
+    });
+
+    function runSearch() {
+      const query = searchInput.value.trim().toLowerCase();
+      
+      if (query === '') {
+        searchClear.style.display = 'none';
+        searchStats.style.display = 'none';
+        noResults.style.display = 'none';
+        
+        // Reset all elements
+        searchIndex.forEach(item => {
+          if (item.type === 'text') {
+            item.element.innerHTML = item.originalHTML;
+            item.element.style.display = '';
+          } else if (item.type === 'qa') {
+            item.qTextEl.innerHTML = item.originalQHTML;
+            item.aContentEl.innerHTML = item.originalAHTML;
+            item.qaItem.style.display = '';
+            item.qaItem.classList.remove('open');
+          }
+        });
+        
+        // Show all sections & reset links
+        document.querySelectorAll('section.content-section').forEach(sec => {
+          sec.style.display = '';
+        });
+        document.querySelectorAll('.toc-link').forEach(link => {
+          link.style.opacity = '';
+          link.style.pointerEvents = '';
+        });
+        return;
+      }
+      
+      searchClear.style.display = 'block';
+      
+      // Multi-term support: split query by whitespace
+      const terms = query.split(/\s+/).filter(t => t.length > 0);
+      
+      let matchCount = 0;
+      const visibleSections = new Set();
+      
+      // Perform search filtering
+      searchIndex.forEach(item => {
+        if (item.type === 'text') {
+          // Check if every search term is found in the text
+          const matches = terms.every(term => item.text.includes(term));
+          if (matches) {
+            matchCount++;
+            visibleSections.add(item.sectionId);
+            item.element.style.display = '';
+            item.element.innerHTML = highlightText(item.originalHTML, query);
+          } else {
+            item.element.style.display = 'none';
+          }
+        } else if (item.type === 'qa') {
+          // Check for each search term in Q or A
+          const matches = terms.every(term => item.qText.includes(term) || item.aText.includes(term));
+          
+          if (matches) {
+            matchCount++;
+            visibleSections.add(item.sectionId);
+            item.qaItem.style.display = '';
+            
+            // Highlight matching parts
+            const qMatchesAny = terms.some(term => item.qText.includes(term));
+            const aMatchesAny = terms.some(term => item.aText.includes(term));
+            
+            if (qMatchesAny) {
+              item.qTextEl.innerHTML = highlightText(item.originalQHTML, query);
+            } else {
+              item.qTextEl.innerHTML = item.originalQHTML;
+            }
+            
+            if (aMatchesAny) {
+              item.aContentEl.innerHTML = highlightText(item.originalAHTML, query);
+            } else {
+              item.aContentEl.innerHTML = item.originalAHTML;
+            }
+            
+            // Auto expand matching Q&A items!
+            item.qaItem.classList.add('open');
+          } else {
+            item.qaItem.style.display = 'none';
+            item.qaItem.classList.remove('open');
+          }
+        }
+      });
+      
+      // Filter main content sections based on whether they contain any matches
+      document.querySelectorAll('section.content-section').forEach(sec => {
+        const id = sec.getAttribute('id');
+        if (visibleSections.has(id)) {
+          sec.style.display = '';
+        } else {
+          sec.style.display = 'none';
+        }
+      });
+      
+      // Update sidebar TOC link styling (dim sections with no results)
+      document.querySelectorAll('.toc-link').forEach(link => {
+        const targetId = link.getAttribute('data-target');
+        if (visibleSections.has(targetId)) {
+          link.style.opacity = '1';
+          link.style.pointerEvents = 'auto';
+        } else {
+          link.style.opacity = '0.3';
+          link.style.pointerEvents = 'none';
+        }
+      });
+      
+      // Update status info
+      searchStats.style.display = 'block';
+      searchStats.textContent = 'Found ' + matchCount + ' matching concept(s) across ' + visibleSections.size + ' section(s)';
+      
+      if (matchCount === 0) {
+        noResults.style.display = 'block';
+      } else {
+        noResults.style.display = 'none';
+      }
+    }
+
+    function highlightText(htmlText, query) {
+      const terms = query.split(/\s+/).filter(t => t.length > 0);
+      if (terms.length === 0) return htmlText;
+      
+      // Sort terms by length descending to prevent shorter sub-terms from mangling HTML markup of longer terms
+      terms.sort((a, b) => b.length - a.length);
+      
+      let highlighted = htmlText;
+      terms.forEach(term => {
+        const escQuery = term.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+        // Regex matches query outside of HTML tags (<...>) and prevents recursive marking
+        const regex = new RegExp('(' + escQuery + ')(?=[^>]*<|[^>]*$)', 'gi');
+        highlighted = highlighted.replace(regex, '<mark class="highlight">$1</mark>');
+      });
+      return highlighted;
+    }
+
+    // --- Toast Notification ---
+    function showToast(title, desc, duration = 3000) {
+      const toast = document.getElementById('ai-toast');
+      if (!toast) return;
+      const toastTitle = toast.querySelector('.toast-title');
+      const toastDesc = toast.querySelector('.toast-desc');
+      const progress = toast.querySelector('.toast-progress');
+      
+      if (toastTitle) toastTitle.textContent = title;
+      if (toastDesc) toastDesc.textContent = desc;
+      
+      toast.classList.add('show');
+      progress.classList.remove('animate');
+      void progress.offsetWidth; // Trigger DOM reflow
+      progress.style.animationDuration = `${duration}ms`;
+      progress.classList.add('animate');
+      
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, duration);
+    }
+
+    // --- DOM Knowledge Base Text Extraction ---
+    function getKnowledgeBaseText() {
+      let textParts = [];
+      
+      document.querySelectorAll('section.content-section').forEach(section => {
+        const titleEl = section.querySelector('.section-title');
+        if (titleEl) {
+          textParts.push(`\n# ${titleEl.textContent.trim()}\n`);
+        }
+        
+        section.querySelectorAll('.searchable').forEach(el => {
+          if (el.classList.contains('qa-item')) {
+            const qText = el.querySelector('.qa-question-text')?.textContent.trim() || '';
+            const aText = el.querySelector('.qa-answer')?.textContent.trim() || '';
+            textParts.push(`Q: ${qText}\nA: ${aText}\n`);
+          } else if (el.closest('.qa-item')) {
+            // Avoid duplicate processing of elements nested inside Q&As
+            return;
+          } else {
+            const tag = el.tagName.toLowerCase();
+            const text = el.textContent.trim();
+            if (!text) return;
+            
+            if (tag.startsWith('h')) {
+              textParts.push(`## ${text}\n`);
+            } else {
+              textParts.push(`${text}\n`);
+            }
+          }
+        });
+      });
+      
+      return textParts.join('\n').trim();
+    }
+
+    // --- Explore with AI (Redirect to Gemini) ---
+    function exploreWithAI() {
+      const query = document.getElementById('search-input').value.trim();
+      const title = document.querySelector('.project-title h1')?.textContent || 'this capstone project';
+      const tagline = document.querySelector('.project-title h1')?.nextElementSibling?.textContent || '';
+      
+      const knowledgeBase = getKnowledgeBaseText();
+      
+      let promptText = `You are an AI assistant helping me analyze the capstone project "${title}" (${tagline}).\n\n`;
+      if (query) {
+        promptText += `My question/focus is: "${query}"\n\n`;
+      } else {
+        promptText += `Please help me explore this capstone project.\n\n`;
+      }
+      
+      promptText += `Here is the comprehensive project documentation and knowledge base for context:\n`;
+      promptText += `=========================================\n`;
+      promptText += knowledgeBase;
+      promptText += `\n=========================================\n\n`;
+      
+      if (query) {
+        promptText += `Please answer my question ("${query}") based on the documentation provided above. If the information isn't directly in the docs, use your general knowledge but clearly indicate what is from the docs and what is external extrapolation.`;
+      } else {
+        promptText += `Please provide a strategic overview of this project, list its core architecture elements, point out key panel defense risks/questions, and suggest how the presenters can best pitch this to a jury.`;
+      }
+      
+      const maxUrlLength = 6000;
+      
+      // Prepare short prompt for Gemini URL query parameter
+      let shortPrompt = `I want to explore the capstone project "${title}". `;
+      if (query) {
+        shortPrompt += `My question is: "${query}". `;
+      }
+      shortPrompt += `I have copied the entire project knowledge base/documentation to my clipboard. I will paste it in my next message. Please prepare to receive it.`;
+      
+      const encodedShort = encodeURIComponent(shortPrompt);
+      const geminiUrl = `https://gemini.google.com/app?q=${encodedShort}`;
+      
+      // Copy prompt to clipboard
+      navigator.clipboard.writeText(promptText).then(() => {
+        showToast(
+          "📋 Context Copied!",
+          "Use Ctrl+V (or Cmd+V) to paste the full documentation in Gemini. Redirecting in 4 seconds...",
+          4000
+        );
+        setTimeout(() => {
+          window.open(geminiUrl, '_blank');
+        }, 3800);
+      }).catch(err => {
+        console.error("Clipboard copy failed, falling back to direct URL redirect: ", err);
+        
+        let fallbackPrompt = promptText;
+        if (fallbackPrompt.length > maxUrlLength) {
+          fallbackPrompt = fallbackPrompt.substring(0, maxUrlLength - 100) + "... [truncated due to URL limits]";
+        }
+        const encodedFallback = encodeURIComponent(fallbackPrompt);
+        const fallbackUrl = `https://gemini.google.com/app?q=${encodedFallback}`;
+        
+        showToast(
+          "✨ Redirecting...",
+          "Opening Gemini with direct URL prompt...",
+          2000
+        );
+        setTimeout(() => {
+          window.open(fallbackUrl, '_blank');
+        }, 1500);
+      });
+    }
+  </script>
+  
+  <!-- Toast HTML -->
+  <div id="ai-toast" class="ai-toast">
+    <div class="toast-content">
+      <span class="toast-icon">✨</span>
+      <div class="toast-text-wrapper">
+        <div class="toast-title">Copying Knowledge Base...</div>
+        <div class="toast-desc">Copying context to clipboard and opening Gemini</div>
+      </div>
+    </div>
+    <div class="toast-progress"></div>
+  </div>
+</body>
+</html>

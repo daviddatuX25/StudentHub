@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Capstone Presentations</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #06080d;
+  --bg-card: rgba(14, 20, 36, 0.7);
+  --bg-card-hover: rgba(20, 30, 52, 0.85);
+  --border: rgba(255, 255, 255, 0.06);
+  --border-hover: rgba(120, 160, 255, 0.25);
+  --text: #e8ecf4;
+  --text-muted: #7a889e;
+  --text-faint: #4a5568;
+  --sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --heading: 'Space Grotesk', system-ui, sans-serif;
+  --mono: 'Fira Code', monospace;
+}
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  min-height: 100vh;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.bg-mesh {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 80% 50% at 20% 20%, rgba(59, 130, 246, 0.08) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 80%, rgba(16, 185, 129, 0.06) 0%, transparent 55%),
+    radial-gradient(ellipse 50% 50% at 50% 50%, rgba(139, 92, 246, 0.04) 0%, transparent 70%);
+}
+
+.bg-grid {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+  background-size: 60px 60px;
+  animation: gridPulse 8s ease-in-out infinite;
+}
+
+@keyframes gridPulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.7; }
+}
+
+.container {
+  position: relative;
+  z-index: 1;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+header {
+  padding: clamp(3rem, 8vh, 6rem) 0 clamp(1rem, 3vh, 2rem);
+  text-align: center;
+}
+
+.logo-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(59, 130, 246, 0.08);
+  border: 1px solid rgba(59, 130, 246, 0.15);
+  border-radius: 100px;
+  padding: 0.4rem 1rem;
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  color: rgba(147, 180, 255, 0.9);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 1.5rem;
+}
+
+h1 {
+  font-family: var(--heading);
+  font-size: clamp(2.2rem, 5vw, 3.4rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+  margin-bottom: 0.75rem;
+  background: linear-gradient(135deg, #e8ecf4 0%, #93b4ff 50%, #6ee7b7 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.subtitle {
+  font-size: clamp(0.95rem, 1.8vw, 1.15rem);
+  color: var(--text-muted);
+  line-height: 1.6;
+  max-width: 560px;
+  margin: 0 auto;
+}
+
+.divider {
+  width: 60px;
+  height: 2px;
+  margin: 2rem auto;
+  background: linear-gradient(90deg, transparent, rgba(147, 180, 255, 0.4), transparent);
+  border-radius: 2px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  padding-bottom: clamp(4rem, 8vh, 6rem);
+}
+
+.card {
+  position: relative;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 2rem 1.75rem;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  overflow: hidden;
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 16px;
+  padding: 1px;
+  background: linear-gradient(135deg, transparent 40%, var(--card-accent, rgba(147,180,255,0.3)) 100%);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.card:hover::before { opacity: 1; }
+
+.card:hover {
+  background: var(--bg-card-hover);
+  border-color: var(--border-hover);
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.4), 0 0 60px -20px var(--card-glow, rgba(59,130,246,0.12));
+}
+
+.card-num {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  margin-bottom: -0.25rem;
+}
+
+.card-title {
+  font-family: var(--heading);
+  font-size: 1.45rem;
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+}
+
+.card-tagline {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  line-height: 1.55;
+  flex: 1;
+}
+
+.card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 0.5rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--border);
+}
+
+.card-tech {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.tech-pill {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  padding: 0.2rem 0.55rem;
+  border-radius: 6px;
+  letter-spacing: 0.02em;
+  font-weight: 500;
+}
+
+.card-arrow {
+  font-size: 1.1rem;
+  color: var(--text-faint);
+  transition: all 0.3s ease;
+}
+
+.card:hover .card-arrow {
+  color: var(--text);
+  transform: translateX(3px);
+}
+
+.card:nth-child(1) { --card-accent: rgba(200, 168, 255, 0.5); --card-glow: rgba(139,92,246,0.15); }
+.card:nth-child(1) .tech-pill { background: rgba(139,92,246,0.12); color: rgba(167,139,250,0.95); }
+.card:nth-child(2) { --card-accent: rgba(0, 229, 255, 0.45); --card-glow: rgba(0,229,255,0.12); }
+.card:nth-child(2) .tech-pill { background: rgba(0,229,255,0.1); color: rgba(100,230,255,0.95); }
+.card:nth-child(3) { --card-accent: rgba(16,185,129,0.5); --card-glow: rgba(16,185,129,0.15); }
+.card:nth-child(3) .tech-pill { background: rgba(16,185,129,0.12); color: rgba(52,211,153,0.95); }
+.card:nth-child(4) { --card-accent: rgba(251,191,36,0.5); --card-glow: rgba(251,191,36,0.12); }
+.card:nth-child(4) .tech-pill { background: rgba(251,191,36,0.1); color: rgba(252,211,77,0.95); }
+.card:nth-child(5) { --card-accent: rgba(99, 102, 241, 0.5); --card-glow: rgba(99, 102, 241, 0.15); }
+.card:nth-child(5) .tech-pill { background: rgba(99, 102, 241, 0.12); color: rgba(165, 180, 252, 0.95); }
+.card:nth-child(6) { --card-accent: rgba(20, 184, 166, 0.5); --card-glow: rgba(20, 184, 166, 0.15); }
+.card:nth-child(6) .tech-pill { background: rgba(20, 184, 166, 0.12); color: rgba(45, 212, 191, 0.95); }
+
+.card .card-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  margin-bottom: 0.25rem;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.06);
+}
+
+.card:nth-child(1) .card-icon { background: rgba(139,92,246,0.1); border-color: rgba(139,92,246,0.15); }
+.card:nth-child(2) .card-icon { background: rgba(0,229,255,0.08); border-color: rgba(0,229,255,0.12); }
+.card:nth-child(3) .card-icon { background: rgba(16,185,129,0.1); border-color: rgba(16,185,129,0.15); }
+.card:nth-child(4) .card-icon { background: rgba(251,191,36,0.1); border-color: rgba(251,191,36,0.15); }
+.card:nth-child(5) .card-icon { background: rgba(99, 102, 241, 0.1); border-color: rgba(99, 102, 241, 0.15); }
+.card:nth-child(6) .card-icon { background: rgba(20, 184, 166, 0.1); border-color: rgba(20, 184, 166, 0.15); }
+
+footer {
+  text-align: center;
+  padding: 0 0 clamp(2rem, 4vh, 3rem);
+  color: var(--text-faint);
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+}
+
+@media (max-width: 640px) {
+  .container { padding: 0 1.25rem; }
+  .grid { gap: 1rem; }
+  .card { padding: 1.5rem 1.25rem; }
+}
+
+.fade-in {
+  opacity: 0;
+  transform: translateY(16px);
+  animation: fadeInUp 0.6s ease forwards;
+}
+
+.fade-in:nth-child(1) { animation-delay: 0.1s; }
+.fade-in:nth-child(2) { animation-delay: 0.2s; }
+.fade-in:nth-child(3) { animation-delay: 0.3s; }
+.fade-in:nth-child(4) { animation-delay: 0.4s; }
+.fade-in:nth-child(5) { animation-delay: 0.5s; }
+.fade-in:nth-child(6) { animation-delay: 0.6s; }
+
+@keyframes fadeInUp {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.section-header {
+  margin-top: 4rem;
+  margin-bottom: 2.5rem;
+  text-align: center;
+}
+
+.section-header h2 {
+  font-family: var(--heading);
+  font-size: clamp(1.8rem, 4vw, 2.4rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.5rem;
+  background: linear-gradient(135deg, #e8ecf4 0%, #93b4ff 50%, #6ee7b7 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.section-header .subtitle {
+  font-size: clamp(0.9rem, 1.8vw, 1.05rem);
+  color: var(--text-muted);
+  max-width: 600px;
+  margin: 0 auto;
+  line-height: 1.5;
+}
+</style>
+</head>
+<body>
+  <div class="bg-mesh"></div>
+  <div class="bg-grid"></div>
+
+  <div class="container">
+    <header>
+      <div class="logo-badge">Capstone Defense 2026</div>
+      <h1>Capstone Presentations</h1>
+      <p class="subtitle">Title defense slide decks for each capstone project. Click a card to launch the presentation.</p>
+      <div class="divider"></div>
+    </header>
+
+    <div class="grid">
+      <a class="card fade-in" href="capstone-titles/capstone1/studenthub_slides.html">
+        <div class="card-icon">&#x1F3EB;</div>
+        <div class="card-num">Capstone 1</div>
+        <div class="card-title">StudentHub</div>
+        <div class="card-tagline">Campus Edge &amp; Micro-Economy Hub &mdash; PisoWiFi + Dokploy platform for campus services and local transactions.</div>
+        <div class="card-footer">
+          <div class="card-tech">
+            <span class="tech-pill">Full-Stack</span>
+            <span class="tech-pill">PisoWiFi</span>
+          </div>
+          <span class="card-arrow">&rarr;</span>
+        </div>
+      </a>
+
+      <a class="card fade-in" href="capstone-titles/capstone2/synapsert_slides.html">
+        <div class="card-icon">&#x1F9E0;</div>
+        <div class="card-num">Capstone 2</div>
+        <div class="card-title">SynapseRT</div>
+        <div class="card-tagline">Multi-Agent Cognitive Orchestration System &mdash; Coordinating specialized AI agents for complex task execution.</div>
+        <div class="card-footer">
+          <div class="card-tech">
+            <span class="tech-pill">Multi-Agent</span>
+            <span class="tech-pill">AI</span>
+          </div>
+          <span class="card-arrow">&rarr;</span>
+        </div>
+      </a>
+
+      <a class="card fade-in" href="capstone-titles/capstone3/flexiqueue_slides.html">
+        <div class="card-icon">&#x1F3D7;</div>
+        <div class="card-num">Capstone 3</div>
+        <div class="card-title">FlexiQueue</div>
+        <div class="card-tagline">Institutional Service Queue Orchestrator &mdash; Smart queue management for campus and government services.</div>
+        <div class="card-footer">
+          <div class="card-tech">
+            <span class="tech-pill">Queue System</span>
+            <span class="tech-pill">Laravel</span>
+          </div>
+          <span class="card-arrow">&rarr;</span>
+        </div>
+      </a>
+
+      <a class="card fade-in" href="capstone-titles/capstone4/presentation-securecat.html">
+        <div class="card-icon">&#x1F6E1;</div>
+        <div class="card-num">Capstone 4</div>
+        <div class="card-title">SecureCAT</div>
+        <div class="card-tagline">Role-Based College Admission Testing System &mdash; Secure, proctored computerized admission exams.</div>
+        <div class="card-footer">
+          <div class="card-tech">
+            <span class="tech-pill">Security</span>
+            <span class="tech-pill">Testing</span>
+          </div>
+          <span class="card-arrow">&rarr;</span>
+        </div>
+      </a>
+
+      <a class="card fade-in" href="capstone-titles/capstone5/presentation-collabacad.html">
+        <div class="card-icon">&#x1F393;</div>
+        <div class="card-num">Capstone 5</div>
+        <div class="card-title">CollabAcad</div>
+        <div class="card-tagline">Institutional Forum &amp; Real-Time Event Management &mdash; Academic community interaction, collaborative spaces, and live updates.</div>
+        <div class="card-footer">
+          <div class="card-tech">
+            <span class="tech-pill">Real-Time</span>
+            <span class="tech-pill">WebSockets</span>
+          </div>
+          <span class="card-arrow">&rarr;</span>
+        </div>
+      </a>
+
+      <a class="card fade-in" href="capstone-titles/capstone6/presentation-flowph.html">
+        <div class="card-icon">&#x1F575;&#xFE0F;</div>
+        <div class="card-num">Capstone 6</div>
+        <div class="card-title">FlowPH</div>
+        <div class="card-tagline">Government Funds Tracker &amp; Citizen Watchdog Network &mdash; Dimension-agnostic funds allocation tracking and crowdsourced auditing.</div>
+        <div class="card-footer">
+          <div class="card-tech">
+            <span class="tech-pill">Blockchain</span>
+            <span class="tech-pill">Transparency</span>
+          </div>
+          <span class="card-arrow">&rarr;</span>
+        </div>
+      </a>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="section-header">
+      <h2>Defense Guides &amp; Details</h2>
+      <p class="subtitle">Complete searchable knowledge bases, expected panel questions, architectural diagrams, and key concepts.</p>
+    </div>
+
+    <div class="grid">
+      <a class="card fade-in" href="capstone-titles/capstone1/defense-and-details.html">
+        <div class="card-icon">&#x1F4D6;</div>
+        <div class="card-num">Capstone 1 Portal</div>
+        <div class="card-title">StudentHub</div>
+        <div class="card-tagline">Detailed breakdown of the campus PisoWiFi integration, Dokploy auto-deployment flow, and local micro-transactions ecosystem.</div>
+        <div class="card-footer">
+          <div class="card-tech">
+            <span class="tech-pill">Database Schema</span>
+            <span class="tech-pill">Panel Q&amp;A</span>
+          </div>
+          <span class="card-arrow">&rarr;</span>
+        </div>
+      </a>
+
+      <a class="card fade-in" href="capstone-titles/capstone2/defense-and-details.html">
+        <div class="card-icon">&#x1F9D1;&zwj;&#x1F4BB;</div>
+        <div class="card-num">Capstone 2 Portal</div>
+        <div class="card-title">SynapseRT</div>
+        <div class="card-tagline">Technical specifications of multi-agent cognitive orchestration, task routing algorithms, and fallback mechanisms.</div>
+        <div class="card-footer">
+          <div class="card-tech">
+            <span class="tech-pill">LLM Prompting</span>
+            <span class="tech-pill">Flow Diagrams</span>
+          </div>
+          <span class="card-arrow">&rarr;</span>
+        </div>
+      </a>
+
+      <a class="card fade-in" href="capstone-titles/capstone3/defense-and-details.html">
+        <div class="card-icon">&#x1F4CB;</div>
+        <div class="card-num">Capstone 3 Portal</div>
+        <div class="card-title">FlexiQueue</div>
+        <div class="card-tagline">Deep-dive into queue status scheduling, notification layers, ticket allocation algorithms, and institutional scaling benchmarks.</div>
+        <div class="card-footer">
+          <div class="card-tech">
+            <span class="tech-pill">Service Design</span>
+            <span class="tech-pill">API Contracts</span>
+          </div>
+          <span class="card-arrow">&rarr;</span>
+        </div>
+      </a>
+
+      <a class="card fade-in" href="capstone-titles/capstone4/defense-and-details.html">
+        <div class="card-icon">&#x1F512;</div>
+        <div class="card-num">Capstone 4 Portal</div>
+        <div class="card-title">SecureCAT</div>
+        <div class="card-tagline">Security audit of proctored admission software, role-based access control policies, and cheat prevention measures.</div>
+        <div class="card-footer">
+          <div class="card-tech">
+            <span class="tech-pill">Token Auth</span>
+            <span class="tech-pill">Audit Log</span>
+          </div>
+          <span class="card-arrow">&rarr;</span>
+        </div>
+      </a>
+
+      <a class="card fade-in" href="capstone-titles/capstone5/defense-and-details.html">
+        <div class="card-icon">&#x1F4AC;</div>
+        <div class="card-num">Capstone 5 Portal</div>
+        <div class="card-title">CollabAcad</div>
+        <div class="card-tagline">Real-time WebSocket events configuration, messaging database, forum moderation mechanics, and room allocation logs.</div>
+        <div class="card-footer">
+          <div class="card-tech">
+            <span class="tech-pill">Event Broker</span>
+            <span class="tech-pill">Q&amp;A Accordion</span>
+          </div>
+          <span class="card-arrow">&rarr;</span>
+        </div>
+      </a>
+
+      <a class="card fade-in" href="capstone-titles/capstone6/defense-and-details.html">
+        <div class="card-icon">&#x1F50E;</div>
+        <div class="card-num">Capstone 6 Portal</div>
+        <div class="card-title">FlowPH</div>
+        <div class="card-tagline">Crowdsourced public ledger audits, budget allocations tracking structure, and validation consensus protocols.</div>
+        <div class="card-footer">
+          <div class="card-tech">
+            <span class="tech-pill">Ledger Spec</span>
+            <span class="tech-pill">Search Engine</span>
+          </div>
+          <span class="card-arrow">&rarr;</span>
+        </div>
+      </a>
+    </div>
+
+    <footer>&copy; 2026 Capstone Presentations &amp; Defense Guides</footer>
+  </div>
+</body>
+</html>
