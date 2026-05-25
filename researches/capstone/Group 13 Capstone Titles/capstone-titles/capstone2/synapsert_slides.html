@@ -1407,6 +1407,85 @@
     </section>
 
     <!-- ==========================================================================
+       SLIDE 2B — OBJECTIVES (Light Theme)
+       ========================================================================== -->
+    <section class="slide theme-light" id="slide-objectives">
+        <div class="grid-bg"></div>
+        <div class="slide-num">Slide · Objectives</div>
+        <div class="slide-content">
+            <div class="problem-layout">
+                <div class="problem-left">
+                    <div class="reveal">
+                        <span class="section-kicker">Research Objectives</span>
+                        <div class="hook-divider"></div>
+                        <h2 style="font-family: var(--font-serif); font-size: clamp(1.3rem, 2.5vw, 2rem); color: var(--text-light); margin-bottom: 20px;">What SynapseRT Sets Out to Achieve</h2>
+                    </div>
+                    <div class="problem-cards">
+                        <div class="problem-card reveal delay-1">
+                            <h3 class="problem-card-title">Build a sub-700ms real-time transcription pipeline</h3>
+                            <p class="problem-card-text">Design and implement a local edge ingestion layer using Silero VAD and Whisper.cpp that processes streaming audio with end-to-end latency under 700ms.</p>
+                        </div>
+                        <div class="problem-card reveal delay-2">
+                            <h3 class="problem-card-title">Orchestrate 4-agent coherent knowledge construction</h3>
+                            <p class="problem-card-text">Deploy a multi-agent system with MESI-inspired cache coherence across Context-Capture, Arbitrator, Suggestive-Prompt, and Corrective agents running in parallel.</p>
+                        </div>
+                        <div class="problem-card reveal delay-3">
+                            <h3 class="problem-card-title">Implement a 3-tier hardware-inspired memory hierarchy</h3>
+                            <p class="problem-card-text">Construct a tiered memory model (L1 context window, L2 Redis semantic cache, LT Neo4j graph) to prevent context collapse during extended multi-party sessions.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="transcript-column reveal delay-4" style="display: flex; flex-direction: column; gap: 16px; justify-content: center;">
+                    <div class="problem-card" style="border-left: 3px solid var(--accent-amber);">
+                        <h3 class="problem-card-title">Validate with empirical measurement</h3>
+                        <p class="problem-card-text">Evaluate cognitive load reduction using NASA-TLX and semantic precision using R-graph scoring against baseline flat-text tools.</p>
+                    </div>
+                    <div class="problem-card" style="border-left: 3px solid var(--accent-cyan);">
+                        <h3 class="problem-card-title">Deliver an interactive D3.js knowledge graph</h3>
+                        <p class="problem-card-text">Produce a SvelteKit-based visualization dashboard rendering the evolving relational knowledge map in real time as discussions progress.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==========================================================================
+       SLIDE 2C — BENEFICIARIES (Dark Theme)
+       ========================================================================== -->
+    <section class="slide theme-dark" id="slide-beneficiaries">
+        <div class="grid-bg"></div>
+        <div class="slide-num">Slide · Beneficiaries</div>
+        <div class="slide-content">
+            <div class="reveal" style="margin-bottom: 16px;">
+                <span class="section-kicker">Who Directly Benefits</span>
+                <h2 style="font-family: var(--font-serif); font-size: clamp(1.3rem, 2.5vw, 2rem); color: #ffffff;">Project <span style="color: var(--accent-cyan);">Beneficiaries</span></h2>
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 16px;" class="reveal delay-1">
+                <div style="background: var(--bg-dark-card); border: 1px solid var(--border-dark); border-radius: 10px; padding: 20px; border-top: 3px solid var(--accent-cyan);">
+                    <div style="font-family: var(--font-mono); font-size: 0.7rem; color: var(--accent-cyan); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px;">Primary</div>
+                    <div style="font-weight: 600; font-size: 0.95rem; color: #ffffff; margin-bottom: 6px;">Thesis Working Groups &amp; Research Teams</div>
+                    <div style="font-size: 0.82rem; color: var(--text-dark-muted); line-height: 1.45;">Receive a structured, evolving knowledge graph of their discussions instead of relying on one person's notes.</div>
+                </div>
+                <div style="background: var(--bg-dark-card); border: 1px solid var(--border-dark); border-radius: 10px; padding: 20px; border-top: 3px solid var(--accent-amber);">
+                    <div style="font-family: var(--font-mono); font-size: 0.7rem; color: var(--accent-amber); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px;">Secondary</div>
+                    <div style="font-weight: 600; font-size: 0.95rem; color: #ffffff; margin-bottom: 6px;">Academic Defense Panels</div>
+                    <div style="font-size: 0.82rem; color: var(--text-dark-muted); line-height: 1.45;">Access real-time structured summaries of panel deliberations, reducing post-session synthesis workload.</div>
+                </div>
+                <div style="background: var(--bg-dark-card); border: 1px solid var(--border-dark); border-radius: 10px; padding: 20px; border-top: 3px solid #a78bfa;">
+                    <div style="font-family: var(--font-mono); font-size: 0.7rem; color: #a78bfa; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px;">Extended</div>
+                    <div style="font-weight: 600; font-size: 0.95rem; color: #ffffff; margin-bottom: 6px;">Design Sprint &amp; Brainstorming Teams</div>
+                    <div style="font-size: 0.82rem; color: var(--text-dark-muted); line-height: 1.45;">Organizations running ideation sessions benefit from automatic semantic mapping of ideas, contradictions, and action items.</div>
+                </div>
+                <div style="background: var(--bg-dark-card); border: 1px solid var(--border-dark); border-radius: 10px; padding: 20px; border-top: 3px solid #6ee7b7;">
+                    <div style="font-family: var(--font-mono); font-size: 0.7rem; color: #6ee7b7; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px;">Future</div>
+                    <div style="font-weight: 600; font-size: 0.95rem; color: #ffffff; margin-bottom: 6px;">BSIT Research Community (Philippine SUCs)</div>
+                    <div style="font-size: 0.82rem; color: var(--text-dark-muted); line-height: 1.45;">Establishes a replicable local-edge AI model for future research into real-time collaborative intelligence without cloud dependency.</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==========================================================================
        SLIDE 3 — THE PROPOSED SYSTEM / ARCHITECTURE (Dark Theme)
        ========================================================================== -->
     <section class="slide theme-dark slide-architecture" id="slide3">
@@ -2290,42 +2369,7 @@
                 setTimeout(() => nodes[1].classList.add('active-node'), 1000);
                 setTimeout(() => nodes[2].classList.add('active-node'), 1700);
             }, 200);
-            }
-            
-            /* === Gallery Navigation Patch === */
-            (function() {
-              const galleryUrl = '../../index.html';
-              const btn = document.createElement('div');
-              btn.innerHTML = '&#8592; Gallery';
-              Object.assign(btn.style, {
-                position: 'fixed', top: '16px', left: '16px', zIndex: '9999',
-                background: 'rgba(0,0,0,0.7)', color: '#fff', padding: '6px 14px',
-                borderRadius: '8px', fontSize: '13px', fontFamily: 'system-ui, sans-serif',
-                cursor: 'pointer', opacity: '0', transition: 'opacity 0.3s ease',
-                backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.15)',
-                userSelect: 'none', lineHeight: '1.4'
-              });
-              btn.addEventListener('click', function() { window.location.href = galleryUrl; });
-              document.body.appendChild(btn);
-              document.addEventListener('mousemove', function(e) {
-                btn.style.opacity = e.clientX < 160 && e.clientY < 60 ? '1' : '0';
-              });
-              document.addEventListener('mouseleave', function() { btn.style.opacity = '0'; });
-              btn.addEventListener('mouseenter', function() { btn.style.opacity = '1'; });
-              function patchSlides() {
-                const sp = window.slidePresentation;
-                if (!sp || !sp.nextSlide) { setTimeout(patchSlides, 500); return; }
-              const origNext = sp.nextSlide.bind(sp);
-              sp.nextSlide = function() {
-                if (sp.currentSlide >= sp.slides.length - 1) {
-                  window.location.href = galleryUrl;
-                } else {
-                  origNext();
-                }
-              };
-              }
-              patchSlides();
-            })();
-        </script>
+        }
+    </script>
 </body>
 </html>

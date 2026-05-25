@@ -1414,6 +1414,102 @@ ARCHITECTURE SKETCH DESIGN
     </div>
   </section>
 
+  <!-- SLIDE 3B ⏺ Research Objectives -->
+  <section class="slide" data-screen-label="OBJECTIVES">
+    <div class="chrome-header reveal d1">
+      <div>Section 2.1 &middot; Objectives</div>
+      <div>&sect; 03B / 11</div>
+    </div>
+    
+    <div class="frame-content">
+      <h2 class="slide-title reveal d2">Research Objectives</h2>
+      <div class="grid-3" style="grid-template-columns: repeat(2, 1fr); gap: 15px;">
+        <div class="glass-card problem-card reveal d3" style="padding: 15px; min-height: auto;">
+          <div class="prob-num" style="font-size: 1.5rem; line-height: 1;">01</div>
+          <div class="prob-title" style="font-size: 1rem; margin: 4px 0;">Build Offline-First LAN Orchestrator</div>
+          <div class="prob-body" style="font-size: 0.8rem; line-height: 1.4;">
+            Design a local-first queue system running on cheap SBCs using Laravel Reverb and SQLite to ensure operations continue during WAN outages.
+          </div>
+        </div>
+        
+        <div class="glass-card problem-card reveal d4" style="padding: 15px; min-height: auto;">
+          <div class="prob-num" style="font-size: 1.5rem; line-height: 1;">02</div>
+          <div class="prob-title" style="font-size: 1rem; margin: 4px 0;">Implement FlowEngine Routing</div>
+          <div class="prob-body" style="font-size: 0.8rem; line-height: 1.4;">
+            Create a state-machine based routing engine supporting priority ratio lanes, multi-service workflows, and clerk desk transfers.
+          </div>
+        </div>
+        
+        <div class="glass-card problem-card reveal d5" style="padding: 15px; min-height: auto;">
+          <div class="prob-num" style="font-size: 1.5rem; line-height: 1;">03</div>
+          <div class="prob-title" style="font-size: 1rem; margin: 4px 0;">Apply ML-Driven Wait Prediction</div>
+          <div class="prob-body" style="font-size: 0.8rem; line-height: 1.4;">
+            Develop a regression model that dynamically predicts actual student wait times based on historical window processing speeds and queue depths.
+          </div>
+        </div>
+        
+        <div class="glass-card problem-card reveal d6" style="padding: 15px; min-height: auto;">
+          <div class="prob-num" style="font-size: 1.5rem; line-height: 1;">04</div>
+          <div class="prob-title" style="font-size: 1rem; margin: 4px 0;">Orchestrate IoT &amp; Interactive Maps</div>
+          <div class="prob-body" style="font-size: 0.8rem; line-height: 1.4;">
+            Deploy physical Orange Pi ticket dispensers alongside Leaflet.js floorplan visualizations for guided student queue pathing.
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="chrome-footer reveal d6">
+      <div>FlexiQueue Proposal &middot; 2026</div>
+      <div>FQ-DECK // PAGE 03B</div>
+    </div>
+  </section>
+
+  <!-- SLIDE 3C ⏺ Beneficiaries -->
+  <section class="slide" data-screen-label="BENEFICIARIES">
+    <div class="chrome-header reveal d1">
+      <div>Section 2.2 &middot; Beneficiaries</div>
+      <div>&sect; 03C / 11</div>
+    </div>
+    
+    <div class="frame-content">
+      <h2 class="slide-title reveal d2">Project Beneficiaries</h2>
+      <div class="grid-3" style="grid-template-columns: repeat(2, 1fr); gap: 15px;">
+        <div class="glass-card problem-card reveal d3" style="padding: 15px; min-height: auto; border-left: 3px solid var(--accent-mint);">
+          <div class="prob-title" style="font-size: 1rem; margin: 0 0 4px 0; color: var(--accent-mint);">Primary: Students &amp; Visitors</div>
+          <div class="prob-body" style="font-size: 0.8rem; line-height: 1.4;">
+            Gain transparent wait-time forecasts, queue updates via responsive mobile URLs, and interactive floor plans showing target service desks.
+          </div>
+        </div>
+        
+        <div class="glass-card problem-card reveal d4" style="padding: 15px; min-height: auto; border-left: 3px solid #6ea8fe;">
+          <div class="prob-title" style="font-size: 1rem; margin: 0 0 4px 0; color: #6ea8fe;">Secondary: Desk Clerks &amp; Staff</div>
+          <div class="prob-body" style="font-size: 0.8rem; line-height: 1.4;">
+            Eliminate vocal announcements via automated WebSocket board notifications and TTS voice calls, reducing administrative stress.
+          </div>
+        </div>
+        
+        <div class="glass-card problem-card reveal d5" style="padding: 15px; min-height: auto; border-left: 3px solid #a78bfa;">
+          <div class="prob-title" style="font-size: 1rem; margin: 0 0 4px 0; color: #a78bfa;">Institutional: SUC Administrators</div>
+          <div class="prob-body" style="font-size: 0.8rem; line-height: 1.4;">
+            Reduces infrastructure costs via open-source SBC deployments while generating immutable transaction logs for COA compliance.
+          </div>
+        </div>
+        
+        <div class="glass-card problem-card reveal d6" style="padding: 15px; min-height: auto; border-left: 3px solid #6ee7b7;">
+          <div class="prob-title" style="font-size: 1rem; margin: 0 0 4px 0; color: #6ee7b7;">Future: Academic Researchers</div>
+          <div class="prob-body" style="font-size: 0.8rem; line-height: 1.4;">
+            Obtain a modular, fully documented local-first IoT-QMS prototype that serves as a foundation for campus automation studies.
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="chrome-footer reveal d6">
+      <div>FlexiQueue Proposal &middot; 2026</div>
+      <div>FQ-DECK // PAGE 03C</div>
+    </div>
+  </section>
+
   <!-- SLIDE 4 ⏺ Proposed System & Architecture -->
   <section class="slide" data-screen-label="04 PROPOSED SYSTEM">
     <div class="chrome-header reveal d1">
@@ -2378,38 +2474,6 @@ window.addEventListener('DOMContentLoaded', () => {
     addLog("System Status: Local SQLite file initialized. Kiosk hardware locked.");
   }, 600);
 });
-
-/* === Gallery Navigation Patch === */
-(function() {
-  const galleryUrl = '../../index.html';
-
-  const btn = document.createElement('div');
-  btn.innerHTML = '&#8592; Gallery';
-  Object.assign(btn.style, {
-    position: 'fixed', top: '16px', left: '16px', zIndex: '9999',
-    background: 'rgba(0,0,0,0.7)', color: '#fff', padding: '6px 14px',
-    borderRadius: '8px', fontSize: '13px', fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif",
-    cursor: 'pointer', opacity: '0', transition: 'opacity 0.3s ease',
-    backdropFilter: 'blur(8px)', border: '1px solid rgba(52,211,153,0.2)',
-    userSelect: 'none', lineHeight: '1.4'
-  });
-  btn.addEventListener('click', function() { window.location.href = galleryUrl; });
-  document.body.appendChild(btn);
-  document.addEventListener('mousemove', function(e) {
-    btn.style.opacity = e.clientX < 160 && e.clientY < 60 ? '1' : '0';
-  });
-  document.addEventListener('mouseleave', function() { btn.style.opacity = '0'; });
-  btn.addEventListener('mouseenter', function() { btn.style.opacity = '1'; });
-
-  const origGo = window.go;
-  window.go = function(newIdx) {
-    if (newIdx >= total) {
-      window.location.href = galleryUrl;
-      return;
-    }
-    origGo(newIdx);
-  };
-})();
 
 </script>
 
